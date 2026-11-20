@@ -1,0 +1,57 @@
+{
+  "generated_at": "2026-11-20T15:37:42",
+  "n_questions": 25,
+  "retrieve_k": 8,
+  "results": [
+    {
+      "config": "500/0, no MMR, k=3",
+      "chunks": 31,
+      "hit_at_k": 0.96,
+      "hit_at_1": 0.84,
+      "mrr": 0.893,
+      "misses": [
+        "p04"
+      ]
+    },
+    {
+      "config": "500/50, no MMR, k=3",
+      "chunks": 34,
+      "hit_at_k": 0.96,
+      "hit_at_1": 0.84,
+      "mrr": 0.893,
+      "misses": [
+        "p04"
+      ]
+    },
+    {
+      "config": "800/150, no MMR, k=3",
+      "chunks": 18,
+      "hit_at_k": 0.96,
+      "hit_at_1": 0.88,
+      "mrr": 0.92,
+      "misses": [
+        "p04"
+      ]
+    },
+    {
+      "config": "800/150, MMR, k=3",
+      "chunks": 18,
+      "hit_at_k": 0.96,
+      "hit_at_1": 0.88,
+      "mrr": 0.913,
+      "misses": [
+        "p04"
+      ]
+    },
+    {
+      "config": "800/150, MMR, k=4",
+      "chunks": 18,
+      "hit_at_k": 0.96,
+      "hit_at_1": 0.88,
+      "mrr": 0.913,
+      "misses": [
+        "p04"
+      ]
+    }
+  ]
+}

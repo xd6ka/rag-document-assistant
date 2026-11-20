@@ -4,10 +4,10 @@
 ![Streamlit](https://img.shields.io/badge/UI-Streamlit-FF4B4B?logo=streamlit&logoColor=white)
 ![ChromaDB](https://img.shields.io/badge/Vector%20store-ChromaDB-1F2937)
 ![LLM](https://img.shields.io/badge/LLM-Qwen%20(DashScope)-6B46C1)
-![Tests](https://img.shields.io/badge/tests-8%20passed-brightgreen)
+![Tests](https://img.shields.io/badge/tests-13%20passed-brightgreen)
 ![License](https://img.shields.io/badge/License-MIT-green)
 
-A local-first Retrieval-Augmented Generation assistant for PDF documents: upload a PDF, ask questions in plain language, and get answers grounded in the document's own text — with the page each answer came from.
+A local-first Retrieval-Augmented Generation assistant for PDF documents: upload PDFs, ask questions in plain language, and get answers grounded in the documents' own text — with the page each answer came from.
 
 Chunking and embeddings run **entirely on the local machine** (`all-MiniLM-L6-v2` via `sentence-transformers`). Only the retrieved fragments and the question are sent to the LLM.
 
@@ -18,14 +18,14 @@ Chunking and embeddings run **entirely on the local machine** (`all-MiniLM-L6-v2
 ## Features
 
 - **Upload from the browser**, several PDFs at once — no CLI needed to index.
-- **Page-level citations** — every answer links to `source · page N · similarity`, and the retrieved excerpts are shown in a collapsible panel.
+- **Page-level citations** — every answer links to `source · page N · similarity`, with the retrieved excerpts in a collapsible panel.
 - **Overlapping chunking** (800 chars / 150 overlap) cut on word boundaries, never across pages.
-- **MMR reranking** — pulls 8 candidates from the vector index and picks 4 that are relevant *and* not near-duplicates of each other.
-- **Multi-document workspace** — per-document chunk/page counts, per-document delete, document-scoped filtering, one-click collection reset.
+- **MMR reranking** — 8 candidates from the vector index, 4 selected for relevance *and* diversity.
+- **Multi-document workspace** — per-document chunk/page counts, per-document delete, document-scoped filtering, one-click reset.
 - **Persistent vector store** — ChromaDB on disk; the index survives restarts.
-- **Grounded prompt** — the model is told to answer only from context and to say it does not know otherwise.
-- **Evaluation harness** — 18 hand-written questions with retrieval hit-rate, answer accuracy, citation rate and refusal rate.
-- **Unit-tested chunker** — 8 pytest cases covering window size, overlap, page boundaries and edge cases.
+- **Grounded prompt** — the model is instructed to answer only from context and to refuse otherwise.
+- **Measured, not guessed** — a 6-document corpus, 29 labelled questions, a retrieval ablation across 5 configurations, and a gold-label validator that fails the run when a rubric drifts.
+- **13 unit tests** — chunker behaviour plus the eval label validator.
 
 ## Architecture
 
@@ -42,7 +42,7 @@ flowchart LR
         Q[Question] --> QE[Query embedding]
         QE --> R[Top-8 vector search]
         E --> R
-        R --> M[MMR rerank<br/>λ = 0.7]
+        R --> M[MMR rerank<br/>lambda = 0.7]
         M --> P[Top-4 blocks<br/>numbered context]
         P --> L[Qwen qwen-plus<br/>grounded prompt]
         L --> ANS[Answer + citations]
@@ -52,33 +52,70 @@ flowchart LR
 
 ## How it works
 
-1. **Extraction** — `pypdf` pulls text page by page; an unreadable page yields `""` instead of failing the whole job.
-2. **Chunking** — each page is split into ~800-character windows, cut on newline/space/period so words stay intact, with 150 characters of overlap. A short trailing fragment is merged into its neighbour.
-3. **Embedding** — every chunk is encoded locally by `all-MiniLM-L6-v2` with normalized vectors (384-d).
-4. **Storage** — chunks are written to one ChromaDB collection in cosine space, ids `"{source}:{page}:{index}"`. Re-indexing deletes the document's previous chunks first, so an edited PDF cannot leave stale tails.
-5. **Retrieval** — the question is embedded with the same model; the 8 nearest chunks are reranked with MMR (λ = 0.7) down to 4.
-6. **Generation** — the 4 blocks are numbered `[1]…[4]` with `source` and `page` attached, and the model is asked to answer only from them and cite the blocks it used.
+1. **Extraction** — `pypdf` pulls text page by page; an unreadable page yields `""` instead of failing the job.
+2. **Chunking** — each page is split into ~800-character windows, cut on newline/space/period so words stay intact, with 150 characters of overlap; short tails are merged into the previous chunk.
+3. **Embedding** — every chunk is encoded locally with normalized 384-d vectors.
+4. **Storage** — one ChromaDB collection in cosine space, ids `"{source}:{page}:{index}"`. Re-indexing deletes the document's previous chunks first, so an edited PDF cannot leave stale tails.
+5. **Retrieval** — the question is embedded with the same model, 8 candidates are pulled, MMR (λ = 0.7) narrows them to 4.
+6. **Generation** — blocks are numbered `[1]…[4]` with source and page inside each block; the model answers only from them and cites the blocks it used.
 
 ## Evaluation
 
-Run on `data/real.pdf` (3 pages → 4 chunks) with 18 hand-written questions (17 in-scope, 1 out-of-scope):
+### Corpus
+
+`eval/corpus/` holds 6 synthetic PDFs, 3 pages each (18 pages, 18 chunks at 800/150). The content is deliberately adversarial for retrieval:
+
+- every document has a "Limitations" / "notes" page with similar wording, so lexical matching alone picks the wrong file;
+- several documents discuss the same concepts (chunk size, overlap, top-k, citations) and only the numbers differ;
+- facts are pinned to specific pages, which is what the citation metric needs.
+
+It is a **test fixture, not a benchmark**: the numbers are internally consistent but invented, and the point is comparing configurations against each other.
+
+### Questions
+
+`eval/qa_set.jsonl` — 29 questions: 25 in-scope lookups spread across all 6 documents, 4 out-of-scope questions the corpus cannot answer (the only direct test of grounding). Before scoring, `validate_qa_set()` re-reads every gold page and checks that it actually contains the fact the question asks about; a mismatch aborts the run.
+
+### Retrieval results (default config: 800/150, retrieve 8, MMR, k = 4)
 
 | Metric | Result | What it measures |
 |---|---|---|
-| Retrieval hit@3 | **1.00** (17/17) | gold page present in the top-3 chunks |
-| Retrieval hit@1 | **0.94** (16/17) | gold page is the very first chunk |
-| Answer accuracy (keyword) | **1.00** (17/17) | answer states the expected fact |
-| Citation rate | **1.00** (17/17) | answer cites at least one context block |
-| Refusal rate | **1.00** (1/1) | out-of-scope question correctly answered with "I don't know" |
-| LLM-judge faithfulness | **5.0 / 5** | same model grading its own answers — a sanity check, not an independent measurement |
+| hit@k | **0.96** (24/25) | gold (document, page) present in the returned set |
+| hit@1 | **0.88** (22/25) | the first returned chunk is the gold one |
+| MRR | **0.913** | 1/rank of the first correct chunk |
 
-**Read this table honestly:** the corpus is tiny (4 chunks), so retrieval metrics are close to their ceiling and prove little more than "the pipeline is wired correctly." The signals worth trusting here are the **grounding** ones — cited answers and a correct refusal on a question the document cannot answer. A larger corpus is the next step; the harness is ready for it.
+The single remaining miss is `p04` ("what does claim-by-claim verification catch that rate-based metrics cannot") — both documents that discuss citation metrics are retrieved, just not the page that states it. That is a realistic failure, not a wiring bug.
 
-Reproduce:
+### Ablation — does the configuration actually matter?
+
+`python eval/run_ablation.py` (retrieval only, no API calls):
+
+| Config | Chunks | hit@1 | MRR |
+|---|---|---|---|
+| 500 chars / 0 overlap, no MMR, k=3 | 31 | 0.840 | 0.893 |
+| 500 chars / 50 overlap, no MMR, k=3 | 34 | 0.840 | 0.893 |
+| 800 chars / 150 overlap, no MMR, k=3 | 18 | **0.880** | **0.920** |
+| 800 / 150, MMR, k=3 | 18 | 0.880 | 0.913 |
+| 800 / 150, MMR, k=4 | 18 | 0.880 | 0.913 |
+
+Three honest readings:
+
+1. **Larger chunks won on this corpus**: 800/150 beats 500-char chunks on hit@1 (+4 points) and MRR (+0.027), with 13 fewer chunks. Longer windows keep a full paragraph together, and the answers here live inside paragraphs.
+2. **Overlap did not move the ranking** at 500 chars (identical to no overlap). Overlap protects boundary recall, which hit@1 largely cannot see — it is a safety margin, not a free win.
+3. **MMR cost 0.007 MRR.** It pushes the exact gold chunk slightly down in exchange for context diversity, which this metric cannot observe. It stays enabled because the prompt benefits from non-redundant blocks — but claiming it improves retrieval would be wrong.
+
+### Answer-level metrics: not measured in this report
+
+`run_eval.py` also computes answer accuracy, citation rate, refusal rate and an LLM-judge faithfulness score, but the DashScope account hit its quota mid-run (`400 Access denied — overdue payment`). Rather than publish numbers produced while the API was failing, the committed report contains retrieval metrics only, and the script now flags such runs:
+
+```json
+"api_errors": 0, "answer_metrics_valid": null
+```
+
+With quota restored:
 
 ```powershell
-python eval/run_eval.py --k 3 --judge      # full run with API calls
-python eval/run_eval.py --no-answers       # retrieval metrics only, no API cost
+python eval/run_eval.py --judge            # answers + citation rate + refusal + judge
+python eval/run_eval.py --no-answers       # retrieval only, no API cost
 ```
 
 Each run indexes into a throwaway store, so results never depend on your working collection. Reports land in `eval/reports/`.
@@ -93,7 +130,7 @@ Each run indexes into a throwaway store, so results never depend on your working
 | Vector store | ChromaDB (`PersistentClient`, cosine space) |
 | Reranking | MMR over candidate embeddings (numpy) |
 | LLM | Qwen via DashScope, OpenAI-compatible API |
-| Config | python-dotenv |
+| Corpus fixtures | reportlab (dev only) |
 | Tests | pytest |
 
 ## Quick start
@@ -123,6 +160,7 @@ streamlit run ui.py
 Streamlit opens `http://localhost:8501`. Drop PDFs into the sidebar → **Process documents** → ask questions.
 
 > If a model returns `404 Model not exist`, your endpoint does not serve that model — pick one available on your DashScope account (`QWEN_MODEL` overrides the default).
+> If it returns `400 Access denied — overdue payment`, the account has no usable quota; indexing and retrieval still work, generation does not.
 
 ### CLI
 
@@ -133,11 +171,13 @@ python query.py                  # interactive Q&A with citations
 python query.py --k 6 --source real.pdf
 ```
 
-### Tests
+### Tests and evaluation
 
 ```powershell
 pip install -r requirements-dev.txt
-pytest -q
+pytest -q                        # 13 tests
+python eval/build_corpus.py      # regenerate the corpus PDFs
+python eval/run_ablation.py      # config comparison, no API cost
 ```
 
 ## Project structure
@@ -156,11 +196,16 @@ rag-document-assistant/
 ├── query.py             # interactive CLI
 ├── app.py               # CLI ingestion
 ├── eval/
-│   ├── qa_set.jsonl     # 18 hand-written questions with gold pages
-│   ├── run_eval.py      # metrics: hit@k, hit@1, accuracy, citations, refusal
-│   └── reports/         # latest.json + timestamped runs
+│   ├── corpus_source.py # content of the 6 synthetic documents
+│   ├── build_corpus.py  # renders corpus_source.py into PDFs
+│   ├── corpus/          # generated PDFs (committed, ~4 KB each)
+│   ├── qa_set.jsonl     # 29 questions with doc + page gold labels
+│   ├── run_eval.py      # validation, hit@k, hit@1, MRR, answer metrics
+│   ├── run_ablation.py  # 5-configuration retrieval comparison
+│   └── reports/         # latest.json + ablation.json + timestamped runs
 ├── tests/
-│   └── test_chunking.py # 8 pytest cases
+│   ├── test_chunking.py    # 8 cases
+│   └── test_eval_labels.py # 5 cases
 ├── data/                # source PDFs (git-ignored)
 ├── chroma_db/           # persisted vector store (git-ignored)
 └── docs/demo.png
@@ -168,31 +213,32 @@ rag-document-assistant/
 
 ## Design decisions
 
-- **Page-scoped chunks over "perfect" chunks.** Chunks never cross a page boundary, which costs a little context on pages that continue mid-sentence but guarantees every citation carries a real page number. Trustworthy citations were worth more than marginally better context.
-- **Fixed windows + overlap, not semantic splitting.** Sentence-aware splitting is better in theory, but at 3 pages of text the simplest thing that works is also the thing that is easy to test. The chunker is unit-tested; a semantic splitter can be swapped in behind the same interface.
-- **MMR instead of raw top-k.** With 800-char chunks, the three best hits are often three adjacent fragments of the same page — the prompt gets the same paragraph three times. MMR trades a little relevance for coverage.
-- **Delete-then-upsert.** Naive positional ids (`doc_0`, `doc_1`, …) break on the second document; per-source ids plus a delete-first ingest make re-indexing idempotent.
-- **Prompt constraint.** "Answer only from the context, say you don't know otherwise" — small change, and the out-of-scope test question is refused every time.
-- **Local embeddings.** Indexing stays free and offline; a 3-page PDF indexes in seconds on CPU.
+- **Page-scoped chunks over "perfect" chunks.** Chunks never cross a page boundary, which costs a little context on pages that continue mid-sentence but guarantees every citation carries a real page number.
+- **Fixed windows + overlap, not semantic splitting.** At this corpus size the simplest approach is also the one that is easy to unit-test; a semantic splitter can be swapped in behind the same interface.
+- **MMR, priced honestly.** It trades a little retrieval precision for context diversity; the ablation shows the price (0.007 MRR). The value is in the prompt, and the README says so instead of pretending the retrieval metric improved.
+- **Delete-then-upsert.** Positional ids (`doc_0`, `doc_1`, …) break on the second document; per-source ids plus delete-first ingest make re-indexing idempotent.
+- **Labels are validated, not trusted.** Every eval run re-reads the gold pages and refuses to score if a label no longer matches the document.
+- **Local embeddings.** Indexing stays free and offline; the 18-page corpus indexes in seconds on CPU.
 
 ## Limitations & roadmap
 
-- **Small corpus.** The evaluation demonstrates correctness on one 3-page document, not robustness across a real library.
-- **No cross-encoder reranker.** MMR is diversity-aware but it does not re-read the query–passage pair; a `bge-reranker` stage is the obvious upgrade.
-- **Scanned PDFs are not handled.** There is no OCR fallback; text-less pages are reported as "no extractable text".
-- **Citations are per chunk, not per sentence.** Inline `[n]` markers are produced by the model; they are checked by rate in the eval, not verified claim by claim.
+- **Synthetic corpus.** Six documents written to stress retrieval by design — good for comparing configurations, useless as a claim about real-world libraries.
+- **18 chunks is still small.** Enough for `hit@1` to discriminate, not enough for tight confidence intervals; there are no repeated runs or variance estimates.
+- **Answer-level metrics are pending.** The harness exists; the committed numbers stopped when the API quota ran out.
+- **No cross-encoder reranker.** MMR is diversity-aware but never re-reads the query–passage pair; a `bge-reranker` stage is the obvious upgrade.
+- **Scanned PDFs are not handled.** No OCR fallback; text-less pages are reported as "no extractable text".
 - **No streaming.** The answer appears when the full response arrives.
-- **Single collection.** Document filtering is implemented, but there is no notion of workspaces or per-user isolation.
+- **Single collection.** Document filtering works, but there is no notion of workspaces or per-user isolation.
 
-Planned order: OCR fallback → cross-encoder reranking → streaming answers → citation verification (claim-by-claim) → larger evaluation corpus.
+Planned order: restore quota and publish answer-level metrics → cross-encoder reranking → OCR fallback → streaming → a real-world corpus with variance estimates.
 
 ## 中文简介
 
 面向 PDF 文档的检索增强生成（RAG）问答助手。切分、向量化均在本地完成（`all-MiniLM-L6-v2`），只有检索到的片段与问题会发送给 Qwen 生成答案。
 
-- **核心能力**：页码级引用（`文件名 · 页码 · 相似度`）、800/150 重叠切块、MMR 重排、多文档管理、评测脚本
+- **核心能力**：页码级引用（`文件名 · 页码 · 相似度`）、800/150 重叠切块、MMR 重排、多文档管理
 - **技术栈**：Streamlit + pypdf + sentence-transformers + ChromaDB + Qwen（DashScope OpenAI 兼容接口）
-- **评测**：18 道人工题目，检索 hit@3 = 1.00、答案准确率 = 1.00、引用率 = 1.00、拒答率 = 1.00（语料仅 4 个片段，指标接近上限，主要用于验证链路与引用可靠性）
+- **评测**：自建 6 文档 / 18 页合成语料 + 29 道人工题目；检索 hit@4 = 0.96、hit@1 = 0.88、MRR = 0.913；并对比 5 种切块与重排配置（800/150 优于 500 字符，MMR 在检索指标上代价为 0.007 MRR）。答案层指标（引用率、拒答率、faithfulness）因 API 额度用尽暂未公布
 - **运行**：配置 `.env`（参考 `.env.example`）后执行 `streamlit run ui.py`
 
 ## License

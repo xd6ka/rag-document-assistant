@@ -1,0 +1,32 @@
+{
+  "embedding-models": {
+    "title": "Local Embedding Models: A Comparison",
+    "pages": 3,
+    "bytes": 4189
+  },
+  "vector-store-notes": {
+    "title": "Vector Stores for a Single-Machine Pipeline",
+    "pages": 3,
+    "bytes": 4113
+  },
+  "chunking-strategies": {
+    "title": "Chunking Strategies for Retrieval",
+    "pages": 3,
+    "bytes": 3972
+  },
+  "retrieval-eval": {
+    "title": "Evaluating Retrieval and Answers",
+    "pages": 3,
+    "bytes": 4061
+  },
+  "prompt-design": {
+    "title": "Prompt Design for Grounded Answering",
+    "pages": 3,
+    "bytes": 3896
+  },
+  "pdf-internals": {
+    "title": "How a PDF File Actually Stores Content",
+    "pages": 3,
+    "bytes": 3848
+  }
+}

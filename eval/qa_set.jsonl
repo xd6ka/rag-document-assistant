@@ -1,18 +1,29 @@
-{"id": "q01", "question": "How many pages does the sample document have?", "gold_pages": [1], "must_contain": ["three", "3 pages", "3-page"], "in_scope": true}
-{"id": "q02", "question": "Which fonts are embedded in this PDF?", "gold_pages": [1], "must_contain": ["DejaVu Sans"], "in_scope": true}
-{"id": "q03", "question": "Are the fonts stored as complete fonts or as subsets?", "gold_pages": [1], "must_contain": ["subset"], "in_scope": true}
-{"id": "q04", "question": "Which languages are used as character examples on page 1?", "gold_pages": [1], "must_contain": ["Français", "Deutsch", "Русский", "Ελληνικά"], "in_scope": true}
-{"id": "q05", "question": "How do you jump between sections in a PDF viewer?", "gold_pages": [1], "must_contain": ["bookmark"], "in_scope": true}
-{"id": "q06", "question": "Is this document a tagged PDF?", "gold_pages": [2], "must_contain": ["not tagged", "isn't tagged", "is not tagged", "untagged", "is not a tagged"], "in_scope": true}
-{"id": "q07", "question": "What is the PDF filter for JPEG image data called?", "gold_pages": [3], "must_contain": ["DCTDecode"], "in_scope": true}
-{"id": "q08", "question": "What is the resolution of the embedded raster image?", "gold_pages": [3], "must_contain": ["480"], "in_scope": true}
-{"id": "q09", "question": "How is a table represented inside a PDF file?", "gold_pages": [2], "must_contain": ["lines", "text and lines"], "in_scope": true}
-{"id": "q10", "question": "Why does the vector chart stay sharp at any zoom level?", "gold_pages": [2], "must_contain": ["path operators", "vector"], "in_scope": true}
-{"id": "q11", "question": "What is a link in a PDF technically?", "gold_pages": [3], "must_contain": ["annotation"], "in_scope": true}
-{"id": "q12", "question": "Can this sample file be used commercially?", "gold_pages": [3], "must_contain": ["commercially", "free to use"], "in_scope": true}
-{"id": "q13", "question": "Which website does the web link point to?", "gold_pages": [1, 3], "must_contain": ["99helpers.com"], "in_scope": true}
-{"id": "q14", "question": "Which file formats are listed in the table on page 2?", "gold_pages": [2], "must_contain": ["Word document", "Markdown", "Plain text", ".pdf"], "in_scope": true}
-{"id": "q15", "question": "Are the figures in the chart real data?", "gold_pages": [2, 3], "must_contain": ["fictional"], "in_scope": true}
-{"id": "q16", "question": "How is text stored inside a PDF?", "gold_pages": [1], "must_contain": ["character codes", "font"], "in_scope": true}
-{"id": "q17", "question": "What keeps this file small even though it embeds fonts?", "gold_pages": [1], "must_contain": ["subset", "only the glyphs"], "in_scope": true}
-{"id": "q18", "question": "What is the capital of Mongolia?", "gold_pages": [], "must_contain": [], "in_scope": false}
+{"id": "e01", "doc": "embedding-models", "question": "How many parameters does all-MiniLM-L6-v2 have?", "gold_pages": [1], "must_contain": ["22"], "page_contains": "22-million", "in_scope": true}
+{"id": "e02", "doc": "embedding-models", "question": "What MTEB retrieval average does bge-small-en-v1.5 reach?", "gold_pages": [2], "must_contain": ["62.2"], "page_contains": "62.2", "in_scope": true}
+{"id": "e03", "doc": "embedding-models", "question": "Which embedding family requires the literal query prefix?", "gold_pages": [3], "must_contain": ["e5"], "page_contains": "query: '", "in_scope": true}
+{"id": "e04", "doc": "embedding-models", "question": "How much memory do the MiniLM weights need?", "gold_pages": [2], "must_contain": ["90"], "page_contains": "90 megabytes", "in_scope": true}
+{"id": "e05", "doc": "embedding-models", "question": "What dimensionality does bge-base-en-v1.5 produce?", "gold_pages": [1], "must_contain": ["768"], "page_contains": "768-dimensional", "in_scope": true}
+{"id": "v01", "doc": "vector-store-notes", "question": "What is the default number of HNSW neighbours per node in ChromaDB?", "gold_pages": [2], "must_contain": ["16"], "page_contains": "M=16", "in_scope": true}
+{"id": "v02", "doc": "vector-store-notes", "question": "Which vector store keeps vectors next to relational data?", "gold_pages": [1], "must_contain": ["pgvector"], "page_contains": "pgvector", "in_scope": true}
+{"id": "v03", "doc": "vector-store-notes", "question": "Why should a command-line script and a running app avoid indexing at the same time?", "gold_pages": [3], "must_contain": ["lock", "not supported", "two writers", "concurr"], "page_contains": "file lock", "in_scope": true}
+{"id": "v04", "doc": "vector-store-notes", "question": "What does cosine space require of the stored vectors?", "gold_pages": [2], "must_contain": ["normaliz"], "page_contains": "normalized", "in_scope": true}
+{"id": "c01", "doc": "chunking-strategies", "question": "How much of an answer is lost across a cut when there is no overlap?", "gold_pages": [2], "must_contain": ["12"], "page_contains": "12 percent", "in_scope": true}
+{"id": "c02", "doc": "chunking-strategies", "question": "How many characters of overlap does this project use?", "gold_pages": [2], "must_contain": ["150"], "page_contains": "150 characters", "in_scope": true}
+{"id": "c03", "doc": "chunking-strategies", "question": "At what chunk length is a tail merged into the previous chunk?", "gold_pages": [2], "must_contain": ["80"], "page_contains": "80 characters", "in_scope": true}
+{"id": "c04", "doc": "chunking-strategies", "question": "What do table questions lose when a PDF table is extracted?", "gold_pages": [3], "must_contain": ["column"], "page_contains": "lose the columns", "in_scope": true}
+{"id": "r01", "doc": "retrieval-eval", "question": "What MRR score does a correct answer at position 3 receive?", "gold_pages": [1], "must_contain": ["0.33"], "page_contains": "0.33", "in_scope": true}
+{"id": "r02", "doc": "retrieval-eval", "question": "How many questions over a corpus of thirty chunks are advisable?", "gold_pages": [2], "must_contain": ["thirty", "30", "forty", "40"], "page_contains": "Thirty to forty", "in_scope": true}
+{"id": "r03", "doc": "retrieval-eval", "question": "What happens to hit@3 when the corpus holds only four chunks?", "gold_pages": [3], "must_contain": ["saturat", "1.0", "100%", "ceiling", "trivial"], "page_contains": "Saturated", "in_scope": true}
+{"id": "r04", "doc": "retrieval-eval", "question": "Which metric hides how far down the gold item appeared?", "gold_pages": [1], "must_contain": ["hit@", "hit at"], "page_contains": "hides how far down", "in_scope": true}
+{"id": "p01", "doc": "prompt-design", "question": "What temperature is recommended for factual answering?", "gold_pages": [1], "must_contain": ["0.2"], "page_contains": "0.2 keeps", "in_scope": true}
+{"id": "p02", "doc": "prompt-design", "question": "Roughly how many tokens is four blocks of 800 characters?", "gold_pages": [2], "must_contain": ["700"], "page_contains": "700 tokens", "in_scope": true}
+{"id": "p03", "doc": "prompt-design", "question": "Which effect makes facts in the middle of a long prompt less accurate?", "gold_pages": [3], "must_contain": ["dilution"], "page_contains": "Context dilution", "in_scope": true}
+{"id": "p04", "doc": "prompt-design", "question": "What does claim-by-claim verification catch that rate-based metrics cannot?", "gold_pages": [3], "must_contain": ["drift"], "page_contains": "Citation drift", "in_scope": true}
+{"id": "d01", "doc": "pdf-internals", "question": "How is text stored inside a PDF?", "gold_pages": [1], "must_contain": ["character codes"], "page_contains": "character codes", "in_scope": true}
+{"id": "d02", "doc": "pdf-internals", "question": "Which filter is used for an embedded JPEG image?", "gold_pages": [3], "must_contain": ["DCTDecode"], "page_contains": "DCTDecode", "in_scope": true}
+{"id": "d03", "doc": "pdf-internals", "question": "What is the pixel size of the embedded JPEG image?", "gold_pages": [3], "must_contain": ["480"], "page_contains": "480 by 240", "in_scope": true}
+{"id": "d04", "doc": "pdf-internals", "question": "What is a link in a PDF technically?", "gold_pages": [3], "must_contain": ["annotation"], "page_contains": "annotation", "in_scope": true}
+{"id": "o01", "doc": null, "question": "What is the capital of Mongolia?", "gold_pages": [], "must_contain": [], "page_contains": null, "in_scope": false}
+{"id": "o02", "doc": null, "question": "Who won the 2018 FIFA World Cup?", "gold_pages": [], "must_contain": [], "page_contains": null, "in_scope": false}
+{"id": "o03", "doc": null, "question": "How much does DashScope charge per million tokens?", "gold_pages": [], "must_contain": [], "page_contains": null, "in_scope": false}
+{"id": "o04", "doc": null, "question": "What does the corpus say about the Rust borrow checker?", "gold_pages": [], "must_contain": [], "page_contains": null, "in_scope": false}
