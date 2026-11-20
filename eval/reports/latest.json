@@ -12,20 +12,22 @@
       "retrieve_k": 8,
       "context_k": 4,
       "mmr_lambda": 0.7,
-      "llm_model": "qwen-plus"
+      "llm_provider": "ollama",
+      "llm_model": "qwen2.5:3b"
     },
     "n_questions": 29,
     "n_in_scope": 25,
     "hit_at_k": 0.96,
     "hit_at_1": 0.88,
     "mrr": 0.913,
-    "answer_keyword_accuracy": null,
-    "citation_rate": null,
-    "refusal_rate": null,
+    "answer_keyword_accuracy": 0.92,
+    "citation_rate": 1.0,
+    "refusal_rate": 1.0,
     "judge_mean_faithfulness": null,
+    "judge_reliable": null,
     "api_errors": 0,
-    "answer_metrics_valid": null,
-    "generated_at": "2026-11-20T15:44:23"
+    "answer_metrics_valid": true,
+    "generated_at": "2026-11-20T17:17:58"
   },
   "rows": [
     {
@@ -58,12 +60,12 @@
       "hit_at_k": true,
       "hit_at_1": true,
       "reciprocal_rank": 1.0,
-      "answer": "",
-      "keyword_ok": null,
+      "answer": "all-MiniLM-L6-v2 has 22 million parameters [1].",
+      "keyword_ok": true,
       "refusal_ok": null,
-      "cites": null,
+      "cites": true,
       "judge": null,
-      "seconds": 0.03
+      "seconds": 31.19
     },
     {
       "id": "e02",
@@ -95,12 +97,12 @@
       "hit_at_k": true,
       "hit_at_1": true,
       "reciprocal_rank": 1.0,
-      "answer": "",
-      "keyword_ok": null,
+      "answer": "bge-small-en-v1.5 reaches 62.2 on the MTEB retrieval average [1].",
+      "keyword_ok": true,
       "refusal_ok": null,
-      "cites": null,
+      "cites": true,
       "judge": null,
-      "seconds": 0.03
+      "seconds": 27.12
     },
     {
       "id": "e03",
@@ -132,12 +134,12 @@
       "hit_at_k": true,
       "hit_at_1": true,
       "reciprocal_rank": 1.0,
-      "answer": "",
-      "keyword_ok": null,
+      "answer": "The e5 family expects an asymmetric prefix: documents are embedded as they are, while queries must be prefixed with the literal string 'query: '. [1]",
+      "keyword_ok": true,
       "refusal_ok": null,
-      "cites": null,
+      "cites": true,
       "judge": null,
-      "seconds": 0.02
+      "seconds": 24.4
     },
     {
       "id": "e04",
@@ -169,12 +171,12 @@
       "hit_at_k": true,
       "hit_at_1": true,
       "reciprocal_rank": 1.0,
-      "answer": "",
-      "keyword_ok": null,
+      "answer": "MiniLM needs about 90 megabytes of weights [1].",
+      "keyword_ok": true,
       "refusal_ok": null,
-      "cites": null,
+      "cites": true,
       "judge": null,
-      "seconds": 0.02
+      "seconds": 24.93
     },
     {
       "id": "e05",
@@ -206,12 +208,12 @@
       "hit_at_k": true,
       "hit_at_1": true,
       "reciprocal_rank": 1.0,
-      "answer": "",
-      "keyword_ok": null,
+      "answer": "bge-base-en-v1.5 produces 768-dimensional vectors [2].",
+      "keyword_ok": true,
       "refusal_ok": null,
-      "cites": null,
+      "cites": true,
       "judge": null,
-      "seconds": 0.03
+      "seconds": 26.25
     },
     {
       "id": "v01",
@@ -243,12 +245,12 @@
       "hit_at_k": true,
       "hit_at_1": true,
       "reciprocal_rank": 1.0,
-      "answer": "",
-      "keyword_ok": null,
+      "answer": "The default number of HNSW neighbours per node in ChromaDB is 16 [1].",
+      "keyword_ok": true,
       "refusal_ok": null,
-      "cites": null,
+      "cites": true,
       "judge": null,
-      "seconds": 0.03
+      "seconds": 26.36
     },
     {
       "id": "v02",
@@ -280,12 +282,12 @@
       "hit_at_k": true,
       "hit_at_1": true,
       "reciprocal_rank": 1.0,
-      "answer": "",
-      "keyword_ok": null,
+      "answer": "pgvector keeps vectors next to relational data [3].",
+      "keyword_ok": true,
       "refusal_ok": null,
-      "cites": null,
+      "cites": true,
       "judge": null,
-      "seconds": 0.03
+      "seconds": 23.32
     },
     {
       "id": "v03",
@@ -317,12 +319,12 @@
       "hit_at_k": true,
       "hit_at_1": true,
       "reciprocal_rank": 1.0,
-      "answer": "",
-      "keyword_ok": null,
+      "answer": "A command-line script and a running app should avoid indexing at the same time because two writers on the same directory are not supported; this means that a command-line script and a running application cannot index simultaneously to prevent trouble caused by having two writers in one file lock situation, which is mentioned in [1].",
+      "keyword_ok": true,
       "refusal_ok": null,
-      "cites": null,
+      "cites": true,
       "judge": null,
-      "seconds": 0.03
+      "seconds": 27.32
     },
     {
       "id": "v04",
@@ -354,12 +356,12 @@
       "hit_at_k": true,
       "hit_at_1": true,
       "reciprocal_rank": 1.0,
-      "answer": "",
-      "keyword_ok": null,
+      "answer": "Cosine space requires normalized vectors [1].",
+      "keyword_ok": true,
       "refusal_ok": null,
-      "cites": null,
+      "cites": true,
       "judge": null,
-      "seconds": 0.02
+      "seconds": 23.1
     },
     {
       "id": "c01",
@@ -391,12 +393,12 @@
       "hit_at_k": true,
       "hit_at_1": true,
       "reciprocal_rank": 1.0,
-      "answer": "",
-      "keyword_ok": null,
+      "answer": "When there is no overlap, roughly 12 percent of answers in a paragraph-level evaluation sit across a cut and become unreachable. [1]",
+      "keyword_ok": true,
       "refusal_ok": null,
-      "cites": null,
+      "cites": true,
       "judge": null,
-      "seconds": 0.03
+      "seconds": 23.31
     },
     {
       "id": "c02",
@@ -428,12 +430,12 @@
       "hit_at_k": true,
       "hit_at_1": true,
       "reciprocal_rank": 1.0,
-      "answer": "",
-      "keyword_ok": null,
+      "answer": "This project uses 150 characters of overlap [2].",
+      "keyword_ok": true,
       "refusal_ok": null,
-      "cites": null,
+      "cites": true,
       "judge": null,
-      "seconds": 0.02
+      "seconds": 17.85
     },
     {
       "id": "c03",
@@ -465,12 +467,12 @@
       "hit_at_k": true,
       "hit_at_1": true,
       "reciprocal_rank": 1.0,
-      "answer": "",
-      "keyword_ok": null,
+      "answer": "A 40-character fragment carries almost no retrievable meaning. Merging tails shorter than 80 characters into the previous chunk removes most of the junk. [3]",
+      "keyword_ok": true,
       "refusal_ok": null,
-      "cites": null,
+      "cites": true,
       "judge": null,
-      "seconds": 0.02
+      "seconds": 18.35
     },
     {
       "id": "c04",
@@ -502,12 +504,12 @@
       "hit_at_k": true,
       "hit_at_1": false,
       "reciprocal_rank": 0.5,
-      "answer": "",
-      "keyword_ok": null,
+      "answer": "A table is text positioned in a grid, and naive extraction interleaves rows and columns, so table questions often retrieve the right page and lose the columns. [2]",
+      "keyword_ok": true,
       "refusal_ok": null,
-      "cites": null,
+      "cites": true,
       "judge": null,
-      "seconds": 0.03
+      "seconds": 20.91
     },
     {
       "id": "r01",
@@ -539,12 +541,12 @@
       "hit_at_k": true,
       "hit_at_1": true,
       "reciprocal_rank": 1.0,
-      "answer": "",
-      "keyword_ok": null,
+      "answer": "A correct answer at position 3 scores 0.33 [1].",
+      "keyword_ok": true,
       "refusal_ok": null,
-      "cites": null,
+      "cites": true,
       "judge": null,
-      "seconds": 0.03
+      "seconds": 21.55
     },
     {
       "id": "r02",
@@ -576,12 +578,12 @@
       "hit_at_k": true,
       "hit_at_1": true,
       "reciprocal_rank": 1.0,
-      "answer": "",
-      "keyword_ok": null,
+      "answer": "Thirty to forty questions over a corpus of thirty chunks is enough to see a difference between configurations. [1]",
+      "keyword_ok": true,
       "refusal_ok": null,
-      "cites": null,
+      "cites": true,
       "judge": null,
-      "seconds": 0.02
+      "seconds": 21.15
     },
     {
       "id": "r03",
@@ -613,12 +615,12 @@
       "hit_at_k": true,
       "hit_at_1": true,
       "reciprocal_rank": 1.0,
-      "answer": "",
-      "keyword_ok": null,
+      "answer": "When the corpus holds only four chunks, hit@3 is 1.0 for almost any configuration [1].",
+      "keyword_ok": true,
       "refusal_ok": null,
-      "cites": null,
+      "cites": true,
       "judge": null,
-      "seconds": 0.03
+      "seconds": 21.36
     },
     {
       "id": "r04",
@@ -650,12 +652,12 @@
       "hit_at_k": true,
       "hit_at_1": true,
       "reciprocal_rank": 1.0,
-      "answer": "",
-      "keyword_ok": null,
+      "answer": "hit@k counts a question as solved if any gold item is in the top k. It is the most quoted and least informative metric, because it hides how far down the answer was. [1]",
+      "keyword_ok": true,
       "refusal_ok": null,
-      "cites": null,
+      "cites": true,
       "judge": null,
-      "seconds": 0.03
+      "seconds": 24.29
     },
     {
       "id": "p01",
@@ -687,12 +689,12 @@
       "hit_at_k": true,
       "hit_at_1": true,
       "reciprocal_rank": 1.0,
-      "answer": "",
-      "keyword_ok": null,
+      "answer": "A value of 0.2 keeps phrasing stable between runs; 0.7 belongs to creative writing, not to citations. [1]",
+      "keyword_ok": true,
       "refusal_ok": null,
-      "cites": null,
+      "cites": true,
       "judge": null,
-      "seconds": 0.02
+      "seconds": 21.84
     },
     {
       "id": "p02",
@@ -724,12 +726,12 @@
       "hit_at_k": true,
       "hit_at_1": false,
       "reciprocal_rank": 0.3333333333333333,
-      "answer": "",
-      "keyword_ok": null,
+      "answer": "Four blocks of 800 characters come to roughly 3200 characters, around 700 tokens. [3]",
+      "keyword_ok": true,
       "refusal_ok": null,
-      "cites": null,
+      "cites": true,
       "judge": null,
-      "seconds": 0.03
+      "seconds": 24.23
     },
     {
       "id": "p03",
@@ -761,12 +763,12 @@
       "hit_at_k": true,
       "hit_at_1": true,
       "reciprocal_rank": 1.0,
-      "answer": "",
-      "keyword_ok": null,
+      "answer": "Context dilution does make facts in the middle of a long prompt less accurate [1].",
+      "keyword_ok": true,
       "refusal_ok": null,
-      "cites": null,
+      "cites": true,
       "judge": null,
-      "seconds": 0.02
+      "seconds": 21.94
     },
     {
       "id": "p04",
@@ -798,12 +800,12 @@
       "hit_at_k": false,
       "hit_at_1": false,
       "reciprocal_rank": 0.0,
-      "answer": "",
-      "keyword_ok": null,
+      "answer": "Claim-by-claim verification catches contamination that saturated metrics like hit@k and MRR cannot. Contamination occurs when questions are written after seeing the retrieved chunks, encoding retriever's mistakes into answers. This is not caught by metrics assessing overall performance as they average over all correct answers. [3]",
+      "keyword_ok": false,
       "refusal_ok": null,
-      "cites": null,
+      "cites": true,
       "judge": null,
-      "seconds": 0.02
+      "seconds": 27.95
     },
     {
       "id": "d01",
@@ -835,12 +837,12 @@
       "hit_at_k": true,
       "hit_at_1": true,
       "reciprocal_rank": 1.0,
-      "answer": "",
-      "keyword_ok": null,
+      "answer": "Text in a PDF is stored as character codes plus the font needed to draw them [1]. A file may embed only the glyphs it uses, a font subset, which keeps the file small [1].",
+      "keyword_ok": true,
       "refusal_ok": null,
-      "cites": null,
+      "cites": true,
       "judge": null,
-      "seconds": 0.02
+      "seconds": 22.27
     },
     {
       "id": "d02",
@@ -872,12 +874,12 @@
       "hit_at_k": true,
       "hit_at_1": true,
       "reciprocal_rank": 1.0,
-      "answer": "",
-      "keyword_ok": null,
+      "answer": "A 480 by 240 JPEG is embedded as it is, with the DCTDecode filter. [1]",
+      "keyword_ok": true,
       "refusal_ok": null,
-      "cites": null,
+      "cites": true,
       "judge": null,
-      "seconds": 0.02
+      "seconds": 26.74
     },
     {
       "id": "d03",
@@ -909,12 +911,12 @@
       "hit_at_k": true,
       "hit_at_1": true,
       "reciprocal_rank": 1.0,
-      "answer": "",
-      "keyword_ok": null,
+      "answer": "A 480 by 240 JPEG is embedded as it is, with the DCTDecode filter. [1]",
+      "keyword_ok": true,
       "refusal_ok": null,
-      "cites": null,
+      "cites": true,
       "judge": null,
-      "seconds": 0.02
+      "seconds": 21.8
     },
     {
       "id": "d04",
@@ -946,12 +948,12 @@
       "hit_at_k": true,
       "hit_at_1": true,
       "reciprocal_rank": 1.0,
-      "answer": "",
-      "keyword_ok": null,
+      "answer": "A link in a PDF is a clickable rectangle on the page with an action, sometimes a URI and sometimes a jump to another page. [2]",
+      "keyword_ok": false,
       "refusal_ok": null,
-      "cites": null,
+      "cites": true,
       "judge": null,
-      "seconds": 0.02
+      "seconds": 19.04
     },
     {
       "id": "o01",
@@ -981,12 +983,12 @@
       "hit_at_k": null,
       "hit_at_1": null,
       "reciprocal_rank": null,
-      "answer": "",
+      "answer": "I do not know [1].",
       "keyword_ok": null,
-      "refusal_ok": null,
-      "cites": null,
+      "refusal_ok": true,
+      "cites": true,
       "judge": null,
-      "seconds": 0.02
+      "seconds": 23.32
     },
     {
       "id": "o02",
@@ -1016,12 +1018,12 @@
       "hit_at_k": null,
       "hit_at_1": null,
       "reciprocal_rank": null,
-      "answer": "",
+      "answer": "[1] The given text does not contain information about the winner of the 2018 FIFA World Cup.",
       "keyword_ok": null,
-      "refusal_ok": null,
-      "cites": null,
+      "refusal_ok": true,
+      "cites": true,
       "judge": null,
-      "seconds": 0.02
+      "seconds": 13.13
     },
     {
       "id": "o03",
@@ -1051,12 +1053,12 @@
       "hit_at_k": null,
       "hit_at_1": null,
       "reciprocal_rank": null,
-      "answer": "",
+      "answer": "[1] DashScope does not provide information in the given context. [1]",
       "keyword_ok": null,
-      "refusal_ok": null,
-      "cites": null,
+      "refusal_ok": true,
+      "cites": true,
       "judge": null,
-      "seconds": 0.02
+      "seconds": 28.72
     },
     {
       "id": "o04",
@@ -1086,12 +1088,12 @@
       "hit_at_k": null,
       "hit_at_1": null,
       "reciprocal_rank": null,
-      "answer": "",
+      "answer": "[1] The context provided does not contain information about the Rust borrow checker or any related corpus. [1]",
       "keyword_ok": null,
-      "refusal_ok": null,
-      "cites": null,
+      "refusal_ok": true,
+      "cites": true,
       "judge": null,
-      "seconds": 0.02
+      "seconds": 25.5
     }
   ]
 }

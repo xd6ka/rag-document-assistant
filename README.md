@@ -103,22 +103,34 @@ Three honest readings:
 2. **Overlap did not move the ranking** at 500 chars (identical to no overlap). Overlap protects boundary recall, which hit@1 largely cannot see — it is a safety margin, not a free win.
 3. **MMR cost 0.007 MRR.** It pushes the exact gold chunk slightly down in exchange for context diversity, which this metric cannot observe. It stays enabled because the prompt benefits from non-redundant blocks — but claiming it improves retrieval would be wrong.
 
-### Answer-level metrics: not measured in this report
+### Answer-level results (local 3B model, no API account)
 
-`run_eval.py` also computes answer accuracy, citation rate, refusal rate and an LLM-judge faithfulness score, but the DashScope account hit its quota mid-run (`400 Access denied — overdue payment`). Rather than publish numbers produced while the API was failing, the committed report contains retrieval metrics only, and the script now flags such runs:
+Generated with `LLM_PROVIDER=ollama`, `qwen2.5:3b`, temperature 0.2, no hosted calls at all. 29 answers, `api_errors: 0`.
 
-```json
-"api_errors": 0, "answer_metrics_valid": null
-```
+| Metric | Result | What it measures |
+|---|---|---|
+| answer accuracy (lexical key match) | **0.92** (23/25) | the answer contains the fact's key token |
+| answer accuracy (manual audit) | **0.96** (24/25) | a human read each answer against the gold page |
+| citation rate | **1.0** (25/25) | every answer carries at least one `[n]` |
+| refusal rate | **1.0** (4/4) | out-of-scope questions are declined, not answered |
 
-With quota restored:
+Four things worth reading before trusting these numbers:
 
-```powershell
-python eval/run_eval.py --judge            # answers + citation rate + refusal + judge
-python eval/run_eval.py --no-answers       # retrieval only, no API cost
-```
+1. **Citation rate is a presence check, not a correctness check.** One answer (`e05`) cites `[2]` while the fact sits in block `[1]` — right answer, wrong bracket, metric scores it as a pass. That is exactly the "citation drift" the corpus warns about, and it is why claim-level citation checking is the next metric rather than a finishing touch.
+2. **The lexical metric undercounts by one.** `d04` ("what is a link in a PDF") paraphrases "annotation" as "clickable rectangle with an action" — correct in substance, missed by string matching. Hence 0.92 lexical vs 0.96 manual.
+3. **The one wrong answer is a retrieval failure, not a generation failure.** `p04` asks what claim-by-claim verification catches that rate-based metrics cannot; the gold page never entered the top 4, so the model answered from the closest retrieved page ("contamination"). Retrieval `hit@4` is also 24/25 — the same question. When the right page arrives, the answer is right.
+4. **The LLM judge was tried and rejected.** The same 3B model scored 7 grounded answers as 1/5, and a controlled case scored `2` through the OpenAI-compatible shim versus `4` through Ollama's native API. An uncalibrated instrument is worse than no instrument, so the committed report carries `judge_mean_faithfulness: null` and the experiment is kept as evidence in `eval/reports/judge_experiment.json`. Per-answer verdicts are in `eval/reports/answer_audit.md`.
+
+Latency on this machine: 46.7 s mean per question (retrieval + generation), 60.6 s max — usable for an audit, too slow for an interactive demo. A hosted model answers in 1–3 s; the code path is identical.
 
 Each run indexes into a throwaway store, so results never depend on your working collection. Reports land in `eval/reports/`.
+
+```powershell
+python eval/run_eval.py                     # retrieval + answers + citation/refusal metrics
+python eval/run_eval.py --judge             # add LLM judging (reliable only with a hosted model)
+python eval/run_eval.py --no-answers        # retrieval only, no model calls
+python eval/run_eval.py --rescore eval/reports/latest.json   # re-score stored answers, no model calls
+```
 
 ## Tech stack
 
@@ -190,7 +202,7 @@ python query.py --k 6 --source real.pdf
 
 ```powershell
 pip install -r requirements-dev.txt
-pytest -q                        # 18 tests
+pytest -q                        # 24 tests
 python eval/build_corpus.py      # regenerate the corpus PDFs
 python eval/run_ablation.py      # config comparison, no API cost
 ```
@@ -215,12 +227,13 @@ rag-document-assistant/
 │   ├── build_corpus.py  # renders corpus_source.py into PDFs
 │   ├── corpus/          # generated PDFs (committed, ~4 KB each)
 │   ├── qa_set.jsonl     # 29 questions with doc + page gold labels
-│   ├── run_eval.py      # validation, hit@k, hit@1, MRR, answer metrics
+│   ├── run_eval.py      # validation, hit@k, hit@1, MRR, answer metrics, --rescore
 │   ├── run_ablation.py  # 5-configuration retrieval comparison
-│   └── reports/         # latest.json + ablation.json + timestamped runs
+│   └── reports/         # latest.json, ablation.json, answer_audit.md, judge_experiment.json
 ├── tests/
 │   ├── test_chunking.py    # 8 cases
 │   ├── test_config.py      # 5 cases (provider resolution, legacy-env traps)
+│   ├── test_refusal.py     # 6 cases (refusal detection across phrasings)
 │   └── test_eval_labels.py # 5 cases
 ├── data/                # source PDFs (git-ignored)
 ├── chroma_db/           # persisted vector store (git-ignored)
@@ -234,28 +247,34 @@ rag-document-assistant/
 - **MMR, priced honestly.** It trades a little retrieval precision for context diversity; the ablation shows the price (0.007 MRR). The value is in the prompt, and the README says so instead of pretending the retrieval metric improved.
 - **Delete-then-upsert.** Positional ids (`doc_0`, `doc_1`, …) break on the second document; per-source ids plus delete-first ingest make re-indexing idempotent.
 - **Labels are validated, not trusted.** Every eval run re-reads the gold pages and refuses to score if a label no longer matches the document.
+- **Metrics are audited before they are published.** A metric that scores clearly correct answers as failures gets fixed or removed, not reported. That is why the judge is null and the refusal detector has a negation fallback.
 - **Local embeddings.** Indexing stays free and offline; the 18-page corpus indexes in seconds on CPU.
+- **Provider-agnostic generation.** The same pipeline runs on a hosted API or a local model; the vendor is a config value, and the offline path needs no account or card.
 
 ## Limitations & roadmap
 
 - **Synthetic corpus.** Six documents written to stress retrieval by design — good for comparing configurations, useless as a claim about real-world libraries.
 - **18 chunks is still small.** Enough for `hit@1` to discriminate, not enough for tight confidence intervals; there are no repeated runs or variance estimates.
-- **Answer-level metrics are pending.** The harness exists; the committed numbers stopped when the API quota ran out.
+- **Citation correctness is unmeasured.** `citation_rate` checks that a bracket exists, and one answer cites the wrong block while being right about the fact. Claim-level verification is the missing metric.
+- **The faithfulness judge needs a stronger model.** A 3B judge is uncalibrated and was rejected; the metric returns only when judging runs on a hosted model.
+- **Local generation is slow.** ~47 s per answer on CPU. Good enough to prove the pipeline works offline, not good enough to demo interactively.
+- **Russian answers are untested.** The UI answers in the question's language, but the 29-question set is English-only.
 - **No cross-encoder reranker.** MMR is diversity-aware but never re-reads the query–passage pair; a `bge-reranker` stage is the obvious upgrade.
 - **Scanned PDFs are not handled.** No OCR fallback; text-less pages are reported as "no extractable text".
 - **No streaming.** The answer appears when the full response arrives.
 - **Single collection.** Document filtering works, but there is no notion of workspaces or per-user isolation.
 
-Planned order: restore quota and publish answer-level metrics → cross-encoder reranking → OCR fallback → streaming → a real-world corpus with variance estimates.
+Planned order: claim-level citation check → cross-encoder reranking → OCR fallback → streaming → a real-world corpus with variance estimates.
 
 ## 中文简介
 
-面向 PDF 文档的检索增强生成（RAG）问答助手。切分、向量化均在本地完成（`all-MiniLM-L6-v2`），只有检索到的片段与问题会发送给 Qwen 生成答案。
+面向 PDF 文档的检索增强生成（RAG）问答助手。切分、向量化均在本地完成（`all-MiniLM-L6-v2`），只有检索到的片段与问题会发送给生成模型。
 
 - **核心能力**：页码级引用（`文件名 · 页码 · 相似度`）、800/150 重叠切块、MMR 重排、多文档管理
-- **技术栈**：Streamlit + pypdf + sentence-transformers + ChromaDB + Qwen（DashScope OpenAI 兼容接口）
-- **评测**：自建 6 文档 / 18 页合成语料 + 29 道人工题目；检索 hit@4 = 0.96、hit@1 = 0.88、MRR = 0.913；并对比 5 种切块与重排配置（800/150 优于 500 字符，MMR 在检索指标上代价为 0.007 MRR）。答案层指标（引用率、拒答率、faithfulness）因 API 额度用尽暂未公布
-- **运行**：配置 `.env`（参考 `.env.example`）后执行 `streamlit run ui.py`
+- **技术栈**：Streamlit + pypdf + sentence-transformers + ChromaDB + 任意 OpenAI 兼容接口（DashScope / DeepSeek / 本地 Ollama）
+- **评测**：自建 6 文档 / 18 页合成语料 + 29 道人工题目；检索 hit@4 = 0.96、hit@1 = 0.88、MRR = 0.913，并对比 5 种切块与重排配置（800/150 优于 500 字符，MMR 在检索指标上代价为 0.007 MRR）
+- **答案层指标**：本地 `qwen2.5:3b` 生成 29 条答案，引用率 1.0、拒答率 1.0、关键词命中 0.92；人工复核 24/25 正确。LLM 评委（judge）因 3B 模型打分不可靠被弃用，实验记录保留在 `eval/reports/judge_experiment.json`
+- **运行**：配置 `.env`（参考 `.env.example`）后执行 `streamlit run ui.py`；默认走本地 Ollama，无需 API Key 与付费账号
 
 ## License
 

@@ -44,8 +44,36 @@ REFUSAL_MARKERS = (
     "doesn't mention",
     "no mention",
     "not in the context",
+    "unable to",
+    "does not provide",
+    "doesn't provide",
+    "not provided",
+    "no relevant",
     "не знаю",
+    "не содержит",
 )
+
+# Marker lists miss legitimate phrasings ("does not provide information in the
+# given context" scored as a failure once), so a negation pattern backs them up.
+REFUSAL_PATTERN = re.compile(
+    r"(?:does|do|did)\s+not\s+(?:contain|provide|mention|include|cover|address)"
+    r"|cannot\s+(?:find|answer|determine|tell)"
+    r"|can't\s+(?:find|answer|determine|tell)"
+    r"|unable\s+to"
+    r"|no\s+(?:information|mention|reference)"
+    r"|not\s+(?:in|stated\s+in)\s+the\s+(?:context|document|text)",
+    re.IGNORECASE,
+)
+
+
+def is_refusal(answer: str) -> bool:
+    """True when the answer says the context does not hold the answer.
+
+    Lexical on purpose: a small local model paraphrases, and a judge here is
+    unreliable, so the check errs towards matching many phrasings.
+    """
+    lowered = answer.lower()
+    return any(marker in lowered for marker in REFUSAL_MARKERS) or bool(REFUSAL_PATTERN.search(answer))
 
 CITATION_PATTERN = re.compile(r"\[\d+\]")
 
@@ -132,6 +160,80 @@ def judge_faithfulness(question: str, answer: str, contexts) -> int | None:
     return int(match.group(0)) if match else None
 
 
+def summarize(rows: list[dict], base: dict, no_answers: bool) -> dict:
+    """Aggregate per-question rows into the report summary."""
+    in_scope = [row for row in rows if row["in_scope"]]
+    out_scope = [row for row in rows if not row["in_scope"]]
+
+    def rate(values) -> float | None:
+        usable = [v for v in values if v is not None]
+        return round(sum(1 for v in usable if v) / len(usable), 3) if usable else None
+
+    rrs = [row["reciprocal_rank"] for row in in_scope if row["reciprocal_rank"] is not None]
+    judges = [row["judge"] for row in rows if row["judge"] is not None]
+    api_errors = sum(1 for row in rows if (row.get("answer") or "").startswith("[API error]"))
+
+    summary = dict(base)
+    summary.update(
+        {
+            "n_questions": len(rows),
+            "n_in_scope": len(in_scope),
+            "hit_at_k": rate([row["hit_at_k"] for row in in_scope]),
+            "hit_at_1": rate([row["hit_at_1"] for row in in_scope]),
+            "mrr": round(sum(rrs) / len(rrs), 3) if rrs else None,
+            "answer_keyword_accuracy": rate([row["keyword_ok"] for row in in_scope]),
+            "citation_rate": rate([row["cites"] for row in in_scope]),
+            "refusal_rate": rate([row["refusal_ok"] for row in out_scope]),
+            "judge_mean_faithfulness": round(sum(judges) / len(judges), 2) if judges else None,
+            # A judge running on the same small local model is not calibrated: see
+            # eval/reports/judge_experiment.json, where it scored 7 grounded answers 1/5.
+            "judge_reliable": None if not judges else (not config.LLM_IS_LOCAL),
+            "api_errors": api_errors,
+            # Answer-level metrics are only meaningful when the model actually answered.
+            "answer_metrics_valid": None if no_answers else api_errors == 0,
+            "generated_at": datetime.now().isoformat(timespec="seconds"),
+        }
+    )
+    return summary
+
+
+def rescore_report(src: Path, out: Path, qa_items: list[dict]) -> None:
+    """Re-derive answer-level metrics from stored answers, without calling the model.
+
+    Metric definitions change (a refusal marker list, say) long after the answers
+    were generated; regenerating 29 answers to restate the same text wastes
+    minutes of CPU. This path re-scores what is already in the report.
+    """
+    payload = json.loads(src.read_text(encoding="utf-8"))
+    rows = payload["rows"]
+    by_id = {item["id"]: item for item in qa_items}
+
+    for row in rows:
+        item = by_id.get(row["id"], {})
+        answer = row.get("answer") or ""
+        if not answer or answer.startswith("[API error]"):
+            continue
+        if item.get("in_scope", True):
+            keys = [key.lower() for key in item.get("must_contain", [])]
+            row["keyword_ok"] = any(key in answer.lower() for key in keys) if keys else None
+            row["refusal_ok"] = None
+        else:
+            row["refusal_ok"] = is_refusal(answer)
+            row["keyword_ok"] = None
+        row["cites"] = bool(CITATION_PATTERN.search(answer))
+
+    old = payload.get("summary", {})
+    summary = summarize(rows, {"corpus": old.get("corpus"), "settings": old.get("settings")}, no_answers=False)
+    out.parent.mkdir(parents=True, exist_ok=True)
+    out.write_text(json.dumps({"summary": summary, "rows": rows}, ensure_ascii=False, indent=2), encoding="utf-8")
+
+    print("=== rescored summary ===")
+    for key, value in summary.items():
+        if key not in {"corpus", "settings"}:
+            print(f"{key}: {value}")
+    print(f"\nreport: {out}")
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description="Run the RAG evaluation set")
     parser.add_argument("--corpus", default=str(ROOT / "eval" / "corpus"), help="directory of corpus PDFs")
@@ -141,8 +243,18 @@ def main() -> None:
     parser.add_argument("--no-answers", action="store_true", help="skip LLM answer generation")
     parser.add_argument("--judge", action="store_true", help="score answers with an LLM judge")
     parser.add_argument("--limit", type=int, default=0, help="stop after N questions (0 = all)")
+    parser.add_argument("--rescore", default=None, help="re-score a previous report's stored answers, no model calls")
     parser.add_argument("--out", default=None, help="report path (default: eval/reports/...)")
     args = parser.parse_args()
+
+    if args.rescore:
+        items = load_qa_set(Path(args.qa))
+        rescore_report(
+            Path(args.rescore),
+            Path(args.out) if args.out else Path(args.rescore),
+            items,
+        )
+        return
 
     corpus_dir = Path(args.corpus)
     pdfs = sorted(corpus_dir.glob("*.pdf"))
@@ -197,7 +309,7 @@ def main() -> None:
                 keys = [key.lower() for key in item.get("must_contain", [])]
                 keyword_ok = any(key in lowered for key in keys) if keys else None
             else:
-                refusal_ok = any(marker in lowered for marker in REFUSAL_MARKERS)
+                refusal_ok = is_refusal(answer)
             cites = bool(CITATION_PATTERN.search(answer))
 
             if args.judge and item.get("in_scope", True) and answer and not answer.startswith("[API error]"):
@@ -228,47 +340,35 @@ def main() -> None:
         )
         print(f"{item['id']}: rank={rank} retrieved={retrieved}")
 
-    in_scope = [row for row in rows if row["in_scope"]]
-    out_scope = [row for row in rows if not row["in_scope"]]
-
-    def rate(values) -> float | None:
-        usable = [v for v in values if v is not None]
-        return round(sum(1 for v in usable if v) / len(usable), 3) if usable else None
-
-    rrs = [row["reciprocal_rank"] for row in in_scope if row["reciprocal_rank"] is not None]
+    summary = summarize(
+        rows,
+        {
+            "corpus": {
+                "documents": len(pdfs),
+                "pages": sum(len(pages) for pages in pages_by_doc.values()),
+                "chunks": store.count(),
+            },
+            "settings": {
+                "chunk_size": config.CHUNK_SIZE,
+                "chunk_overlap": config.CHUNK_OVERLAP,
+                "embedding_model": config.EMBEDDING_MODEL,
+                "retrieve_k": args.retrieve_k,
+                "context_k": args.k,
+                "mmr_lambda": config.MMR_LAMBDA,
+                "llm_provider": config.LLM_PROVIDER,
+                "llm_model": config.LLM_MODEL,
+            },
+        },
+        no_answers=args.no_answers,
+    )
     judges = [row["judge"] for row in rows if row["judge"] is not None]
-    api_errors = sum(1 for row in rows if row["answer"].startswith("[API error]"))
 
-    summary = {
-        "corpus": {
-            "documents": len(pdfs),
-            "pages": sum(len(pages) for pages in pages_by_doc.values()),
-            "chunks": store.count(),
-        },
-        "settings": {
-            "chunk_size": config.CHUNK_SIZE,
-            "chunk_overlap": config.CHUNK_OVERLAP,
-            "embedding_model": config.EMBEDDING_MODEL,
-            "retrieve_k": args.retrieve_k,
-            "context_k": args.k,
-            "mmr_lambda": config.MMR_LAMBDA,
-            "llm_provider": config.LLM_PROVIDER,
-            "llm_model": config.LLM_MODEL,
-        },
-        "n_questions": len(rows),
-        "n_in_scope": len(in_scope),
-        "hit_at_k": rate([row["hit_at_k"] for row in in_scope]),
-        "hit_at_1": rate([row["hit_at_1"] for row in in_scope]),
-        "mrr": round(sum(rrs) / len(rrs), 3) if rrs else None,
-        "answer_keyword_accuracy": rate([row["keyword_ok"] for row in in_scope]),
-        "citation_rate": rate([row["cites"] for row in in_scope]),
-        "refusal_rate": rate([row["refusal_ok"] for row in out_scope]),
-        "judge_mean_faithfulness": round(sum(judges) / len(judges), 2) if judges else None,
-        "api_errors": api_errors,
-        # Answer-level metrics are only meaningful when the model actually answered.
-        "answer_metrics_valid": None if args.no_answers else api_errors == 0,
-        "generated_at": datetime.now().isoformat(timespec="seconds"),
-    }
+    if judges and config.LLM_IS_LOCAL:
+        print(
+            "\nWARNING: the judge shares the small local model with the answerer. "
+            "Its score is NOT a calibrated faithfulness metric and must not be reported as one. "
+            "Use a hosted model for judging, or audit answers by hand (see README)."
+        )
 
     if api_errors:
         print(
