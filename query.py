@@ -1,58 +1,56 @@
-import os
-os.environ['HF_ENDPOINT'] = 'https://hf-mirror.com'
-import time
-from dotenv import load_dotenv
-from openai import OpenAI
-import chromadb
-from sentence_transformers import SentenceTransformer
+"""Interactive CLI: ask questions about indexed documents and print citations."""
 
-load_dotenv()
+from __future__ import annotations
 
-client = OpenAI(
-    api_key=os.getenv("QWEN_API_KEY"),
-    base_url=os.getenv("QWEN_BASE_URL")
-)
+import argparse
 
-chroma_client = chromadb.PersistentClient(path="./chroma_db")
-collection = chroma_client.get_collection(name="documents")
-model = SentenceTransformer('all-MiniLM-L6-v2')
+from src import config
+from src.generation import answer_question
+from src.retrieval import Retriever
+from src.store import DocumentStore
 
-def ask(question):
-    query_emb = model.encode(question).tolist()
-    results = collection.query(query_embeddings=[query_emb], n_results=3)
-    
-    context = "\n".join(results['documents'][0])
-    
-    prompt = f"""Use the following context to answer the question. 
-If you don't know the answer, say that you don't know.
 
-Context:
-{context}
+def main() -> None:
+    parser = argparse.ArgumentParser(description="Ask questions about indexed PDFs")
+    parser.add_argument("--k", type=int, default=config.CONTEXT_K, help="chunks in context")
+    parser.add_argument("--source", nargs="*", default=None, help="restrict to these documents")
+    parser.add_argument("--no-mmr", action="store_true", help="disable MMR reranking")
+    args = parser.parse_args()
 
-Question: {question}
-Answer:"""
-    
-    max_retries = 3
-    for attempt in range(max_retries):
+    store = DocumentStore()
+    if store.count() == 0:
+        print("The collection is empty. Index a PDF first: python app.py data/real.pdf")
+        return
+
+    retriever = Retriever(store)
+    print("RAG Assistant ready. Type 'exit' to quit.")
+
+    while True:
+        question = input("\nYou: ").strip()
+        if question.lower() in {"exit", "quit"}:
+            break
+        if not question:
+            continue
+
+        contexts = retriever.retrieve(
+            question,
+            k=args.k,
+            sources=args.source or None,
+            rerank=not args.no_mmr,
+        )
+        if not contexts:
+            print("Nothing relevant found in the indexed documents.")
+            continue
+
         try:
-            response = client.chat.completions.create(
-                model="qwen-plus",
-                messages=[{"role": "user", "content": prompt}]
-            )
-            return response.choices[0].message.content
-        except Exception as e:
-            if attempt < max_retries - 1:
-                wait_time = 2 ** attempt
-                print(f"API Error. Retrying in {wait_time} seconds...")
-                time.sleep(wait_time)
-            else:
-                return f"API Error: {e}"
+            print(f"\nAI: {answer_question(question, contexts)}")
+        except Exception as exc:  # noqa: BLE001 - CLI should not traceback on API errors
+            print(f"\nAI: API error: {exc}")
+
+        print("\nSources:")
+        for number, chunk in enumerate(contexts, start=1):
+            print(f"  [{number}] {chunk.source} p.{chunk.page} (similarity {chunk.score:.3f})")
+
 
 if __name__ == "__main__":
-    print("RAG Assistant initialized. Type 'exit' to quit.")
-    while True:
-        user_input = input("\nYou: ")
-        if user_input.lower() == 'exit':
-            break
-        answer = ask(user_input)
-        print(f"AI: {answer}")
+    main()

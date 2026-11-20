@@ -1,32 +1,54 @@
-import os
-os.environ['HF_ENDPOINT'] = 'https://hf-mirror.com'
-from pypdf import PdfReader
-import chromadb
-from sentence_transformers import SentenceTransformer
+"""Index PDFs from the command line.
 
-chroma_client = chromadb.PersistentClient(path="./chroma_db")
-collection = chroma_client.get_or_create_collection(name="documents")
-model = SentenceTransformer('all-MiniLM-L6-v2')
+    python app.py                      # every PDF in data/
+    python app.py data/real.pdf        # one specific file
+"""
 
-def process_pdf(file_path):
-    reader = PdfReader(file_path)
-    text = ""
-    for page in reader.pages:
-        extracted = page.extract_text()
-        if extracted:
-            text += extracted + "\n"
-            
-    chunk_size = 500
-    chunks = [text[i:i+chunk_size] for i in range(0, len(text), chunk_size)]
-    
-    for i, chunk in enumerate(chunks):
-        emb = model.encode(chunk).tolist()
-        collection.add(
-            embeddings=[emb],
-            documents=[chunk],
-            ids=[f"doc_{i}"]
-        )
-    print(f"Ingestion complete. Added {len(chunks)} chunks to the database.")
+from __future__ import annotations
+
+import argparse
+from pathlib import Path
+
+from src import config
+from src.ingest import ingest_path
+from src.store import DocumentStore
+
+
+def main() -> None:
+    parser = argparse.ArgumentParser(description="Index PDF files into the vector store")
+    parser.add_argument(
+        "paths",
+        nargs="*",
+        help="PDF files to index; defaults to every PDF inside data/",
+    )
+    args = parser.parse_args()
+
+    targets = [Path(p) for p in args.paths]
+    if not targets:
+        targets = sorted((config.PROJECT_ROOT / "data").glob("*.pdf"))
+
+    if not targets:
+        print("No PDFs found. Put a file in data/ or pass a path explicitly.")
+        return
+
+    store = DocumentStore()
+    for path in targets:
+        if not path.exists():
+            print(f"skip {path}: file not found")
+            continue
+        try:
+            result = ingest_path(path, store=store)
+        except Exception as exc:  # noqa: BLE001 - report per file and continue
+            print(f"fail {path.name}: {exc}")
+            continue
+
+        if result["skipped"]:
+            print(f"skip {path.name}: no extractable text")
+        else:
+            print(f"ok   {path.name}: {result['chunks']} chunks from {result['pages']} pages")
+
+    print(f"\nCollection now holds {store.count()} chunks.")
+
 
 if __name__ == "__main__":
-    process_pdf("data/real.pdf")
+    main()

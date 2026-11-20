@@ -1,0 +1,18 @@
+{"id": "q01", "question": "How many pages does the sample document have?", "gold_pages": [1], "must_contain": ["three", "3 pages", "3-page"], "in_scope": true}
+{"id": "q02", "question": "Which fonts are embedded in this PDF?", "gold_pages": [1], "must_contain": ["DejaVu Sans"], "in_scope": true}
+{"id": "q03", "question": "Are the fonts stored as complete fonts or as subsets?", "gold_pages": [1], "must_contain": ["subset"], "in_scope": true}
+{"id": "q04", "question": "Which languages are used as character examples on page 1?", "gold_pages": [1], "must_contain": ["Français", "Deutsch", "Русский", "Ελληνικά"], "in_scope": true}
+{"id": "q05", "question": "How do you jump between sections in a PDF viewer?", "gold_pages": [1], "must_contain": ["bookmark"], "in_scope": true}
+{"id": "q06", "question": "Is this document a tagged PDF?", "gold_pages": [2], "must_contain": ["not tagged", "isn't tagged", "is not tagged", "untagged", "is not a tagged"], "in_scope": true}
+{"id": "q07", "question": "What is the PDF filter for JPEG image data called?", "gold_pages": [3], "must_contain": ["DCTDecode"], "in_scope": true}
+{"id": "q08", "question": "What is the resolution of the embedded raster image?", "gold_pages": [3], "must_contain": ["480"], "in_scope": true}
+{"id": "q09", "question": "How is a table represented inside a PDF file?", "gold_pages": [2], "must_contain": ["lines", "text and lines"], "in_scope": true}
+{"id": "q10", "question": "Why does the vector chart stay sharp at any zoom level?", "gold_pages": [2], "must_contain": ["path operators", "vector"], "in_scope": true}
+{"id": "q11", "question": "What is a link in a PDF technically?", "gold_pages": [3], "must_contain": ["annotation"], "in_scope": true}
+{"id": "q12", "question": "Can this sample file be used commercially?", "gold_pages": [3], "must_contain": ["commercially", "free to use"], "in_scope": true}
+{"id": "q13", "question": "Which website does the web link point to?", "gold_pages": [1, 3], "must_contain": ["99helpers.com"], "in_scope": true}
+{"id": "q14", "question": "Which file formats are listed in the table on page 2?", "gold_pages": [2], "must_contain": ["Word document", "Markdown", "Plain text", ".pdf"], "in_scope": true}
+{"id": "q15", "question": "Are the figures in the chart real data?", "gold_pages": [2, 3], "must_contain": ["fictional"], "in_scope": true}
+{"id": "q16", "question": "How is text stored inside a PDF?", "gold_pages": [1], "must_contain": ["character codes", "font"], "in_scope": true}
+{"id": "q17", "question": "What keeps this file small even though it embeds fonts?", "gold_pages": [1], "must_contain": ["subset", "only the glyphs"], "in_scope": true}
+{"id": "q18", "question": "What is the capital of Mongolia?", "gold_pages": [], "must_contain": [], "in_scope": false}

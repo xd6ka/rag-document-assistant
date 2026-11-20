@@ -4,11 +4,12 @@
 ![Streamlit](https://img.shields.io/badge/UI-Streamlit-FF4B4B?logo=streamlit&logoColor=white)
 ![ChromaDB](https://img.shields.io/badge/Vector%20store-ChromaDB-1F2937)
 ![LLM](https://img.shields.io/badge/LLM-Qwen%20(DashScope)-6B46C1)
+![Tests](https://img.shields.io/badge/tests-8%20passed-brightgreen)
 ![License](https://img.shields.io/badge/License-MIT-green)
 
-A local-first Retrieval-Augmented Generation assistant for PDF documents: upload a PDF, ask questions in plain language, and get answers grounded in the document's own text.
+A local-first Retrieval-Augmented Generation assistant for PDF documents: upload a PDF, ask questions in plain language, and get answers grounded in the document's own text — with the page each answer came from.
 
-Document chunking and embeddings run **entirely on the local machine** (`all-MiniLM-L6-v2` via `sentence-transformers`). Only the retrieved fragments and the question are sent to the LLM for answer generation.
+Chunking and embeddings run **entirely on the local machine** (`all-MiniLM-L6-v2` via `sentence-transformers`). Only the retrieved fragments and the question are sent to the LLM.
 
 ![RAG Document Assistant UI](docs/demo.png)
 
@@ -16,42 +17,71 @@ Document chunking and embeddings run **entirely on the local machine** (`all-Min
 
 ## Features
 
-- **Upload from the browser** — no CLI required to index a new document.
-- **Persistent vector store** — the index lives in ChromaDB on disk and survives restarts.
-- **Grounded answers** — top-3 retrieved chunks are injected into the prompt, with an explicit "say you don't know" instruction so the model cannot free-style.
-- **Local embeddings** — zero embedding cost, no document text shipped to a third-party embedding API.
-- **Two entry points** — Streamlit chat UI (`ui.py`) and a CLI Q&A loop (`query.py`) for quick experiments.
-- **One-click reset** — the sidebar can drop the collection and clear the chat.
+- **Upload from the browser**, several PDFs at once — no CLI needed to index.
+- **Page-level citations** — every answer links to `source · page N · similarity`, and the retrieved excerpts are shown in a collapsible panel.
+- **Overlapping chunking** (800 chars / 150 overlap) cut on word boundaries, never across pages.
+- **MMR reranking** — pulls 8 candidates from the vector index and picks 4 that are relevant *and* not near-duplicates of each other.
+- **Multi-document workspace** — per-document chunk/page counts, per-document delete, document-scoped filtering, one-click collection reset.
+- **Persistent vector store** — ChromaDB on disk; the index survives restarts.
+- **Grounded prompt** — the model is told to answer only from context and to say it does not know otherwise.
+- **Evaluation harness** — 18 hand-written questions with retrieval hit-rate, answer accuracy, citation rate and refusal rate.
+- **Unit-tested chunker** — 8 pytest cases covering window size, overlap, page boundaries and edge cases.
 
 ## Architecture
 
 ```mermaid
 flowchart LR
     subgraph Ingest
-        A[PDF upload] --> B[PyPDF text extraction]
-        B --> C[Chunking<br/>500 chars]
-        C --> D[all-MiniLM-L6-v2<br/>embeddings]
-        D --> E[(ChromaDB<br/>persistent store)]
+        A[PDF upload] --> B[pypdf<br/>page-by-page text]
+        B --> C[Chunking<br/>800 chars / 150 overlap<br/>page-scoped]
+        C --> D[all-MiniLM-L6-v2<br/>normalized embeddings]
+        D --> E[(ChromaDB<br/>cosine space<br/>source + page metadata)]
     end
 
     subgraph Query
-        Q[User question] --> QE[Query embedding]
-        QE --> R[Top-3 similarity search]
+        Q[Question] --> QE[Query embedding]
+        QE --> R[Top-8 vector search]
         E --> R
-        R --> P[Grounded prompt<br/>context + question]
-        P --> L[Qwen chat API]
-        L --> ANS[Answer]
+        R --> M[MMR rerank<br/>λ = 0.7]
+        M --> P[Top-4 blocks<br/>numbered context]
+        P --> L[Qwen qwen-plus<br/>grounded prompt]
+        L --> ANS[Answer + citations]
+        M --> SRC[Sources panel<br/>page + similarity]
     end
 ```
 
 ## How it works
 
-1. **Ingestion** — `pypdf` extracts text page by page from the uploaded PDF.
-2. **Chunking** — the text is split into fixed 500-character windows.
-3. **Embedding** — every chunk is encoded locally by `all-MiniLM-L6-v2` (384-dim vectors).
-4. **Storage** — vectors, chunk text, and `{source, chunk}` metadata go into a persistent ChromaDB collection, keyed by `{filename}_{index}` and written with `upsert`, so re-indexing the same file overwrites its chunks instead of failing on duplicate ids.
-5. **Retrieval** — the question is embedded with the same model and matched against the store; the 3 nearest chunks become the context.
-6. **Generation** — the context and the question are composed into a single grounded prompt and sent to `qwen-plus` through the OpenAI-compatible DashScope endpoint.
+1. **Extraction** — `pypdf` pulls text page by page; an unreadable page yields `""` instead of failing the whole job.
+2. **Chunking** — each page is split into ~800-character windows, cut on newline/space/period so words stay intact, with 150 characters of overlap. A short trailing fragment is merged into its neighbour.
+3. **Embedding** — every chunk is encoded locally by `all-MiniLM-L6-v2` with normalized vectors (384-d).
+4. **Storage** — chunks are written to one ChromaDB collection in cosine space, ids `"{source}:{page}:{index}"`. Re-indexing deletes the document's previous chunks first, so an edited PDF cannot leave stale tails.
+5. **Retrieval** — the question is embedded with the same model; the 8 nearest chunks are reranked with MMR (λ = 0.7) down to 4.
+6. **Generation** — the 4 blocks are numbered `[1]…[4]` with `source` and `page` attached, and the model is asked to answer only from them and cite the blocks it used.
+
+## Evaluation
+
+Run on `data/real.pdf` (3 pages → 4 chunks) with 18 hand-written questions (17 in-scope, 1 out-of-scope):
+
+| Metric | Result | What it measures |
+|---|---|---|
+| Retrieval hit@3 | **1.00** (17/17) | gold page present in the top-3 chunks |
+| Retrieval hit@1 | **0.94** (16/17) | gold page is the very first chunk |
+| Answer accuracy (keyword) | **1.00** (17/17) | answer states the expected fact |
+| Citation rate | **1.00** (17/17) | answer cites at least one context block |
+| Refusal rate | **1.00** (1/1) | out-of-scope question correctly answered with "I don't know" |
+| LLM-judge faithfulness | **5.0 / 5** | same model grading its own answers — a sanity check, not an independent measurement |
+
+**Read this table honestly:** the corpus is tiny (4 chunks), so retrieval metrics are close to their ceiling and prove little more than "the pipeline is wired correctly." The signals worth trusting here are the **grounding** ones — cited answers and a correct refusal on a question the document cannot answer. A larger corpus is the next step; the harness is ready for it.
+
+Reproduce:
+
+```powershell
+python eval/run_eval.py --k 3 --judge      # full run with API calls
+python eval/run_eval.py --no-answers       # retrieval metrics only, no API cost
+```
+
+Each run indexes into a throwaway store, so results never depend on your working collection. Reports land in `eval/reports/`.
 
 ## Tech stack
 
@@ -59,14 +89,16 @@ flowchart LR
 |---|---|
 | UI | Streamlit |
 | PDF parsing | pypdf |
-| Embeddings | sentence-transformers `all-MiniLM-L6-v2` (local) |
-| Vector store | ChromaDB (`PersistentClient`) |
+| Embeddings | sentence-transformers `all-MiniLM-L6-v2` (local, CPU) |
+| Vector store | ChromaDB (`PersistentClient`, cosine space) |
+| Reranking | MMR over candidate embeddings (numpy) |
 | LLM | Qwen via DashScope, OpenAI-compatible API |
 | Config | python-dotenv |
+| Tests | pytest |
 
 ## Quick start
 
-**Prerequisites:** Python 3.11+, and a Qwen / DashScope API key.
+**Prerequisites:** Python 3.11+ and a Qwen / DashScope API key.
 
 ```powershell
 python -m venv venv
@@ -74,7 +106,7 @@ python -m venv venv
 pip install -r requirements.txt
 ```
 
-Create a `.env` file in the project root (it is git-ignored):
+Create `.env` (git-ignored) — or copy `.env.example`:
 
 ```ini
 QWEN_API_KEY=sk-your-key-here
@@ -88,59 +120,80 @@ Launch the web UI:
 streamlit run ui.py
 ```
 
-Streamlit opens `http://localhost:8501`. Upload a PDF in the sidebar → **Process Document** → ask questions in the chat box.
+Streamlit opens `http://localhost:8501`. Drop PDFs into the sidebar → **Process documents** → ask questions.
 
-Console mode:
+> If a model returns `404 Model not exist`, your endpoint does not serve that model — pick one available on your DashScope account (`QWEN_MODEL` overrides the default).
+
+### CLI
 
 ```powershell
-python app.py     # indexes data/real.pdf
-python query.py   # interactive Q&A with retry/backoff
+python app.py                    # index every PDF in data/
+python app.py data/real.pdf      # index one file
+python query.py                  # interactive Q&A with citations
+python query.py --k 6 --source real.pdf
 ```
 
-> The model name is read from `QWEN_MODEL` (default `qwen-plus`). If a model returns `404 Model not exist`, the endpoint does not serve that model — pick one available on your DashScope account.
+### Tests
+
+```powershell
+pip install -r requirements-dev.txt
+pytest -q
+```
 
 ## Project structure
 
 ```
 rag-document-assistant/
-├── app.py              # CLI ingestion: PDF -> chunks -> embeddings -> ChromaDB
-├── query.py            # CLI Q&A loop with exponential backoff on API errors
-├── ui.py               # Streamlit app: upload, index, chat
-├── requirements.txt    # pinned dependencies
-├── data/               # source PDFs (git-ignored)
-├── chroma_db/          # persisted vector store (git-ignored)
-├── docs/
-│   └── demo.png        # UI screenshot used above
-└── LICENSE
+├── src/
+│   ├── config.py        # env loading, paths, chunking & retrieval defaults
+│   ├── chunking.py      # page-aware overlapping windows, short-tail merging
+│   ├── embeddings.py    # lazy singleton SentenceTransformer, normalized vectors
+│   ├── store.py         # ChromaDB layer: upsert, delete-by-source, cosine query
+│   ├── retrieval.py     # vector search + MMR reranking
+│   ├── generation.py    # prompt assembly, Qwen client with retry/backoff
+│   └── ingest.py        # PDF -> pages -> chunks -> embeddings -> store
+├── ui.py                # Streamlit app (upload, chat, citations, settings)
+├── query.py             # interactive CLI
+├── app.py               # CLI ingestion
+├── eval/
+│   ├── qa_set.jsonl     # 18 hand-written questions with gold pages
+│   ├── run_eval.py      # metrics: hit@k, hit@1, accuracy, citations, refusal
+│   └── reports/         # latest.json + timestamped runs
+├── tests/
+│   └── test_chunking.py # 8 pytest cases
+├── data/                # source PDFs (git-ignored)
+├── chroma_db/           # persisted vector store (git-ignored)
+└── docs/demo.png
 ```
 
-## Design notes
+## Design decisions
 
-- **Local embeddings over API embeddings.** Indexing is free and reproducible offline; a 70 KB PDF indexes in seconds on CPU.
-- **`st.cache_resource` for the model.** Streamlit reruns the script on every interaction — without caching, the embedding model would reload each turn.
-- **`upsert` + filename-scoped ids.** Naive positional ids (`doc_0`, `doc_1`, …) collide as soon as a second document is uploaded.
-- **Prompt constraint.** "If you don't know the answer, say that you don't know" — a small change that measurably cuts hallucination on out-of-context questions.
+- **Page-scoped chunks over "perfect" chunks.** Chunks never cross a page boundary, which costs a little context on pages that continue mid-sentence but guarantees every citation carries a real page number. Trustworthy citations were worth more than marginally better context.
+- **Fixed windows + overlap, not semantic splitting.** Sentence-aware splitting is better in theory, but at 3 pages of text the simplest thing that works is also the thing that is easy to test. The chunker is unit-tested; a semantic splitter can be swapped in behind the same interface.
+- **MMR instead of raw top-k.** With 800-char chunks, the three best hits are often three adjacent fragments of the same page — the prompt gets the same paragraph three times. MMR trades a little relevance for coverage.
+- **Delete-then-upsert.** Naive positional ids (`doc_0`, `doc_1`, …) break on the second document; per-source ids plus a delete-first ingest make re-indexing idempotent.
+- **Prompt constraint.** "Answer only from the context, say you don't know otherwise" — small change, and the out-of-scope test question is refused every time.
+- **Local embeddings.** Indexing stays free and offline; a 3-page PDF indexes in seconds on CPU.
 
 ## Limitations & roadmap
 
-Honest state of the project:
+- **Small corpus.** The evaluation demonstrates correctness on one 3-page document, not robustness across a real library.
+- **No cross-encoder reranker.** MMR is diversity-aware but it does not re-read the query–passage pair; a `bge-reranker` stage is the obvious upgrade.
+- **Scanned PDFs are not handled.** There is no OCR fallback; text-less pages are reported as "no extractable text".
+- **Citations are per chunk, not per sentence.** Inline `[n]` markers are produced by the model; they are checked by rate in the eval, not verified claim by claim.
+- **No streaming.** The answer appears when the full response arrives.
+- **Single collection.** Document filtering is implemented, but there is no notion of workspaces or per-user isolation.
 
-- **Chunking is naive** — fixed 500-character windows with no overlap; they cut across sentences and paragraphs.
-- **No reranker** — retrieval is raw vector similarity on 3 chunks; no cross-encoder or MMR/diversity step.
-- **Citations not surfaced** — source metadata is stored but the UI does not yet show which chunk or page an answer came from.
-- **Stale tails** — re-uploading an edited PDF with fewer chunks leaves the old trailing chunks in the collection.
-- **No evaluation set yet** — the next milestone is 15–20 hand-written Q/A pairs with hit-rate and faithfulness metrics, so retrieval changes can be measured instead of eyeballed.
-- **Single collection, single file** — multi-document workspaces and per-document filtering are not implemented.
-
-Planned order: page-number citations → overlapping chunking → evaluation set → reranking.
+Planned order: OCR fallback → cross-encoder reranking → streaming answers → citation verification (claim-by-claim) → larger evaluation corpus.
 
 ## 中文简介
 
-面向 PDF 文档的检索增强生成（RAG）问答助手。文档切分与向量化完全在本地完成（`all-MiniLM-L6-v2`），只有检索到的片段与问题会发送给 Qwen 生成答案。
+面向 PDF 文档的检索增强生成（RAG）问答助手。切分、向量化均在本地完成（`all-MiniLM-L6-v2`），只有检索到的片段与问题会发送给 Qwen 生成答案。
 
+- **核心能力**：页码级引用（`文件名 · 页码 · 相似度`）、800/150 重叠切块、MMR 重排、多文档管理、评测脚本
 - **技术栈**：Streamlit + pypdf + sentence-transformers + ChromaDB + Qwen（DashScope OpenAI 兼容接口）
-- **流程**：PDF 解析 → 500 字符切块 → 本地向量化 → 持久化存储 → Top-3 检索 → 拼接上下文 → 调用大模型作答
-- **运行**：配置 `.env` 中的 `QWEN_API_KEY` / `QWEN_BASE_URL` 后，执行 `streamlit run ui.py`
+- **评测**：18 道人工题目，检索 hit@3 = 1.00、答案准确率 = 1.00、引用率 = 1.00、拒答率 = 1.00（语料仅 4 个片段，指标接近上限，主要用于验证链路与引用可靠性）
+- **运行**：配置 `.env`（参考 `.env.example`）后执行 `streamlit run ui.py`
 
 ## License
 

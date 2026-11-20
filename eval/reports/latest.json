@@ -1,0 +1,498 @@
+{
+  "summary": {
+    "documents": {
+      "real.pdf": {
+        "chunks": 4,
+        "pages": 3
+      }
+    },
+    "settings": {
+      "chunk_size": 800,
+      "chunk_overlap": 150,
+      "embedding_model": "all-MiniLM-L6-v2",
+      "retrieve_k": 8,
+      "context_k": 3,
+      "mmr_lambda": 0.7,
+      "llm_model": "qwen-plus"
+    },
+    "n_questions": 18,
+    "n_in_scope": 17,
+    "retrieval_hit_at_k": 1.0,
+    "retrieval_hit_at_1": 0.941,
+    "answer_keyword_accuracy": 1.0,
+    "citation_rate": 1.0,
+    "refusal_rate": 1.0,
+    "judge_mean_faithfulness": 5.0,
+    "generated_at": "2026-11-20T15:25:41"
+  },
+  "rows": [
+    {
+      "id": "q01",
+      "question": "How many pages does the sample document have?",
+      "in_scope": true,
+      "gold_pages": [
+        1
+      ],
+      "retrieved_pages": [
+        1,
+        3,
+        2
+      ],
+      "hit": true,
+      "hit_at_1": true,
+      "scores": [
+        0.469,
+        0.393,
+        0.315
+      ],
+      "answer": "The sample document has three pages [1].",
+      "keyword_ok": true,
+      "refusal_ok": null,
+      "cites": true,
+      "judge": 5,
+      "seconds": 6.3
+    },
+    {
+      "id": "q02",
+      "question": "Which fonts are embedded in this PDF?",
+      "in_scope": true,
+      "gold_pages": [
+        1
+      ],
+      "retrieved_pages": [
+        1,
+        1,
+        3
+      ],
+      "hit": true,
+      "hit_at_1": true,
+      "scores": [
+        0.624,
+        0.539,
+        0.447
+      ],
+      "answer": "The fonts embedded in this PDF are DejaVu Sans and DejaVu Sans Bold, each embedded as a subset [1][2].",
+      "keyword_ok": true,
+      "refusal_ok": null,
+      "cites": true,
+      "judge": 5,
+      "seconds": 2.69
+    },
+    {
+      "id": "q03",
+      "question": "Are the fonts stored as complete fonts or as subsets?",
+      "in_scope": true,
+      "gold_pages": [
+        1
+      ],
+      "retrieved_pages": [
+        1,
+        1,
+        3
+      ],
+      "hit": true,
+      "hit_at_1": true,
+      "scores": [
+        0.476,
+        0.249,
+        0.176
+      ],
+      "answer": "The fonts are stored as subsets. This is stated in both [1] and [2]: “This file embeds only the glyphs it uses (a font subset), which keeps it small” [1], and “Embedded fonts: subsets of DejaVu Sans, so the text looks the same on every device” [2].",
+      "keyword_ok": true,
+      "refusal_ok": null,
+      "cites": true,
+      "judge": 5,
+      "seconds": 4.69
+    },
+    {
+      "id": "q04",
+      "question": "Which languages are used as character examples on page 1?",
+      "in_scope": true,
+      "gold_pages": [
+        1
+      ],
+      "retrieved_pages": [
+        1,
+        1,
+        3
+      ],
+      "hit": true,
+      "hit_at_1": true,
+      "scores": [
+        0.423,
+        0.256,
+        0.206
+      ],
+      "answer": "The languages used as character examples on page 1 are: English, Français, Deutsch, Español, Ελληνικά, Русский, Türkçe, and Čeština [1].",
+      "keyword_ok": true,
+      "refusal_ok": null,
+      "cites": true,
+      "judge": 5,
+      "seconds": 2.98
+    },
+    {
+      "id": "q05",
+      "question": "How do you jump between sections in a PDF viewer?",
+      "in_scope": true,
+      "gold_pages": [
+        1
+      ],
+      "retrieved_pages": [
+        1,
+        2,
+        3
+      ],
+      "hit": true,
+      "hit_at_1": true,
+      "scores": [
+        0.394,
+        0.371,
+        0.267
+      ],
+      "answer": "You can jump between sections in a PDF viewer by opening the bookmarks panel [1].",
+      "keyword_ok": true,
+      "refusal_ok": null,
+      "cites": true,
+      "judge": 5,
+      "seconds": 4.32
+    },
+    {
+      "id": "q06",
+      "question": "Is this document a tagged PDF?",
+      "in_scope": true,
+      "gold_pages": [
+        2
+      ],
+      "retrieved_pages": [
+        2,
+        1,
+        3
+      ],
+      "hit": true,
+      "hit_at_1": true,
+      "scores": [
+        0.56,
+        0.494,
+        0.494
+      ],
+      "answer": "No, this document is not a tagged PDF. The context states: “Tagged PDFs add a structure layer that marks up rows and cells; this one is not tagged” [1].",
+      "keyword_ok": true,
+      "refusal_ok": null,
+      "cites": true,
+      "judge": 5,
+      "seconds": 2.94
+    },
+    {
+      "id": "q07",
+      "question": "What is the PDF filter for JPEG image data called?",
+      "in_scope": true,
+      "gold_pages": [
+        3
+      ],
+      "retrieved_pages": [
+        3,
+        2,
+        1
+      ],
+      "hit": true,
+      "hit_at_1": true,
+      "scores": [
+        0.606,
+        0.495,
+        0.388
+      ],
+      "answer": "The PDF filter for JPEG image data is called DCTDecode [1].",
+      "keyword_ok": true,
+      "refusal_ok": null,
+      "cites": true,
+      "judge": 5,
+      "seconds": 3.87
+    },
+    {
+      "id": "q08",
+      "question": "What is the resolution of the embedded raster image?",
+      "in_scope": true,
+      "gold_pages": [
+        3
+      ],
+      "retrieved_pages": [
+        3,
+        1,
+        2
+      ],
+      "hit": true,
+      "hit_at_1": true,
+      "scores": [
+        0.331,
+        0.219,
+        0.117
+      ],
+      "answer": "The resolution of the embedded raster image is 480 × 240 pixels [1].",
+      "keyword_ok": true,
+      "refusal_ok": null,
+      "cites": true,
+      "judge": 5,
+      "seconds": 3.57
+    },
+    {
+      "id": "q09",
+      "question": "How is a table represented inside a PDF file?",
+      "in_scope": true,
+      "gold_pages": [
+        2
+      ],
+      "retrieved_pages": [
+        2,
+        1,
+        3
+      ],
+      "hit": true,
+      "hit_at_1": true,
+      "scores": [
+        0.705,
+        0.434,
+        0.505
+      ],
+      "answer": "A table inside a PDF file is represented as text and lines placed at exact positions, since PDF has no dedicated table object [1].",
+      "keyword_ok": true,
+      "refusal_ok": null,
+      "cites": true,
+      "judge": 5,
+      "seconds": 4.7
+    },
+    {
+      "id": "q10",
+      "question": "Why does the vector chart stay sharp at any zoom level?",
+      "in_scope": true,
+      "gold_pages": [
+        2
+      ],
+      "retrieved_pages": [
+        2,
+        1,
+        3
+      ],
+      "hit": true,
+      "hit_at_1": true,
+      "scores": [
+        0.302,
+        0.181,
+        0.155
+      ],
+      "answer": "The vector chart stays sharp at any zoom level because it is drawn with PDF path operators (lines, rectangles and text), not stored as a picture [1].",
+      "keyword_ok": true,
+      "refusal_ok": null,
+      "cites": true,
+      "judge": 5,
+      "seconds": 4.42
+    },
+    {
+      "id": "q11",
+      "question": "What is a link in a PDF technically?",
+      "in_scope": true,
+      "gold_pages": [
+        3
+      ],
+      "retrieved_pages": [
+        3,
+        1,
+        2
+      ],
+      "hit": true,
+      "hit_at_1": true,
+      "scores": [
+        0.461,
+        0.435,
+        0.408
+      ],
+      "answer": "A link in a PDF is technically an annotation: a clickable rectangle on the page with an action [1].",
+      "keyword_ok": true,
+      "refusal_ok": null,
+      "cites": true,
+      "judge": 5,
+      "seconds": 3.67
+    },
+    {
+      "id": "q12",
+      "question": "Can this sample file be used commercially?",
+      "in_scope": true,
+      "gold_pages": [
+        3
+      ],
+      "retrieved_pages": [
+        3,
+        1,
+        1
+      ],
+      "hit": true,
+      "hit_at_1": true,
+      "scores": [
+        0.328,
+        0.22,
+        0.218
+      ],
+      "answer": "Yes, this sample file can be used commercially. The licence states it is “Free to use for testing, teaching and demos, commercially or not, with no attribution needed” [1].",
+      "keyword_ok": true,
+      "refusal_ok": null,
+      "cites": true,
+      "judge": 5,
+      "seconds": 4.81
+    },
+    {
+      "id": "q13",
+      "question": "Which website does the web link point to?",
+      "in_scope": true,
+      "gold_pages": [
+        1,
+        3
+      ],
+      "retrieved_pages": [
+        3,
+        1,
+        1
+      ],
+      "hit": true,
+      "hit_at_1": true,
+      "scores": [
+        0.227,
+        0.152,
+        0.175
+      ],
+      "answer": "The web link points to 99helpers.com/file-types/pdf [1].",
+      "keyword_ok": true,
+      "refusal_ok": null,
+      "cites": true,
+      "judge": 5,
+      "seconds": 4.65
+    },
+    {
+      "id": "q14",
+      "question": "Which file formats are listed in the table on page 2?",
+      "in_scope": true,
+      "gold_pages": [
+        2
+      ],
+      "retrieved_pages": [
+        1,
+        2,
+        3
+      ],
+      "hit": true,
+      "hit_at_1": false,
+      "scores": [
+        0.421,
+        0.412,
+        0.419
+      ],
+      "answer": "The file formats listed in the table on page 2 are: PDF, Word document, Plain text, and Markdown [2].",
+      "keyword_ok": true,
+      "refusal_ok": null,
+      "cites": true,
+      "judge": 5,
+      "seconds": 3.4
+    },
+    {
+      "id": "q15",
+      "question": "Are the figures in the chart real data?",
+      "in_scope": true,
+      "gold_pages": [
+        2,
+        3
+      ],
+      "retrieved_pages": [
+        3,
+        1,
+        2
+      ],
+      "hit": true,
+      "hit_at_1": true,
+      "scores": [
+        0.43,
+        0.271,
+        0.282
+      ],
+      "answer": "No, the figures in the chart are not real data; they are fictional. The context states: “Files uploaded (fictional data, thousands)” [3].",
+      "keyword_ok": true,
+      "refusal_ok": null,
+      "cites": true,
+      "judge": 5,
+      "seconds": 4.69
+    },
+    {
+      "id": "q16",
+      "question": "How is text stored inside a PDF?",
+      "in_scope": true,
+      "gold_pages": [
+        1
+      ],
+      "retrieved_pages": [
+        1,
+        1,
+        2
+      ],
+      "hit": true,
+      "hit_at_1": true,
+      "scores": [
+        0.552,
+        0.509,
+        0.532
+      ],
+      "answer": "Text in a PDF is stored as character codes plus the font needed to draw them [2].",
+      "keyword_ok": true,
+      "refusal_ok": null,
+      "cites": true,
+      "judge": 5,
+      "seconds": 4.51
+    },
+    {
+      "id": "q17",
+      "question": "What keeps this file small even though it embeds fonts?",
+      "in_scope": true,
+      "gold_pages": [
+        1
+      ],
+      "retrieved_pages": [
+        1,
+        2,
+        1
+      ],
+      "hit": true,
+      "hit_at_1": true,
+      "scores": [
+        0.564,
+        0.276,
+        0.271
+      ],
+      "answer": "This file stays small because it embeds only the glyphs it uses (a font subset) rather than the entire font [1].",
+      "keyword_ok": true,
+      "refusal_ok": null,
+      "cites": true,
+      "judge": 5,
+      "seconds": 4.55
+    },
+    {
+      "id": "q18",
+      "question": "What is the capital of Mongolia?",
+      "in_scope": false,
+      "gold_pages": [],
+      "retrieved_pages": [
+        1,
+        3,
+        2
+      ],
+      "hit": null,
+      "hit_at_1": null,
+      "scores": [
+        0.041,
+        0.028,
+        -0.012
+      ],
+      "answer": "I do not know based on the document.",
+      "keyword_ok": null,
+      "refusal_ok": true,
+      "cites": false,
+      "judge": null,
+      "seconds": 1.51
+    }
+  ]
+}
