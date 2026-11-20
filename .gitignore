@@ -218,3 +218,13 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# RAG project: local vector store, source documents, tooling
+chroma_db/
+data/
+.vscode/
+.agents/
+.claude/
+_streamlit_*.log
+_streamlit_*.err
+
