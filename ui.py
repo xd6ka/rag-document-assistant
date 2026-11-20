@@ -47,7 +47,8 @@ if "messages" not in st.session_state:
 st.title("RAG Document Assistant")
 st.caption(
     f"Local embeddings ({config.EMBEDDING_MODEL}) · {config.CHUNK_SIZE}-char chunks "
-    f"with {config.CHUNK_OVERLAP} overlap · MMR reranking · answers by {config.QWEN_MODEL}"
+    f"with {config.CHUNK_OVERLAP} overlap · MMR reranking · "
+    f"answers by {config.LLM_PROVIDER} ({config.LLM_MODEL})"
 )
 
 documents = store.documents()

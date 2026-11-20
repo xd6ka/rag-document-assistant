@@ -1,4 +1,8 @@
-"""Prompt assembly and LLM calls (Qwen via the OpenAI-compatible endpoint)."""
+"""Prompt assembly and LLM calls against any OpenAI-compatible endpoint.
+
+The client is built from ``config.LLM_*``, so the same code talks to DashScope,
+DeepSeek, OpenAI or a local Ollama server. Nothing here knows the vendor name.
+"""
 
 from __future__ import annotations
 
@@ -11,25 +15,47 @@ from . import config
 from .store import RetrievedChunk
 
 SYSTEM_PROMPT = (
-    "You are a document question-answering assistant. "
-    "Answer using ONLY the provided context blocks. "
-    "If the context does not contain the answer, reply that you do not know based on the document "
-    "instead of guessing. "
-    "Answer in the language of the question. "
-    "Cite the blocks you relied on as [1], [2], ... right after the supported sentence."
+    "You answer questions about documents.\n"
+    "Rules:\n"
+    "1. Use ONLY the context blocks below. Do not use outside knowledge.\n"
+    "2. If the context does not contain the answer, say you do not know based on the document.\n"
+    "3. Answer in the language of the question.\n"
+    "4. Every factual sentence must end with the number of the block it came from, in square "
+    "brackets: [1]. For two blocks use [1][2]. An answer without a bracketed number is wrong.\n"
+    "Example: all-MiniLM-L6-v2 has 22 million parameters [1]."
 )
 
+# Ollama ignores the key but the SDK refuses to start without one.
+LOCAL_API_KEY = "ollama"
+
 _client: Optional[OpenAI] = None
+
+
+def provider_label() -> str:
+    """Short 'provider · model' string for the UI and eval reports."""
+    return f"{config.LLM_PROVIDER} · {config.LLM_MODEL}"
 
 
 def get_client() -> OpenAI:
     global _client
     if _client is None:
-        if not config.QWEN_API_KEY:
-            raise RuntimeError(
-                "QWEN_API_KEY is not set. Copy .env.example to .env and fill in your key."
-            )
-        _client = OpenAI(api_key=config.QWEN_API_KEY, base_url=config.QWEN_BASE_URL)
+        api_key = config.LLM_API_KEY
+        if not api_key:
+            if not config.LLM_IS_LOCAL:
+                raise RuntimeError(
+                    f"No API key for provider '{config.LLM_PROVIDER}'. "
+                    "Set LLM_API_KEY (or the provider-specific key) in .env, "
+                    "or switch to LLM_PROVIDER=ollama for offline local inference."
+                )
+            api_key = LOCAL_API_KEY
+        _client = OpenAI(
+            api_key=api_key,
+            base_url=config.LLM_BASE_URL,
+            timeout=config.LLM_TIMEOUT,
+            # Local models often answer a single request at a time; retrying inside
+            # the SDK just multiplies the wall-clock cost.
+            max_retries=0 if config.LLM_IS_LOCAL else 2,
+        )
     return _client
 
 
@@ -43,7 +69,7 @@ def build_prompt(question: str, contexts: Sequence[RetrievedChunk]) -> str:
     return (
         f"Context:\n{context}\n\n"
         f"Question: {question}\n\n"
-        "Answer the question using only the context above."
+        "Answer using only the context above. End every sentence with the block number, e.g. [1]."
     )
 
 
@@ -53,6 +79,7 @@ def answer_question(
     model: Optional[str] = None,
     retries: int = 3,
     temperature: float = 0.2,
+    max_tokens: Optional[int] = None,
 ) -> str:
     client = get_client()
     messages = [
@@ -63,9 +90,10 @@ def answer_question(
     for attempt in range(retries):
         try:
             response = client.chat.completions.create(
-                model=model or config.QWEN_MODEL,
+                model=model or config.LLM_MODEL,
                 messages=messages,
                 temperature=temperature,
+                max_tokens=max_tokens or config.LLM_MAX_TOKENS,
             )
             return (response.choices[0].message.content or "").strip()
         except Exception:

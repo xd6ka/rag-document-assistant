@@ -119,8 +119,9 @@ def judge_faithfulness(question: str, answer: str, contexts) -> int | None:
     context = "\n\n".join(chunk.text for chunk in contexts)
     payload = f"CONTEXT:\n{context}\n\nQUESTION: {question}\n\nANSWER:\n{answer}"
     response = client.chat.completions.create(
-        model=config.QWEN_MODEL,
+        model=config.LLM_MODEL,
         temperature=0,
+        max_tokens=8,
         messages=[
             {"role": "system", "content": JUDGE_PROMPT},
             {"role": "user", "content": payload},
@@ -139,6 +140,7 @@ def main() -> None:
     parser.add_argument("--retrieve-k", type=int, default=config.RETRIEVE_K)
     parser.add_argument("--no-answers", action="store_true", help="skip LLM answer generation")
     parser.add_argument("--judge", action="store_true", help="score answers with an LLM judge")
+    parser.add_argument("--limit", type=int, default=0, help="stop after N questions (0 = all)")
     parser.add_argument("--out", default=None, help="report path (default: eval/reports/...)")
     args = parser.parse_args()
 
@@ -148,6 +150,8 @@ def main() -> None:
         raise SystemExit(f"No PDFs in {corpus_dir}. Run: python eval/build_corpus.py")
 
     items = load_qa_set(Path(args.qa))
+    if args.limit:
+        items = items[: args.limit]
     pages_by_doc = read_page_texts(corpus_dir)
 
     problems = validate_qa_set(items, pages_by_doc)
@@ -248,7 +252,8 @@ def main() -> None:
             "retrieve_k": args.retrieve_k,
             "context_k": args.k,
             "mmr_lambda": config.MMR_LAMBDA,
-            "llm_model": config.QWEN_MODEL,
+            "llm_provider": config.LLM_PROVIDER,
+            "llm_model": config.LLM_MODEL,
         },
         "n_questions": len(rows),
         "n_in_scope": len(in_scope),
@@ -269,7 +274,8 @@ def main() -> None:
         print(
             f"\nWARNING: {api_errors} of {len(rows)} answers failed with API errors. "
             "Answer-level metrics (accuracy, citation rate, refusal, judge) are NOT valid. "
-            "Check your QWEN_API_KEY, endpoint and account quota, then rerun."
+            f"Current endpoint: {config.LLM_PROVIDER} ({config.LLM_BASE_URL}, model {config.LLM_MODEL}). "
+            "Check the key, the model name and the account quota, then rerun."
         )
 
     out_path = Path(args.out) if args.out else ROOT / "eval" / "reports" / f"eval_{datetime.now():%Y%m%d_%H%M%S}.json"

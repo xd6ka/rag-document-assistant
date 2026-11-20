@@ -129,13 +129,13 @@ Each run indexes into a throwaway store, so results never depend on your working
 | Embeddings | sentence-transformers `all-MiniLM-L6-v2` (local, CPU) |
 | Vector store | ChromaDB (`PersistentClient`, cosine space) |
 | Reranking | MMR over candidate embeddings (numpy) |
-| LLM | Qwen via DashScope, OpenAI-compatible API |
+| LLM | provider-agnostic: any OpenAI-compatible endpoint, or local Ollama |
 | Corpus fixtures | reportlab (dev only) |
 | Tests | pytest |
 
 ## Quick start
 
-**Prerequisites:** Python 3.11+ and a Qwen / DashScope API key.
+**Prerequisites:** Python 3.11+. A hosted API key is optional — the default backend is a local Ollama model, which needs no account, no card and no network once the model is pulled.
 
 ```powershell
 python -m venv venv
@@ -146,9 +146,14 @@ pip install -r requirements.txt
 Create `.env` (git-ignored) — or copy `.env.example`:
 
 ```ini
-QWEN_API_KEY=sk-your-key-here
-QWEN_BASE_URL=https://dashscope-intl.aliyuncs.com/compatible-mode/v1
-QWEN_MODEL=qwen-plus
+# Offline: no key at all
+LLM_PROVIDER=ollama
+LLM_MODEL=qwen2.5:3b
+
+# Or a hosted endpoint (same code, one .env edit)
+# LLM_PROVIDER=dashscope
+# QWEN_API_KEY=sk-your-key-here
+# LLM_MODEL=qwen-plus
 ```
 
 Launch the web UI:
@@ -159,8 +164,18 @@ streamlit run ui.py
 
 Streamlit opens `http://localhost:8501`. Drop PDFs into the sidebar → **Process documents** → ask questions.
 
-> If a model returns `404 Model not exist`, your endpoint does not serve that model — pick one available on your DashScope account (`QWEN_MODEL` overrides the default).
-> If it returns `400 Access denied — overdue payment`, the account has no usable quota; indexing and retrieval still work, generation does not.
+> `pip install` and Hugging Face model downloads go through `hf-mirror.com` by default (set in `config.py`), because the upstream endpoint is often unreachable from mainland China.
+
+### Generation backend
+
+`src/config.py:resolve_llm` picks the endpoint from the environment, so the same pipeline runs against a vendor API, a self-hosted proxy or a local model. Presets: `ollama`, `dashscope`, `deepseek`, `moonshot`, `zhipu`, `openai`; every field is overridable with `LLM_BASE_URL`, `LLM_MODEL`, `LLM_API_KEY`.
+
+Two things that are easy to get wrong, and are therefore tested in `tests/test_config.py`:
+
+- legacy `QWEN_*` variables are honoured **only** for `dashscope` — otherwise a leftover `QWEN_BASE_URL` silently redirects a local client to a paid endpoint;
+- local inference gets a longer timeout and a capped `LLM_MAX_TOKENS`, because a 3B model on CPU does not answer in three seconds.
+
+> Hosted-endpoint failure modes: `404 Model not exist` means the endpoint does not serve that model; `400 Access denied — overdue payment` means the account balance is negative. In both cases indexing and retrieval keep working — embeddings are local — so the app degrades to a citation browser instead of dying.
 
 ### CLI
 
@@ -175,7 +190,7 @@ python query.py --k 6 --source real.pdf
 
 ```powershell
 pip install -r requirements-dev.txt
-pytest -q                        # 13 tests
+pytest -q                        # 18 tests
 python eval/build_corpus.py      # regenerate the corpus PDFs
 python eval/run_ablation.py      # config comparison, no API cost
 ```
@@ -185,12 +200,12 @@ python eval/run_ablation.py      # config comparison, no API cost
 ```
 rag-document-assistant/
 ├── src/
-│   ├── config.py        # env loading, paths, chunking & retrieval defaults
+│   ├── config.py        # env loading, paths, defaults, LLM provider resolution
 │   ├── chunking.py      # page-aware overlapping windows, short-tail merging
 │   ├── embeddings.py    # lazy singleton SentenceTransformer, normalized vectors
 │   ├── store.py         # ChromaDB layer: upsert, delete-by-source, cosine query
 │   ├── retrieval.py     # vector search + MMR reranking
-│   ├── generation.py    # prompt assembly, Qwen client with retry/backoff
+│   ├── generation.py    # prompt assembly, vendor-neutral client, retry/backoff
 │   └── ingest.py        # PDF -> pages -> chunks -> embeddings -> store
 ├── ui.py                # Streamlit app (upload, chat, citations, settings)
 ├── query.py             # interactive CLI
@@ -205,6 +220,7 @@ rag-document-assistant/
 │   └── reports/         # latest.json + ablation.json + timestamped runs
 ├── tests/
 │   ├── test_chunking.py    # 8 cases
+│   ├── test_config.py      # 5 cases (provider resolution, legacy-env traps)
 │   └── test_eval_labels.py # 5 cases
 ├── data/                # source PDFs (git-ignored)
 ├── chroma_db/           # persisted vector store (git-ignored)
