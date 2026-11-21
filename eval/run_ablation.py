@@ -12,6 +12,7 @@ from __future__ import annotations
 import json
 import sys
 import tempfile
+import time
 from datetime import datetime
 from pathlib import Path
 
@@ -30,6 +31,12 @@ CONFIGS = [
     {"name": "800/150, no MMR, k=3", "size": 800, "overlap": 150, "rerank": False, "k": 3},
     {"name": "800/150, MMR, k=3", "size": 800, "overlap": 150, "rerank": True, "k": 3},
     {"name": "800/150, MMR, k=4", "size": 800, "overlap": 150, "rerank": True, "k": 4},
+    # Cross-encoder stage: does joint scoring beat cosine order, and does MMR
+    # still earn its keep once the ordering is better?
+    {"name": "800/150, CE, k=3", "size": 800, "overlap": 150, "rerank": False, "ce": True, "k": 3},
+    {"name": "800/150, CE, k=4", "size": 800, "overlap": 150, "rerank": False, "ce": True, "k": 4},
+    {"name": "800/150, CE+MMR, k=3", "size": 800, "overlap": 150, "rerank": True, "ce": True, "k": 3},
+    {"name": "800/150, CE+MMR, k=4", "size": 800, "overlap": 150, "rerank": True, "ce": True, "k": 4},
 ]
 
 RETRIEVE_K = 8
@@ -58,14 +65,17 @@ def main() -> None:
         retriever = Retriever(store)
 
         ranks: list[int | None] = []
+        started = time.perf_counter()
         for item in questions:
             contexts = retriever.retrieve(
                 item["question"],
                 k=config["k"],
                 retrieve_k=RETRIEVE_K,
                 rerank=config["rerank"],
+                cross_encoder=config.get("ce", False),
             )
             ranks.append(first_hit_rank(contexts, f"{item['doc']}.pdf", item["gold_pages"]))
+        elapsed = time.perf_counter() - started
 
         hits = [rank for rank in ranks if rank is not None]
         hit_at_k = len(hits) / len(questions)
@@ -79,12 +89,14 @@ def main() -> None:
                 "hit_at_k": round(hit_at_k, 3),
                 "hit_at_1": round(hit_at_1, 3),
                 "mrr": round(mrr, 3),
+                "seconds_per_question": round(elapsed / len(questions), 3),
                 "misses": [item["id"] for item, rank in zip(questions, ranks) if rank is None],
             }
         )
         print(
             f"{config['name']:<24} chunks={store.count():<3} "
-            f"hit@{config['k']}={hit_at_k:.3f} hit@1={hit_at_1:.3f} mrr={mrr:.3f}"
+            f"hit@{config['k']}={hit_at_k:.3f} hit@1={hit_at_1:.3f} mrr={mrr:.3f} "
+            f"{elapsed / len(questions):.3f}s/q"
         )
 
     out_path = ROOT / "eval" / "reports" / "ablation.json"

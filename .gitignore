@@ -230,4 +230,6 @@ _streamlit_*.err
 
 # Evaluation reports: keep the latest run, ignore timestamped history
 eval/reports/eval_*.json
+eval/reports/_partial.json
+eval/reports/_smoke*.json
 

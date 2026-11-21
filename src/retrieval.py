@@ -1,9 +1,16 @@
-"""Retrieval pipeline: vector search followed by MMR reranking.
+"""Retrieval pipeline: vector search, optional cross-encoder reranking, then MMR.
 
-Pull a wide candidate set from the index (``RETRIEVE_K``), then pick
-``CONTEXT_K`` chunks with Maximal Marginal Relevance. Without this step a
-question whose answer sits in three adjacent chunks gets three near-identical
-excerpts and wastes most of the prompt budget.
+Three stages, each switchable so their contribution can be measured separately:
+
+1. ``store.query`` pulls ``RETRIEVE_K`` candidates by embedding similarity — cheap,
+   but both sides of the comparison are embedder vectors that never saw each other;
+2. a cross-encoder reorders those candidates by reading (query, passage) jointly;
+3. MMR picks the final ``CONTEXT_K`` with redundancy taken into account, so a
+   question whose answer sits in three adjacent chunks does not spend the whole
+   prompt budget on three near-identical excerpts.
+
+MMR's relevance term uses the cross-encoder score when reranking ran, because
+after stage 2 the cosine order is no longer the best signal available.
 """
 
 from __future__ import annotations
@@ -14,6 +21,7 @@ import numpy as np
 
 from . import config
 from .embeddings import embed_query
+from .rerank import rerank_candidates
 from .store import DocumentStore, RetrievedChunk
 
 
@@ -41,7 +49,7 @@ def mmr_select(
     while pool and len(chosen) < k:
         best_index, best_score = 0, float("-inf")
         for index, candidate in enumerate(pool):
-            relevance = candidate.score
+            relevance = candidate.relevance
             redundancy = max(
                 (cosine_similarity(candidate.embedding, picked.embedding) for picked in chosen),
                 default=0.0,
@@ -57,6 +65,7 @@ def mmr_select(
 class Retriever:
     def __init__(self, store: Optional[DocumentStore] = None):
         self.store = store or DocumentStore()
+        self.last_stages: dict[str, bool] = {}
 
     def retrieve(
         self,
@@ -65,12 +74,21 @@ class Retriever:
         retrieve_k: Optional[int] = None,
         sources: Optional[Sequence[str]] = None,
         rerank: bool = True,
+        cross_encoder: Optional[bool] = None,
     ) -> list[RetrievedChunk]:
+        """``rerank`` toggles MMR; ``cross_encoder`` toggles stage 2 (None = config)."""
+        use_cross_encoder = config.RERANK_ENABLED if cross_encoder is None else cross_encoder
         candidates = self.store.query(
             embed_query(question),
             retrieve_k or config.RETRIEVE_K,
             sources=sources,
         )
+        self.last_stages = {"cross_encoder": use_cross_encoder, "mmr": rerank}
+
+        if use_cross_encoder:
+            candidates = rerank_candidates(question, candidates)
+
+        final_k = k or config.CONTEXT_K
         if not rerank:
-            return candidates[: (k or config.CONTEXT_K)]
-        return mmr_select(candidates, k or config.CONTEXT_K, config.MMR_LAMBDA)
+            return candidates[:final_k]
+        return mmr_select(candidates, final_k, config.MMR_LAMBDA)

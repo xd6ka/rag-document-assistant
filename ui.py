@@ -28,10 +28,13 @@ def load_embedding_model():
 def render_sources(contexts: list[RetrievedChunk]) -> None:
     with st.expander(f"Sources ({len(contexts)} chunks)"):
         for number, chunk in enumerate(contexts, start=1):
-            st.markdown(
+            line = (
                 f"**[{number}]** `{chunk.source}` · page {chunk.page} · "
                 f"similarity {chunk.score:.3f}"
             )
+            if chunk.rerank_score is not None:
+                line += f" · rerank {chunk.rerank_score:.3f}"
+            st.markdown(line)
             snippet = chunk.text if len(chunk.text) <= 600 else chunk.text[:600] + " ..."
             st.text(snippet)
 
@@ -47,7 +50,7 @@ if "messages" not in st.session_state:
 st.title("RAG Document Assistant")
 st.caption(
     f"Local embeddings ({config.EMBEDDING_MODEL}) · {config.CHUNK_SIZE}-char chunks "
-    f"with {config.CHUNK_OVERLAP} overlap · MMR reranking · "
+    f"with {config.CHUNK_OVERLAP} overlap · cross-encoder rerank · MMR · "
     f"answers by {config.LLM_PROVIDER} ({config.LLM_MODEL})"
 )
 
@@ -106,14 +109,20 @@ with st.sidebar:
         help="More chunks means more context, larger prompt and slower answers.",
     )
     use_mmr = st.checkbox("MMR reranking", value=True, help="Diversify retrieved chunks.")
+    use_ce = st.checkbox(
+        "Cross-encoder reranking",
+        value=config.RERANK_ENABLED,
+        help="Score each candidate against the question jointly. ~0.3 s per query.",
+    )
 
     st.divider()
     with st.expander("Advanced"):
         st.write(
             f"- embeddings: `{config.EMBEDDING_MODEL}`\n"
+            f"- reranker: `{config.RERANK_MODEL}`\n"
             f"- store: `{config.CHROMA_PATH}`\n"
             f"- collection: `{config.COLLECTION}`\n"
-            f"- retrieval: top {config.RETRIEVE_K} → MMR λ={config.MMR_LAMBDA} → {config.CONTEXT_K}\n"
+            f"- retrieval: top {config.RETRIEVE_K} → CE rerank → MMR λ={config.MMR_LAMBDA} → {config.CONTEXT_K}\n"
             f"- chunking: {config.CHUNK_SIZE} chars / {config.CHUNK_OVERLAP} overlap"
         )
         if st.button("Clear database"):
@@ -151,6 +160,7 @@ if prompt:
                         k=context_k,
                         sources=selected_sources or None,
                         rerank=use_mmr,
+                        cross_encoder=use_ce,
                     )
                 if not contexts:
                     answer = "Nothing relevant found for that question in the indexed documents."

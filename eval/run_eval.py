@@ -75,7 +75,7 @@ def is_refusal(answer: str) -> bool:
     lowered = answer.lower()
     return any(marker in lowered for marker in REFUSAL_MARKERS) or bool(REFUSAL_PATTERN.search(answer))
 
-CITATION_PATTERN = re.compile(r"\[\d+\]")
+CITATION_PATTERN = re.compile(r"\[(\d+)\]")
 
 JUDGE_PROMPT = (
     "You are grading a retrieval-augmented answer. Given the CONTEXT and the ANSWER, "
@@ -160,6 +160,16 @@ def judge_faithfulness(question: str, answer: str, contexts) -> int | None:
     return int(match.group(0)) if match else None
 
 
+def parse_citations(answer: str) -> list[int]:
+    """Block numbers the answer pointed at, in order of appearance."""
+    return [int(match) for match in CITATION_PATTERN.findall(answer)]
+
+
+def cited_blocks(answer: str, retrieved: list[tuple[str, int]]) -> list[tuple[str, int]]:
+    """Map ``[n]`` markers onto the blocks that were actually in the prompt."""
+    return [retrieved[index - 1] for index in parse_citations(answer) if 1 <= index <= len(retrieved)]
+
+
 def summarize(rows: list[dict], base: dict, no_answers: bool) -> dict:
     """Aggregate per-question rows into the report summary."""
     in_scope = [row for row in rows if row["in_scope"]]
@@ -183,6 +193,9 @@ def summarize(rows: list[dict], base: dict, no_answers: bool) -> dict:
             "mrr": round(sum(rrs) / len(rrs), 3) if rrs else None,
             "answer_keyword_accuracy": rate([row["keyword_ok"] for row in in_scope]),
             "citation_rate": rate([row["cites"] for row in in_scope]),
+            # Stronger than citation_rate: does the bracket point at the gold page,
+            # or merely at some block? A presence check hides citation drift.
+            "citation_gold_rate": rate([row.get("citation_points_to_gold") for row in in_scope]),
             "refusal_rate": rate([row["refusal_ok"] for row in out_scope]),
             "judge_mean_faithfulness": round(sum(judges) / len(judges), 2) if judges else None,
             # A judge running on the same small local model is not calibrated: see
@@ -222,6 +235,16 @@ def rescore_report(src: Path, out: Path, qa_items: list[dict]) -> None:
             row["keyword_ok"] = None
         row["cites"] = bool(CITATION_PATTERN.search(answer))
 
+        retrieved = [tuple(pair) for pair in (row.get("retrieved") or [])]
+        row["cited_blocks"] = cited_blocks(answer, retrieved)
+        if item.get("in_scope", True):
+            gold_doc = f"{item['doc']}.pdf"
+            row["citation_points_to_gold"] = any(
+                source == gold_doc and page in item["gold_pages"] for source, page in row["cited_blocks"]
+            )
+        else:
+            row["citation_points_to_gold"] = None
+
     old = payload.get("summary", {})
     summary = summarize(rows, {"corpus": old.get("corpus"), "settings": old.get("settings")}, no_answers=False)
     out.parent.mkdir(parents=True, exist_ok=True)
@@ -242,6 +265,7 @@ def main() -> None:
     parser.add_argument("--retrieve-k", type=int, default=config.RETRIEVE_K)
     parser.add_argument("--no-answers", action="store_true", help="skip LLM answer generation")
     parser.add_argument("--judge", action="store_true", help="score answers with an LLM judge")
+    parser.add_argument("--no-ce", action="store_true", help="disable cross-encoder reranking")
     parser.add_argument("--limit", type=int, default=0, help="stop after N questions (0 = all)")
     parser.add_argument("--rescore", default=None, help="re-score a previous report's stored answers, no model calls")
     parser.add_argument("--out", default=None, help="report path (default: eval/reports/...)")
@@ -282,10 +306,17 @@ def main() -> None:
 
     retriever = Retriever(store)
     rows: list[dict] = []
+    out_path = Path(args.out) if args.out else ROOT / "eval" / "reports" / f"eval_{datetime.now():%Y%m%d_%H%M%S}.json"
+    out_path.parent.mkdir(parents=True, exist_ok=True)
 
     for item in items:
         started = time.perf_counter()
-        contexts = retriever.retrieve(item["question"], k=args.k, retrieve_k=args.retrieve_k)
+        contexts = retriever.retrieve(
+            item["question"],
+            k=args.k,
+            retrieve_k=args.retrieve_k,
+            cross_encoder=not args.no_ce,
+        )
         retrieved = [(chunk.source, chunk.page) for chunk in contexts]
 
         rank = None
@@ -296,6 +327,8 @@ def main() -> None:
         keyword_ok = None
         refusal_ok = None
         cites = None
+        citation_points_to_gold = None
+        cited = []
         judge = None
 
         if not args.no_answers and contexts:
@@ -311,6 +344,13 @@ def main() -> None:
             else:
                 refusal_ok = is_refusal(answer)
             cites = bool(CITATION_PATTERN.search(answer))
+            cited = cited_blocks(answer, retrieved)
+
+            if item.get("in_scope", True):
+                gold_doc = f"{item['doc']}.pdf"
+                citation_points_to_gold = any(
+                    source == gold_doc and page in item["gold_pages"] for source, page in cited
+                )
 
             if args.judge and item.get("in_scope", True) and answer and not answer.startswith("[API error]"):
                 try:
@@ -334,11 +374,19 @@ def main() -> None:
                 "keyword_ok": keyword_ok,
                 "refusal_ok": refusal_ok,
                 "cites": cites,
+                "cited_blocks": cited,
+                "citation_points_to_gold": citation_points_to_gold,
                 "judge": judge,
                 "seconds": round(time.perf_counter() - started, 2),
             }
         )
         print(f"{item['id']}: rank={rank} retrieved={retrieved}")
+
+        # A 25-minute run must not be lost to a later crash; keep a recoverable copy.
+        (out_path.parent / "_partial.json").write_text(
+            json.dumps({"summary": {}, "rows": rows}, ensure_ascii=False, indent=2),
+            encoding="utf-8",
+        )
 
     summary = summarize(
         rows,
@@ -355,6 +403,8 @@ def main() -> None:
                 "retrieve_k": args.retrieve_k,
                 "context_k": args.k,
                 "mmr_lambda": config.MMR_LAMBDA,
+                "cross_encoder": not args.no_ce,
+                "rerank_model": config.RERANK_MODEL if not args.no_ce else None,
                 "llm_provider": config.LLM_PROVIDER,
                 "llm_model": config.LLM_MODEL,
             },
@@ -362,6 +412,15 @@ def main() -> None:
         no_answers=args.no_answers,
     )
     judges = [row["judge"] for row in rows if row["judge"] is not None]
+    api_errors = summary.get("api_errors") or 0
+
+    out_path.write_text(
+        json.dumps({"summary": summary, "rows": rows}, ensure_ascii=False, indent=2),
+        encoding="utf-8",
+    )
+    partial = out_path.parent / "_partial.json"
+    if partial.exists():
+        partial.unlink()
 
     if judges and config.LLM_IS_LOCAL:
         print(
@@ -377,13 +436,6 @@ def main() -> None:
             f"Current endpoint: {config.LLM_PROVIDER} ({config.LLM_BASE_URL}, model {config.LLM_MODEL}). "
             "Check the key, the model name and the account quota, then rerun."
         )
-
-    out_path = Path(args.out) if args.out else ROOT / "eval" / "reports" / f"eval_{datetime.now():%Y%m%d_%H%M%S}.json"
-    out_path.parent.mkdir(parents=True, exist_ok=True)
-    out_path.write_text(
-        json.dumps({"summary": summary, "rows": rows}, ensure_ascii=False, indent=2),
-        encoding="utf-8",
-    )
 
     print("\n=== summary ===")
     for key, value in summary.items():

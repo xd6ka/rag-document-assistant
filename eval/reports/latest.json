@@ -12,22 +12,25 @@
       "retrieve_k": 8,
       "context_k": 4,
       "mmr_lambda": 0.7,
+      "cross_encoder": true,
+      "rerank_model": "cross-encoder/ms-marco-MiniLM-L-6-v2",
       "llm_provider": "ollama",
       "llm_model": "qwen2.5:3b"
     },
     "n_questions": 29,
     "n_in_scope": 25,
-    "hit_at_k": 0.96,
-    "hit_at_1": 0.88,
-    "mrr": 0.913,
-    "answer_keyword_accuracy": 0.92,
+    "hit_at_k": 1.0,
+    "hit_at_1": 0.96,
+    "mrr": 0.98,
+    "answer_keyword_accuracy": 0.96,
     "citation_rate": 1.0,
+    "citation_gold_rate": 0.8,
     "refusal_rate": 1.0,
     "judge_mean_faithfulness": null,
     "judge_reliable": null,
     "api_errors": 0,
     "answer_metrics_valid": true,
-    "generated_at": "2026-11-20T17:17:58"
+    "generated_at": "2026-11-21T14:01:14"
   },
   "rows": [
     {
@@ -52,8 +55,8 @@
           2
         ],
         [
-          "vector-store-notes.pdf",
-          2
+          "embedding-models.pdf",
+          3
         ]
       ],
       "hit_rank": 1,
@@ -64,8 +67,15 @@
       "keyword_ok": true,
       "refusal_ok": null,
       "cites": true,
+      "cited_blocks": [
+        [
+          "embedding-models.pdf",
+          1
+        ]
+      ],
+      "citation_points_to_gold": true,
       "judge": null,
-      "seconds": 31.19
+      "seconds": 40.98
     },
     {
       "id": "e02",
@@ -81,16 +91,16 @@
           2
         ],
         [
-          "retrieval-eval.pdf",
-          1
-        ],
-        [
-          "retrieval-eval.pdf",
-          3
-        ],
-        [
           "embedding-models.pdf",
           1
+        ],
+        [
+          "retrieval-eval.pdf",
+          1
+        ],
+        [
+          "chunking-strategies.pdf",
+          2
         ]
       ],
       "hit_rank": 1,
@@ -101,8 +111,15 @@
       "keyword_ok": true,
       "refusal_ok": null,
       "cites": true,
+      "cited_blocks": [
+        [
+          "embedding-models.pdf",
+          2
+        ]
+      ],
+      "citation_points_to_gold": true,
       "judge": null,
-      "seconds": 27.12
+      "seconds": 38.1
     },
     {
       "id": "e03",
@@ -126,7 +143,7 @@
           1
         ],
         [
-          "embedding-models.pdf",
+          "pdf-internals.pdf",
           1
         ]
       ],
@@ -134,12 +151,19 @@
       "hit_at_k": true,
       "hit_at_1": true,
       "reciprocal_rank": 1.0,
-      "answer": "The e5 family expects an asymmetric prefix: documents are embedded as they are, while queries must be prefixed with the literal string 'query: '. [1]",
+      "answer": "The e5 family expects an asymmetric prefix and requires the literal query prefix 'query:' [1].",
       "keyword_ok": true,
       "refusal_ok": null,
       "cites": true,
+      "cited_blocks": [
+        [
+          "embedding-models.pdf",
+          3
+        ]
+      ],
+      "citation_points_to_gold": true,
       "judge": null,
-      "seconds": 24.4
+      "seconds": 30.08
     },
     {
       "id": "e04",
@@ -155,15 +179,15 @@
           2
         ],
         [
-          "pdf-internals.pdf",
-          3
-        ],
-        [
           "embedding-models.pdf",
           1
         ],
         [
-          "vector-store-notes.pdf",
+          "embedding-models.pdf",
+          3
+        ],
+        [
+          "chunking-strategies.pdf",
           2
         ]
       ],
@@ -175,8 +199,15 @@
       "keyword_ok": true,
       "refusal_ok": null,
       "cites": true,
+      "cited_blocks": [
+        [
+          "embedding-models.pdf",
+          2
+        ]
+      ],
+      "citation_points_to_gold": true,
       "judge": null,
-      "seconds": 24.93
+      "seconds": 27.46
     },
     {
       "id": "e05",
@@ -192,15 +223,15 @@
           1
         ],
         [
-          "vector-store-notes.pdf",
-          2
-        ],
-        [
           "embedding-models.pdf",
           2
         ],
         [
           "retrieval-eval.pdf",
+          3
+        ],
+        [
+          "pdf-internals.pdf",
           3
         ]
       ],
@@ -212,8 +243,15 @@
       "keyword_ok": true,
       "refusal_ok": null,
       "cites": true,
+      "cited_blocks": [
+        [
+          "embedding-models.pdf",
+          2
+        ]
+      ],
+      "citation_points_to_gold": false,
       "judge": null,
-      "seconds": 26.25
+      "seconds": 24.94
     },
     {
       "id": "v01",
@@ -245,12 +283,19 @@
       "hit_at_k": true,
       "hit_at_1": true,
       "reciprocal_rank": 1.0,
-      "answer": "The default number of HNSW neighbours per node in ChromaDB is 16 [1].",
+      "answer": "The default number of HNSW neighbours per node in ChromaDB is M=16 [1].",
       "keyword_ok": true,
       "refusal_ok": null,
       "cites": true,
+      "cited_blocks": [
+        [
+          "vector-store-notes.pdf",
+          2
+        ]
+      ],
+      "citation_points_to_gold": true,
       "judge": null,
-      "seconds": 26.36
+      "seconds": 26.33
     },
     {
       "id": "v02",
@@ -266,12 +311,12 @@
           1
         ],
         [
-          "embedding-models.pdf",
-          1
+          "vector-store-notes.pdf",
+          2
         ],
         [
           "vector-store-notes.pdf",
-          2
+          3
         ],
         [
           "pdf-internals.pdf",
@@ -286,8 +331,15 @@
       "keyword_ok": true,
       "refusal_ok": null,
       "cites": true,
+      "cited_blocks": [
+        [
+          "vector-store-notes.pdf",
+          3
+        ]
+      ],
+      "citation_points_to_gold": false,
       "judge": null,
-      "seconds": 23.32
+      "seconds": 21.59
     },
     {
       "id": "v03",
@@ -308,7 +360,7 @@
         ],
         [
           "chunking-strategies.pdf",
-          1
+          2
         ],
         [
           "vector-store-notes.pdf",
@@ -319,12 +371,19 @@
       "hit_at_k": true,
       "hit_at_1": true,
       "reciprocal_rank": 1.0,
-      "answer": "A command-line script and a running app should avoid indexing at the same time because two writers on the same directory are not supported; this means that a command-line script and a running application cannot index simultaneously to prevent trouble caused by having two writers in one file lock situation, which is mentioned in [1].",
+      "answer": "A command-line script and a running app should avoid indexing at the same time because two writers on the same directory are not supported, so a command-line script and a running app should not index at the same time [1].",
       "keyword_ok": true,
       "refusal_ok": null,
       "cites": true,
+      "cited_blocks": [
+        [
+          "vector-store-notes.pdf",
+          3
+        ]
+      ],
+      "citation_points_to_gold": true,
       "judge": null,
-      "seconds": 27.32
+      "seconds": 26.31
     },
     {
       "id": "v04",
@@ -340,11 +399,11 @@
           2
         ],
         [
-          "pdf-internals.pdf",
+          "vector-store-notes.pdf",
           1
         ],
         [
-          "embedding-models.pdf",
+          "pdf-internals.pdf",
           1
         ],
         [
@@ -360,8 +419,15 @@
       "keyword_ok": true,
       "refusal_ok": null,
       "cites": true,
+      "cited_blocks": [
+        [
+          "vector-store-notes.pdf",
+          2
+        ]
+      ],
+      "citation_points_to_gold": true,
       "judge": null,
-      "seconds": 23.1
+      "seconds": 22.29
     },
     {
       "id": "c01",
@@ -377,16 +443,16 @@
           2
         ],
         [
+          "chunking-strategies.pdf",
+          1
+        ],
+        [
           "retrieval-eval.pdf",
           1
         ],
         [
           "prompt-design.pdf",
-          3
-        ],
-        [
-          "chunking-strategies.pdf",
-          1
+          2
         ]
       ],
       "hit_rank": 1,
@@ -397,8 +463,15 @@
       "keyword_ok": true,
       "refusal_ok": null,
       "cites": true,
+      "cited_blocks": [
+        [
+          "chunking-strategies.pdf",
+          2
+        ]
+      ],
+      "citation_points_to_gold": true,
       "judge": null,
-      "seconds": 23.31
+      "seconds": 24.07
     },
     {
       "id": "c02",
@@ -414,28 +487,35 @@
           2
         ],
         [
-          "embedding-models.pdf",
+          "prompt-design.pdf",
+          2
+        ],
+        [
+          "chunking-strategies.pdf",
           1
         ],
         [
           "pdf-internals.pdf",
           1
-        ],
-        [
-          "prompt-design.pdf",
-          2
         ]
       ],
       "hit_rank": 1,
       "hit_at_k": true,
       "hit_at_1": true,
       "reciprocal_rank": 1.0,
-      "answer": "This project uses 150 characters of overlap [2].",
+      "answer": "This project uses 150 characters of overlap [1].",
       "keyword_ok": true,
       "refusal_ok": null,
       "cites": true,
+      "cited_blocks": [
+        [
+          "chunking-strategies.pdf",
+          2
+        ]
+      ],
+      "citation_points_to_gold": true,
       "judge": null,
-      "seconds": 17.85
+      "seconds": 17.33
     },
     {
       "id": "c03",
@@ -451,16 +531,16 @@
           2
         ],
         [
-          "vector-store-notes.pdf",
-          2
-        ],
-        [
           "chunking-strategies.pdf",
-          3
+          1
         ],
         [
           "retrieval-eval.pdf",
           3
+        ],
+        [
+          "vector-store-notes.pdf",
+          2
         ]
       ],
       "hit_rank": 1,
@@ -471,8 +551,15 @@
       "keyword_ok": true,
       "refusal_ok": null,
       "cites": true,
+      "cited_blocks": [
+        [
+          "retrieval-eval.pdf",
+          3
+        ]
+      ],
+      "citation_points_to_gold": false,
       "judge": null,
-      "seconds": 18.35
+      "seconds": 19.87
     },
     {
       "id": "c04",
@@ -508,8 +595,15 @@
       "keyword_ok": true,
       "refusal_ok": null,
       "cites": true,
+      "cited_blocks": [
+        [
+          "chunking-strategies.pdf",
+          3
+        ]
+      ],
+      "citation_points_to_gold": true,
       "judge": null,
-      "seconds": 20.91
+      "seconds": 22.38
     },
     {
       "id": "r01",
@@ -525,16 +619,16 @@
           1
         ],
         [
-          "retrieval-eval.pdf",
-          3
-        ],
-        [
           "prompt-design.pdf",
           1
         ],
         [
           "chunking-strategies.pdf",
-          2
+          3
+        ],
+        [
+          "retrieval-eval.pdf",
+          3
         ]
       ],
       "hit_rank": 1,
@@ -545,8 +639,15 @@
       "keyword_ok": true,
       "refusal_ok": null,
       "cites": true,
+      "cited_blocks": [
+        [
+          "retrieval-eval.pdf",
+          1
+        ]
+      ],
+      "citation_points_to_gold": true,
       "judge": null,
-      "seconds": 21.55
+      "seconds": 22.11
     },
     {
       "id": "r02",
@@ -562,16 +663,16 @@
           2
         ],
         [
-          "chunking-strategies.pdf",
-          1
+          "retrieval-eval.pdf",
+          3
         ],
         [
           "chunking-strategies.pdf",
           2
         ],
         [
-          "chunking-strategies.pdf",
-          3
+          "retrieval-eval.pdf",
+          1
         ]
       ],
       "hit_rank": 1,
@@ -582,8 +683,15 @@
       "keyword_ok": true,
       "refusal_ok": null,
       "cites": true,
+      "cited_blocks": [
+        [
+          "retrieval-eval.pdf",
+          2
+        ]
+      ],
+      "citation_points_to_gold": true,
       "judge": null,
-      "seconds": 21.15
+      "seconds": 23.13
     },
     {
       "id": "r03",
@@ -599,16 +707,16 @@
           3
         ],
         [
+          "retrieval-eval.pdf",
+          2
+        ],
+        [
           "chunking-strategies.pdf",
           1
         ],
         [
-          "chunking-strategies.pdf",
-          3
-        ],
-        [
-          "chunking-strategies.pdf",
-          2
+          "retrieval-eval.pdf",
+          1
         ]
       ],
       "hit_rank": 1,
@@ -619,8 +727,15 @@
       "keyword_ok": true,
       "refusal_ok": null,
       "cites": true,
+      "cited_blocks": [
+        [
+          "retrieval-eval.pdf",
+          3
+        ]
+      ],
+      "citation_points_to_gold": true,
       "judge": null,
-      "seconds": 21.36
+      "seconds": 23.73
     },
     {
       "id": "r04",
@@ -636,28 +751,35 @@
           1
         ],
         [
-          "prompt-design.pdf",
-          2
-        ],
-        [
           "vector-store-notes.pdf",
           2
         ],
         [
-          "retrieval-eval.pdf",
-          3
+          "prompt-design.pdf",
+          2
+        ],
+        [
+          "chunking-strategies.pdf",
+          2
         ]
       ],
       "hit_rank": 1,
       "hit_at_k": true,
       "hit_at_1": true,
       "reciprocal_rank": 1.0,
-      "answer": "hit@k counts a question as solved if any gold item is in the top k. It is the most quoted and least informative metric, because it hides how far down the answer was. [1]",
+      "answer": "hit@k hides how far down the gold item appeared. [1]",
       "keyword_ok": true,
       "refusal_ok": null,
       "cites": true,
+      "cited_blocks": [
+        [
+          "retrieval-eval.pdf",
+          1
+        ]
+      ],
+      "citation_points_to_gold": true,
       "judge": null,
-      "seconds": 24.29
+      "seconds": 23.94
     },
     {
       "id": "p01",
@@ -674,14 +796,14 @@
         ],
         [
           "retrieval-eval.pdf",
+          1
+        ],
+        [
+          "chunking-strategies.pdf",
           3
         ],
         [
           "retrieval-eval.pdf",
-          2
-        ],
-        [
-          "prompt-design.pdf",
           2
         ]
       ],
@@ -693,8 +815,15 @@
       "keyword_ok": true,
       "refusal_ok": null,
       "cites": true,
+      "cited_blocks": [
+        [
+          "prompt-design.pdf",
+          1
+        ]
+      ],
+      "citation_points_to_gold": true,
       "judge": null,
-      "seconds": 21.84
+      "seconds": 23.05
     },
     {
       "id": "p02",
@@ -706,6 +835,10 @@
       ],
       "retrieved": [
         [
+          "prompt-design.pdf",
+          2
+        ],
+        [
           "chunking-strategies.pdf",
           2
         ],
@@ -714,24 +847,27 @@
           1
         ],
         [
-          "prompt-design.pdf",
-          2
-        ],
-        [
           "vector-store-notes.pdf",
           2
         ]
       ],
-      "hit_rank": 3,
+      "hit_rank": 1,
       "hit_at_k": true,
-      "hit_at_1": false,
-      "reciprocal_rank": 0.3333333333333333,
-      "answer": "Four blocks of 800 characters come to roughly 3200 characters, around 700 tokens. [3]",
+      "hit_at_1": true,
+      "reciprocal_rank": 1.0,
+      "answer": "Four blocks of 800 characters come to roughly 3200 characters, around 700 tokens. [1]",
       "keyword_ok": true,
       "refusal_ok": null,
       "cites": true,
+      "cited_blocks": [
+        [
+          "prompt-design.pdf",
+          2
+        ]
+      ],
+      "citation_points_to_gold": true,
       "judge": null,
-      "seconds": 24.23
+      "seconds": 25.33
     },
     {
       "id": "p03",
@@ -747,16 +883,16 @@
           3
         ],
         [
+          "prompt-design.pdf",
+          1
+        ],
+        [
           "chunking-strategies.pdf",
-          2
+          1
         ],
         [
           "prompt-design.pdf",
           2
-        ],
-        [
-          "retrieval-eval.pdf",
-          3
         ]
       ],
       "hit_rank": 1,
@@ -767,8 +903,15 @@
       "keyword_ok": true,
       "refusal_ok": null,
       "cites": true,
+      "cited_blocks": [
+        [
+          "prompt-design.pdf",
+          3
+        ]
+      ],
+      "citation_points_to_gold": true,
       "judge": null,
-      "seconds": 21.94
+      "seconds": 22.38
     },
     {
       "id": "p04",
@@ -780,32 +923,39 @@
       ],
       "retrieved": [
         [
-          "retrieval-eval.pdf",
-          1
-        ],
-        [
           "prompt-design.pdf",
-          2
-        ],
-        [
-          "retrieval-eval.pdf",
           3
         ],
         [
           "embedding-models.pdf",
           2
+        ],
+        [
+          "retrieval-eval.pdf",
+          1
+        ],
+        [
+          "retrieval-eval.pdf",
+          3
         ]
       ],
-      "hit_rank": null,
-      "hit_at_k": false,
-      "hit_at_1": false,
-      "reciprocal_rank": 0.0,
-      "answer": "Claim-by-claim verification catches contamination that saturated metrics like hit@k and MRR cannot. Contamination occurs when questions are written after seeing the retrieved chunks, encoding retriever's mistakes into answers. This is not caught by metrics assessing overall performance as they average over all correct answers. [3]",
-      "keyword_ok": false,
+      "hit_rank": 1,
+      "hit_at_k": true,
+      "hit_at_1": true,
+      "reciprocal_rank": 1.0,
+      "answer": "Claim-by-claim verification can catch citation drift where a model cites block 2 while quoting block 1 [2].",
+      "keyword_ok": true,
       "refusal_ok": null,
       "cites": true,
+      "cited_blocks": [
+        [
+          "embedding-models.pdf",
+          2
+        ]
+      ],
+      "citation_points_to_gold": false,
       "judge": null,
-      "seconds": 27.95
+      "seconds": 21.9
     },
     {
       "id": "d01",
@@ -822,27 +972,34 @@
         ],
         [
           "pdf-internals.pdf",
-          2
-        ],
-        [
-          "pdf-internals.pdf",
           3
         ],
         [
-          "chunking-strategies.pdf",
-          1
+          "pdf-internals.pdf",
+          2
+        ],
+        [
+          "retrieval-eval.pdf",
+          2
         ]
       ],
       "hit_rank": 1,
       "hit_at_k": true,
       "hit_at_1": true,
       "reciprocal_rank": 1.0,
-      "answer": "Text in a PDF is stored as character codes plus the font needed to draw them [1]. A file may embed only the glyphs it uses, a font subset, which keeps the file small [1].",
+      "answer": "Text in a PDF is stored as character codes plus the font needed to draw them [1].",
       "keyword_ok": true,
       "refusal_ok": null,
       "cites": true,
+      "cited_blocks": [
+        [
+          "pdf-internals.pdf",
+          1
+        ]
+      ],
+      "citation_points_to_gold": true,
       "judge": null,
-      "seconds": 22.27
+      "seconds": 21.81
     },
     {
       "id": "d02",
@@ -858,15 +1015,15 @@
           3
         ],
         [
+          "vector-store-notes.pdf",
+          1
+        ],
+        [
           "embedding-models.pdf",
           2
         ],
         [
           "chunking-strategies.pdf",
-          1
-        ],
-        [
-          "vector-store-notes.pdf",
           1
         ]
       ],
@@ -878,8 +1035,15 @@
       "keyword_ok": true,
       "refusal_ok": null,
       "cites": true,
+      "cited_blocks": [
+        [
+          "pdf-internals.pdf",
+          3
+        ]
+      ],
+      "citation_points_to_gold": true,
       "judge": null,
-      "seconds": 26.74
+      "seconds": 25.62
     },
     {
       "id": "d03",
@@ -896,7 +1060,7 @@
         ],
         [
           "embedding-models.pdf",
-          1
+          2
         ],
         [
           "chunking-strategies.pdf",
@@ -911,12 +1075,19 @@
       "hit_at_k": true,
       "hit_at_1": true,
       "reciprocal_rank": 1.0,
-      "answer": "A 480 by 240 JPEG is embedded as it is, with the DCTDecode filter. [1]",
+      "answer": "A 480 by 240 JPEG is embedded as it is [1].",
       "keyword_ok": true,
       "refusal_ok": null,
       "cites": true,
+      "cited_blocks": [
+        [
+          "pdf-internals.pdf",
+          3
+        ]
+      ],
+      "citation_points_to_gold": true,
       "judge": null,
-      "seconds": 21.8
+      "seconds": 21.82
     },
     {
       "id": "d04",
@@ -941,7 +1112,7 @@
         ],
         [
           "prompt-design.pdf",
-          3
+          2
         ]
       ],
       "hit_rank": 1,
@@ -952,8 +1123,15 @@
       "keyword_ok": false,
       "refusal_ok": null,
       "cites": true,
+      "cited_blocks": [
+        [
+          "pdf-internals.pdf",
+          1
+        ]
+      ],
+      "citation_points_to_gold": false,
       "judge": null,
-      "seconds": 19.04
+      "seconds": 19.12
     },
     {
       "id": "o01",
@@ -963,20 +1141,20 @@
       "gold_pages": [],
       "retrieved": [
         [
-          "retrieval-eval.pdf",
+          "embedding-models.pdf",
           1
         ],
         [
-          "embedding-models.pdf",
-          3
+          "chunking-strategies.pdf",
+          2
         ],
         [
           "prompt-design.pdf",
           1
         ],
         [
-          "chunking-strategies.pdf",
-          2
+          "retrieval-eval.pdf",
+          1
         ]
       ],
       "hit_rank": null,
@@ -987,8 +1165,15 @@
       "keyword_ok": null,
       "refusal_ok": true,
       "cites": true,
+      "cited_blocks": [
+        [
+          "embedding-models.pdf",
+          1
+        ]
+      ],
+      "citation_points_to_gold": null,
       "judge": null,
-      "seconds": 23.32
+      "seconds": 22.92
     },
     {
       "id": "o02",
@@ -998,32 +1183,39 @@
       "gold_pages": [],
       "retrieved": [
         [
-          "retrieval-eval.pdf",
+          "chunking-strategies.pdf",
           1
         ],
         [
           "embedding-models.pdf",
-          3
-        ],
-        [
-          "pdf-internals.pdf",
-          3
+          2
         ],
         [
           "chunking-strategies.pdf",
-          1
+          2
+        ],
+        [
+          "retrieval-eval.pdf",
+          3
         ]
       ],
       "hit_rank": null,
       "hit_at_k": null,
       "hit_at_1": null,
       "reciprocal_rank": null,
-      "answer": "[1] The given text does not contain information about the winner of the 2018 FIFA World Cup.",
+      "answer": "[1] Answer is not provided in the given context.",
       "keyword_ok": null,
       "refusal_ok": true,
       "cites": true,
+      "cited_blocks": [
+        [
+          "chunking-strategies.pdf",
+          1
+        ]
+      ],
+      "citation_points_to_gold": null,
       "judge": null,
-      "seconds": 13.13
+      "seconds": 24.73
     },
     {
       "id": "o03",
@@ -1033,16 +1225,16 @@
       "gold_pages": [],
       "retrieved": [
         [
-          "vector-store-notes.pdf",
-          2
-        ],
-        [
           "prompt-design.pdf",
           2
         ],
         [
           "embedding-models.pdf",
           2
+        ],
+        [
+          "embedding-models.pdf",
+          1
         ],
         [
           "retrieval-eval.pdf",
@@ -1053,12 +1245,23 @@
       "hit_at_k": null,
       "hit_at_1": null,
       "reciprocal_rank": null,
-      "answer": "[1] DashScope does not provide information in the given context. [1]",
+      "answer": "[1] DashScope does not provide information about charging per million tokens in the given context. [1]",
       "keyword_ok": null,
       "refusal_ok": true,
       "cites": true,
+      "cited_blocks": [
+        [
+          "prompt-design.pdf",
+          2
+        ],
+        [
+          "prompt-design.pdf",
+          2
+        ]
+      ],
+      "citation_points_to_gold": null,
       "judge": null,
-      "seconds": 28.72
+      "seconds": 27.21
     },
     {
       "id": "o04",
@@ -1072,28 +1275,35 @@
           3
         ],
         [
-          "prompt-design.pdf",
-          3
+          "retrieval-eval.pdf",
+          2
         ],
         [
           "vector-store-notes.pdf",
           2
         ],
         [
-          "retrieval-eval.pdf",
-          2
+          "prompt-design.pdf",
+          1
         ]
       ],
       "hit_rank": null,
       "hit_at_k": null,
       "hit_at_1": null,
       "reciprocal_rank": null,
-      "answer": "[1] The context provided does not contain information about the Rust borrow checker or any related corpus. [1]",
+      "answer": "The given context does not provide information about the Rust borrow checker or any specific corpus related to it. [1]",
       "keyword_ok": null,
       "refusal_ok": true,
       "cites": true,
+      "cited_blocks": [
+        [
+          "retrieval-eval.pdf",
+          3
+        ]
+      ],
+      "citation_points_to_gold": null,
       "judge": null,
-      "seconds": 25.5
+      "seconds": 22.5
     }
   ]
 }

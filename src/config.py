@@ -125,3 +125,10 @@ MIN_CHUNK_CHARS = int(os.getenv("MIN_CHUNK_CHARS", "80"))
 RETRIEVE_K = int(os.getenv("RETRIEVE_K", "8"))   # candidates pulled from the vector index
 CONTEXT_K = int(os.getenv("CONTEXT_K", "4"))     # chunks actually sent to the LLM
 MMR_LAMBDA = float(os.getenv("MMR_LAMBDA", "0.7"))  # 1.0 = pure relevance, 0.0 = pure diversity
+
+# --- reranking --------------------------------------------------------------
+# Cross-encoder over the candidate set: joint (query, passage) scoring, one forward
+# pass per candidate. English-only model — swap it for a multilingual checkpoint
+# if the corpus stops being English.
+RERANK_MODEL = os.getenv("RERANK_MODEL", "cross-encoder/ms-marco-MiniLM-L-6-v2")
+RERANK_ENABLED = os.getenv("RERANK_ENABLED", "1").lower() in {"1", "true", "yes", "on"}

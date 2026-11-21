@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-20T15:37:42",
+  "generated_at": "2026-11-21T13:14:26",
   "n_questions": 25,
   "retrieve_k": 8,
   "results": [
@@ -9,6 +9,7 @@
       "hit_at_k": 0.96,
       "hit_at_1": 0.84,
       "mrr": 0.893,
+      "seconds_per_question": 0.092,
       "misses": [
         "p04"
       ]
@@ -19,6 +20,7 @@
       "hit_at_k": 0.96,
       "hit_at_1": 0.84,
       "mrr": 0.893,
+      "seconds_per_question": 0.028,
       "misses": [
         "p04"
       ]
@@ -29,6 +31,7 @@
       "hit_at_k": 0.96,
       "hit_at_1": 0.88,
       "mrr": 0.92,
+      "seconds_per_question": 0.025,
       "misses": [
         "p04"
       ]
@@ -39,6 +42,7 @@
       "hit_at_k": 0.96,
       "hit_at_1": 0.88,
       "mrr": 0.913,
+      "seconds_per_question": 0.029,
       "misses": [
         "p04"
       ]
@@ -49,9 +53,46 @@
       "hit_at_k": 0.96,
       "hit_at_1": 0.88,
       "mrr": 0.913,
+      "seconds_per_question": 0.025,
       "misses": [
         "p04"
       ]
+    },
+    {
+      "config": "800/150, CE, k=3",
+      "chunks": 18,
+      "hit_at_k": 1.0,
+      "hit_at_1": 0.96,
+      "mrr": 0.98,
+      "seconds_per_question": 4.293,
+      "misses": []
+    },
+    {
+      "config": "800/150, CE, k=4",
+      "chunks": 18,
+      "hit_at_k": 1.0,
+      "hit_at_1": 0.96,
+      "mrr": 0.98,
+      "seconds_per_question": 0.335,
+      "misses": []
+    },
+    {
+      "config": "800/150, CE+MMR, k=3",
+      "chunks": 18,
+      "hit_at_k": 1.0,
+      "hit_at_1": 0.96,
+      "mrr": 0.98,
+      "seconds_per_question": 0.332,
+      "misses": []
+    },
+    {
+      "config": "800/150, CE+MMR, k=4",
+      "chunks": 18,
+      "hit_at_k": 1.0,
+      "hit_at_1": 0.96,
+      "mrr": 0.98,
+      "seconds_per_question": 0.392,
+      "misses": []
     }
   ]
 }

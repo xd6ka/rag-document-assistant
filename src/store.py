@@ -25,6 +25,12 @@ class RetrievedChunk:
     page: int
     score: float  # cosine similarity, higher is better
     embedding: list[float] = field(default_factory=list, repr=False)
+    rerank_score: Optional[float] = None  # cross-encoder score, 0..1, set after reranking
+
+    @property
+    def relevance(self) -> float:
+        """Score used for ranking: the cross-encoder one when this chunk was reranked."""
+        return self.score if self.rerank_score is None else self.rerank_score
 
 
 class DocumentStore:
