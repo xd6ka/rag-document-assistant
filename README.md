@@ -4,7 +4,7 @@
 ![Streamlit](https://img.shields.io/badge/UI-Streamlit-FF4B4B?logo=streamlit&logoColor=white)
 ![ChromaDB](https://img.shields.io/badge/Vector%20store-ChromaDB-1F2937)
 ![LLM](https://img.shields.io/badge/LLM-Qwen%20(DashScope)-6B46C1)
-![Tests](https://img.shields.io/badge/tests-33%20passed-brightgreen)
+![Tests](https://img.shields.io/badge/tests-42%20passed-brightgreen)
 ![License](https://img.shields.io/badge/License-MIT-green)
 
 A local-first Retrieval-Augmented Generation assistant for PDF documents: upload PDFs, ask questions in plain language, and get answers grounded in the documents' own text — with the page each answer came from.
@@ -24,8 +24,8 @@ Chunking and embeddings run **entirely on the local machine** (`all-MiniLM-L6-v2
 - **Multi-document workspace** — per-document chunk/page counts, per-document delete, document-scoped filtering, one-click reset.
 - **Persistent vector store** — ChromaDB on disk; the index survives restarts.
 - **Grounded prompt** — the model is instructed to answer only from context and to refuse otherwise.
-- **Measured, not guessed** — a 6-document corpus, 29 labelled questions, a 9-configuration retrieval ablation, and a gold-label validator that fails the run when a rubric drifts.
-- **33 unit tests** — chunker behaviour, provider resolution, refusal detection, ranking order, citation mapping, stage switches, eval labels.
+- **Measured, not guessed** — a 6-document corpus, 29 labelled questions, a 9-configuration retrieval ablation, a gold-label validator that fails the run when a rubric drifts, and a **claim-level citation check**: every cited sentence is compared with the block it names.
+- **42 unit tests** — chunker behaviour, provider resolution, refusal detection, ranking order, citation mapping, claim parsing, stage switches, eval labels.
 
 ## Architecture
 
@@ -123,25 +123,30 @@ Generated with `LLM_PROVIDER=ollama`, `qwen2.5:3b`, temperature 0.2, no hosted c
 | answer accuracy (manual audit) | 0.96 (24/25) | **1.00** (25/25) | each answer read against the gold page |
 | citation rate | 1.0 (25/25) | **1.0** (25/25) | every answer carries at least one `[n]` |
 | **citation gold rate** | — | **0.80** (20/25) | the cited `[n]` maps to the gold page |
-| refusal rate | 1.0 (4/4) | **1.0** (4/4) | out-of-scope questions are declined, not answered |
+| **claim support rate** | — | **0.80** (20/25) | the cited block is the best match for the *sentence* that cites it |
+| refusal rate | 1.0 (4/4) | **0.75** (3/4) | out-of-scope questions are declined, not answered |
 
 Five things worth reading before trusting these numbers:
 
-1. **Retrieval is no longer the weak link; citation attribution is.** `citation_gold_rate` is a new, stricter metric: it maps `[n]` back to the block that was actually shown and asks whether that block's page is the gold page. 20 of 25 pass. In all five failures the gold page was **block `[1]`, ranked first**, and the model cited `[2]` or `[3]` — `e05` (`[2]`), `v02` (`[3]`), `c03` (`[3]`), `p04` (`[2]`), `d04` (`[2]`). The answer text is right in all five. This is textbook citation drift, the exact failure the corpus page `prompt-design.pdf` describes — and the presence-only `citation_rate` scores it 1.0. That is why both metrics are now reported side by side.
-2. **The cross-encoder fixed the one answer that used to be wrong.** `p04` asks what claim-by-claim verification catches that rate-based metrics cannot; before CE the gold page never reached the prompt and the model answered "contamination". Now the page is block `[1]`, the answer names citation drift, and lexical accuracy rises 0.92 → 0.96. The remaining defect there is the citation bracket (`[2]`), not the content.
-3. **Lexical accuracy undercounts by one; the manual audit does not.** I read all 25 in-scope answers against the gold pages: **25/25 are substantively correct**, and `d04` ("what is a link in a PDF") is the only one the string match misses — it paraphrases "annotation" as "clickable rectangle with an action". So lexical 0.96 and manual 1.00 describe the same run, and the drift in point 1 is a citation problem, not an answer problem.
-4. **Four out of four refusals are real refusals**, not lucky keyword hits — `o01`–`o04` each state that the context does not contain the answer. The detector also has a negation regex, because a marker list alone once scored a correct refusal as a miss.
-5. **The LLM judge was tried and rejected.** The same 3B model scored 7 grounded answers as 1/5, and a controlled case scored `2` through the OpenAI-compatible shim versus `4` through Ollama's native API. An uncalibrated instrument is worse than no instrument, so the committed report carries `judge_mean_faithfulness: null` and the experiment is kept as evidence in `eval/reports/judge_experiment.json`. Per-answer verdicts are in `eval/reports/answer_audit.md`.
+1. **Retrieval is no longer the weak link; citation attribution is.** `citation_gold_rate` maps `[n]` back to the page of the block that was actually shown, and `claim_support_rate` goes one level further: the answer is split into sentences, and each sentence that cites a block is compared with that block — lexically and by embedding — against the other three blocks. 20 of 25 answers pass both. In all five failures the gold page was **block `[1]`, ranked first**, and the model cited `[2]` or `[3]` — `e05` (`[2]`), `v02` (`[3]`), `c03` (`[3]`), `p04` (`[2]`), `d04` (`[2]`). The answer text is right in all five. This is textbook citation drift, the exact failure the corpus page `prompt-design.pdf` describes — and the presence-only `citation_rate` scores it 1.0.
+2. **The claim check was calibrated against the manual audit, not trusted on faith.** The 29 stored answers were graded by hand first (five known drifts), then by the code: the automatic check flags exactly those five and none of the twenty correct answers, so the per-claim verdicts agree with the human labels 25/25. It is still an *attribution* check, not entailment — a sentence can cite the right block and then say something the block does not support. The two thresholds (a 0.06 embedding margin, a 0.35 lexical-overlap floor) are stated in `src/citations.py` and can be re-tuned; `eval/claim_audit.py` re-grades stored answers without regenerating them, and per-sentence verdicts are in `eval/reports/claims.json`.
+3. **The cross-encoder fixed the one answer that used to be wrong.** `p04` asks what claim-by-claim verification catches that rate-based metrics cannot; before CE the gold page never reached the prompt and the model answered "contamination". Now the page is block `[1]`, the answer names citation drift, and lexical accuracy rises 0.92 → 0.96. The remaining defect there is the citation bracket (`[2]`), not the content.
+4. **Lexical accuracy undercounts by one; the manual audit does not.** I read all 25 in-scope answers against the gold pages: **25/25 are substantively correct**, and `d04` ("what is a link in a PDF") is the only one the string match misses — it paraphrases "annotation" as "clickable rectangle with an action". So lexical 0.96 and manual 1.00 describe the same run, and the drift in point 1 is a citation problem, not an answer problem.
+5. **Refusal is not stable across runs, and the report shows it.** A longer earlier run refused all four out-of-scope questions; the run in this report refused three. `o03` ("DashScope price per million tokens") came back as "all-MiniLM-L6-v2 has 22 million parameters" — a nearby fact pulled into an answer that should have been a refusal. The five citation drifts, by contrast, reproduced identically across both runs. One run per configuration is not enough to separate these: the README reports 0.75 rather than the better number from the previous run, because the current artefact is the one being published.
+6. **The LLM judge was tried and rejected.** The same 3B model scored 7 grounded answers as 1/5, and a controlled case scored `2` through the OpenAI-compatible shim versus `4` through Ollama's native API. An uncalibrated instrument is worse than no instrument, so the committed report carries `judge_mean_faithfulness: null` and the experiment is kept as evidence in `eval/reports/judge_experiment.json`. Per-answer verdicts are in `eval/reports/answer_audit.md`.
+7. **What reproduced, and what did not.** The drift set reproduced exactly (`e05`, `v02`, `c03`, `p04`, `d04` on both runs) and lexical accuracy moved only through `p04`; refusal moved 4/4 → 3/4 with no code change. That is the honest shape of a single-run number: retrieval is stable, citation behaviour is stable, and the 3B model's self-restraint is not.
 
 Latency on this machine: 46.7 s mean per question (retrieval + generation), 60.6 s max — usable for an audit, too slow for an interactive demo. A hosted model answers in 1–3 s; the code path is identical. Retrieval alone, including the cross-encoder, is 0.3–0.4 s per question.
 
 Each run indexes into a throwaway store, so results never depend on your working collection. Reports land in `eval/reports/`.
 
 ```powershell
-python eval/run_eval.py                     # retrieval + answers + citation/refusal metrics
+python eval/run_eval.py                     # retrieval + answers + citation/claim metrics
 python eval/run_eval.py --judge             # add LLM judging (reliable only with a hosted model)
 python eval/run_eval.py --no-answers        # retrieval only, no model calls
+python eval/run_eval.py --no-ce             # retrieval ablation without the cross-encoder
 python eval/run_eval.py --rescore eval/reports/latest.json   # re-score stored answers, no model calls
+python eval/claim_audit.py                  # per-sentence citation verdicts for the stored answers
 ```
 
 ## Tech stack
@@ -230,6 +235,7 @@ rag-document-assistant/
 │   ├── store.py         # ChromaDB layer: upsert, delete-by-source, cosine query
 │   ├── rerank.py        # lazy cross-encoder singleton, min-max normalized scores
 │   ├── retrieval.py     # vector search → cross-encoder → MMR
+│   ├── citations.py     # sentence-level citation attribution checks
 │   ├── generation.py    # prompt assembly, vendor-neutral client, retry/backoff
 │   └── ingest.py        # PDF -> pages -> chunks -> embeddings -> store
 ├── ui.py                # Streamlit app (upload, chat, citations, settings)
@@ -240,15 +246,17 @@ rag-document-assistant/
 │   ├── build_corpus.py  # renders corpus_source.py into PDFs
 │   ├── corpus/          # generated PDFs (committed, ~4 KB each)
 │   ├── qa_set.jsonl     # 29 questions with doc + page gold labels
-│   ├── run_eval.py      # validation, hit@k, hit@1, MRR, answer + citation-target metrics, --rescore
+│   ├── run_eval.py      # validation, hit@k, hit@1, MRR, answer + citation + claim metrics, --rescore
 │   ├── run_ablation.py  # 9-configuration retrieval comparison with per-question latency
-│   └── reports/         # latest.json, ablation.json, answer_audit.md, judge_experiment.json
+│   ├── claim_audit.py   # per-sentence citation verdicts against the stored answers
+│   └── reports/         # latest.json, ablation.json, claims.json, answer_audit.md, judge_experiment.json
 ├── tests/
 │   ├── test_chunking.py    # 8 cases
 │   ├── test_config.py      # 5 cases (provider resolution, legacy-env traps)
 │   ├── test_refusal.py     # 6 cases (refusal detection across phrasings)
 │   ├── test_retrieval_stages.py # 6 cases (rerank-score ordering, citation mapping)
 │   ├── test_retrieval_switches.py # 3 cases (stage flags actually skip their stage)
+│   ├── test_citations.py   # 9 cases (sentence parsing, attribution verdicts)
 │   └── test_eval_labels.py # 5 cases
 ├── data/                # source PDFs (git-ignored)
 ├── chroma_db/           # persisted vector store (git-ignored)
@@ -270,8 +278,8 @@ rag-document-assistant/
 ## Limitations & roadmap
 
 - **Synthetic corpus.** Six documents written to stress retrieval by design — good for comparing configurations, useless as a claim about real-world libraries.
-- **18 chunks is still small.** Enough for `hit@1` to discriminate, not enough for tight confidence intervals; there are no repeated runs or variance estimates.
-- **Citation correctness is only partly measured.** `citation_rate` checks that a bracket exists; a newer `citation_gold_rate` checks that the cited block actually maps to the gold page. Neither proves every *sentence* is supported — claim-level verification is still on the roadmap.
+- **18 chunks is still small.** Enough for `hit@1` to discriminate, not enough for tight confidence intervals; there are no repeated runs or variance estimates — and one visible example, refusal flipping 4/4 → 3/4 between two runs, shows why one run is not a number to quote with confidence.
+- **Citation support is measured, entailment is not.** `claim_support_rate` checks that a cited sentence's best-matching block is the block it names. A sentence can pass that and still add a claim the block never made; proving entailment needs a model that can be calibrated, which a local 3B judge is not.
 - **The faithfulness judge needs a stronger model.** A 3B judge is uncalibrated and was rejected; the metric returns only when judging runs on a hosted model.
 - **Local generation is slow.** ~47 s per answer on CPU. Good enough to prove the pipeline works offline, not good enough to demo interactively.
 - **The cross-encoder is an English model.** `ms-marco-MiniLM-L-6-v2` was trained on English MS MARCO; Chinese or Russian documents have no measured reranker yet — a multilingual `bge-reranker` is the swap.
@@ -280,16 +288,16 @@ rag-document-assistant/
 - **No streaming.** The answer appears when the full response arrives.
 - **Single collection.** Document filtering works, but there is no notion of workspaces or per-user isolation.
 
-Planned order: claim-level citation check → multilingual reranker → OCR fallback → streaming → a real-world corpus with variance estimates.
+Planned order: multilingual reranker → OCR fallback → streaming → a real-world corpus with variance estimates. (Claim-level citation checking is done: `src/citations.py`, calibrated against the manual audit.)
 
 ## 中文简介
 
 面向 PDF 文档的检索增强生成（RAG）问答助手。切分、向量化均在本地完成（`all-MiniLM-L6-v2`），只有检索到的片段与问题会发送给生成模型。
 
-- **核心能力**：页码级引用（`文件名 · 页码 · 相似度`）、800/150 重叠切块、cross-encoder 重排 + MMR、多文档管理
+- **核心能力**：页码级引用（`文件名 · 页码 · 相似度`）、800/150 重叠切块、cross-encoder 重排 + MMR、逐句引用归因、多文档管理
 - **技术栈**：Streamlit + pypdf + sentence-transformers + ChromaDB + 任意 OpenAI 兼容接口（DashScope / DeepSeek / 本地 Ollama）
 - **评测**：自建 6 文档 / 18 页合成语料 + 29 道人工题目；9 组配置对比中，cross-encoder 把检索从 hit@k 0.96 / hit@1 0.88 / MRR 0.913 提到 **1.00 / 0.96 / 0.980**（每题约 0.3 秒），并且补上了唯一漏检 `p04`；不加时 800/150 优于 500 字符，MMR 代价为 0.007 MRR
-- **答案层指标**：本地 `qwen2.5:3b` 生成 29 条答案，引用率 1.0、拒答率 1.0、关键词命中 0.92；人工复核 24/25 正确。LLM 评委（judge）因 3B 模型打分不可靠被弃用，实验记录保留在 `eval/reports/judge_experiment.json`
+- **答案层指标**：本地 `qwen2.5:3b` 生成 29 条答案，引用率 1.0、拒答率 0.75（一次 4/4、一次 3/4，属于小模型自律性的波动）、关键词命中 0.96；人工复核 25/25 正确。**引用归因**：`citation_gold_rate` 0.80、`claim_support_rate` 0.80 —— 逐句比对「引用的块是否就是证据所在的块」，自动判定与人工标注在 25 条上完全一致（5 个漂移、0 个误报，两次运行漂移集合相同）。LLM 评委（judge）因 3B 模型打分不可靠被弃用，实验记录保留在 `eval/reports/judge_experiment.json`
 - **运行**：配置 `.env`（参考 `.env.example`）后执行 `streamlit run ui.py`；默认走本地 Ollama，无需 API Key 与付费账号
 
 ## License

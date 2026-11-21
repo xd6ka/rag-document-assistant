@@ -28,6 +28,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
 from src import config  # noqa: E402
+from src.citations import check_answer, support_rate  # noqa: E402
 from src.generation import answer_question, get_client  # noqa: E402
 from src.ingest import ingest_path  # noqa: E402
 from src.retrieval import Retriever  # noqa: E402
@@ -181,6 +182,7 @@ def summarize(rows: list[dict], base: dict, no_answers: bool) -> dict:
 
     rrs = [row["reciprocal_rank"] for row in in_scope if row["reciprocal_rank"] is not None]
     judges = [row["judge"] for row in rows if row["judge"] is not None]
+    claim_scores = [row.get("claim_support") for row in in_scope if row.get("claim_support") is not None]
     api_errors = sum(1 for row in rows if (row.get("answer") or "").startswith("[API error]"))
 
     summary = dict(base)
@@ -196,6 +198,9 @@ def summarize(rows: list[dict], base: dict, no_answers: bool) -> dict:
             # Stronger than citation_rate: does the bracket point at the gold page,
             # or merely at some block? A presence check hides citation drift.
             "citation_gold_rate": rate([row.get("citation_points_to_gold") for row in in_scope]),
+            # Weakest link after the gold-page check: each cited *sentence* must be
+            # attributable to the block it names, not just to the right page.
+            "claim_support_rate": round(sum(claim_scores) / len(claim_scores), 3) if claim_scores else None,
             "refusal_rate": rate([row["refusal_ok"] for row in out_scope]),
             "judge_mean_faithfulness": round(sum(judges) / len(judges), 2) if judges else None,
             # A judge running on the same small local model is not calibrated: see
@@ -329,6 +334,8 @@ def main() -> None:
         cites = None
         citation_points_to_gold = None
         cited = []
+        claims = []
+        claim_support = None
         judge = None
 
         if not args.no_answers and contexts:
@@ -345,6 +352,8 @@ def main() -> None:
                 refusal_ok = is_refusal(answer)
             cites = bool(CITATION_PATTERN.search(answer))
             cited = cited_blocks(answer, retrieved)
+            claims = check_answer(answer, contexts)
+            claim_support = support_rate(claims)
 
             if item.get("in_scope", True):
                 gold_doc = f"{item['doc']}.pdf"
@@ -376,6 +385,8 @@ def main() -> None:
                 "cites": cites,
                 "cited_blocks": cited,
                 "citation_points_to_gold": citation_points_to_gold,
+                "claim_support": claim_support,
+                "claims": [verdict.as_dict for verdict in claims],
                 "judge": judge,
                 "seconds": round(time.perf_counter() - started, 2),
             }

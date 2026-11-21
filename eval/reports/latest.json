@@ -25,12 +25,13 @@
     "answer_keyword_accuracy": 0.96,
     "citation_rate": 1.0,
     "citation_gold_rate": 0.8,
-    "refusal_rate": 1.0,
+    "claim_support_rate": 0.8,
+    "refusal_rate": 0.75,
     "judge_mean_faithfulness": null,
     "judge_reliable": null,
     "api_errors": 0,
     "answer_metrics_valid": true,
-    "generated_at": "2026-11-21T14:01:14"
+    "generated_at": "2026-11-21T15:14:42"
   },
   "rows": [
     {
@@ -74,8 +75,23 @@
         ]
       ],
       "citation_points_to_gold": true,
+      "claim_support": 1.0,
+      "claims": [
+        {
+          "sentence": "all-MiniLM-L6-v2 has 22 million parameters .",
+          "cited_blocks": [
+            1
+          ],
+          "best_block": 1,
+          "cited_overlap": 0.333,
+          "best_overlap": 0.333,
+          "cited_similarity": 0.491,
+          "best_similarity": 0.491,
+          "verdict": "supported"
+        }
+      ],
       "judge": null,
-      "seconds": 40.98
+      "seconds": 57.21
     },
     {
       "id": "e02",
@@ -118,8 +134,23 @@
         ]
       ],
       "citation_points_to_gold": true,
+      "claim_support": 1.0,
+      "claims": [
+        {
+          "sentence": "bge-small-en-v1.5 reaches 62.2 on the MTEB retrieval average .",
+          "cited_blocks": [
+            1
+          ],
+          "best_block": 1,
+          "cited_overlap": 1.0,
+          "best_overlap": 1.0,
+          "cited_similarity": 0.5,
+          "best_similarity": 0.5,
+          "verdict": "supported"
+        }
+      ],
       "judge": null,
-      "seconds": 38.1
+      "seconds": 39.66
     },
     {
       "id": "e03",
@@ -162,8 +193,23 @@
         ]
       ],
       "citation_points_to_gold": true,
+      "claim_support": 1.0,
+      "claims": [
+        {
+          "sentence": "The e5 family expects an asymmetric prefix and requires the literal query prefix 'query:' .",
+          "cited_blocks": [
+            1
+          ],
+          "best_block": 1,
+          "cited_overlap": 0.889,
+          "best_overlap": 0.889,
+          "cited_similarity": 0.539,
+          "best_similarity": 0.539,
+          "verdict": "supported"
+        }
+      ],
       "judge": null,
-      "seconds": 30.08
+      "seconds": 32.56
     },
     {
       "id": "e04",
@@ -206,8 +252,23 @@
         ]
       ],
       "citation_points_to_gold": true,
+      "claim_support": 1.0,
+      "claims": [
+        {
+          "sentence": "MiniLM needs about 90 megabytes of weights .",
+          "cited_blocks": [
+            1
+          ],
+          "best_block": 1,
+          "cited_overlap": 1.0,
+          "best_overlap": 1.0,
+          "cited_similarity": 0.519,
+          "best_similarity": 0.519,
+          "verdict": "supported"
+        }
+      ],
       "judge": null,
-      "seconds": 27.46
+      "seconds": 35.61
     },
     {
       "id": "e05",
@@ -250,8 +311,23 @@
         ]
       ],
       "citation_points_to_gold": false,
+      "claim_support": 0.0,
+      "claims": [
+        {
+          "sentence": "bge-base-en-v1.5 produces 768-dimensional vectors .",
+          "cited_blocks": [
+            2
+          ],
+          "best_block": 1,
+          "cited_overlap": 0.25,
+          "best_overlap": 1.0,
+          "cited_similarity": 0.287,
+          "best_similarity": 0.533,
+          "verdict": "misattributed"
+        }
+      ],
       "judge": null,
-      "seconds": 24.94
+      "seconds": 35.62
     },
     {
       "id": "v01",
@@ -294,8 +370,23 @@
         ]
       ],
       "citation_points_to_gold": true,
+      "claim_support": 1.0,
+      "claims": [
+        {
+          "sentence": "The default number of HNSW neighbours per node in ChromaDB is M=16 .",
+          "cited_blocks": [
+            1
+          ],
+          "best_block": 1,
+          "cited_overlap": 0.714,
+          "best_overlap": 0.714,
+          "cited_similarity": 0.49,
+          "best_similarity": 0.49,
+          "verdict": "supported"
+        }
+      ],
       "judge": null,
-      "seconds": 26.33
+      "seconds": 39.04
     },
     {
       "id": "v02",
@@ -338,8 +429,23 @@
         ]
       ],
       "citation_points_to_gold": false,
+      "claim_support": 0.0,
+      "claims": [
+        {
+          "sentence": "pgvector keeps vectors next to relational data .",
+          "cited_blocks": [
+            3
+          ],
+          "best_block": 1,
+          "cited_overlap": 0.0,
+          "best_overlap": 1.0,
+          "cited_similarity": 0.287,
+          "best_similarity": 0.494,
+          "verdict": "misattributed"
+        }
+      ],
       "judge": null,
-      "seconds": 21.59
+      "seconds": 31.28
     },
     {
       "id": "v03",
@@ -371,7 +477,7 @@
       "hit_at_k": true,
       "hit_at_1": true,
       "reciprocal_rank": 1.0,
-      "answer": "A command-line script and a running app should avoid indexing at the same time because two writers on the same directory are not supported, so a command-line script and a running app should not index at the same time [1].",
+      "answer": "A command-line script and a running app should avoid indexing at the same time because two writers on the same directory are not supported; this means that a command-line script and a running application cannot index simultaneously to prevent conflicts. [1]",
       "keyword_ok": true,
       "refusal_ok": null,
       "cites": true,
@@ -382,8 +488,23 @@
         ]
       ],
       "citation_points_to_gold": true,
+      "claim_support": 1.0,
+      "claims": [
+        {
+          "sentence": "A command-line script and a running app should avoid indexing at the same time because two writers on the same directory are not supported; this means that a command-line script and a running application cannot index simultaneously to prevent conflicts.",
+          "cited_blocks": [
+            1
+          ],
+          "best_block": 1,
+          "cited_overlap": 0.667,
+          "best_overlap": 0.667,
+          "cited_similarity": 0.521,
+          "best_similarity": 0.521,
+          "verdict": "supported"
+        }
+      ],
       "judge": null,
-      "seconds": 26.31
+      "seconds": 38.4
     },
     {
       "id": "v04",
@@ -426,8 +547,23 @@
         ]
       ],
       "citation_points_to_gold": true,
+      "claim_support": 1.0,
+      "claims": [
+        {
+          "sentence": "Cosine space requires normalized vectors .",
+          "cited_blocks": [
+            1
+          ],
+          "best_block": 1,
+          "cited_overlap": 1.0,
+          "best_overlap": 1.0,
+          "cited_similarity": 0.394,
+          "best_similarity": 0.394,
+          "verdict": "supported"
+        }
+      ],
       "judge": null,
-      "seconds": 22.29
+      "seconds": 32.64
     },
     {
       "id": "c01",
@@ -470,8 +606,23 @@
         ]
       ],
       "citation_points_to_gold": true,
+      "claim_support": 1.0,
+      "claims": [
+        {
+          "sentence": "When there is no overlap, roughly 12 percent of answers in a paragraph-level evaluation sit across a cut and become unreachable.",
+          "cited_blocks": [
+            1
+          ],
+          "best_block": 1,
+          "cited_overlap": 0.846,
+          "best_overlap": 0.846,
+          "cited_similarity": 0.691,
+          "best_similarity": 0.691,
+          "verdict": "supported"
+        }
+      ],
       "judge": null,
-      "seconds": 24.07
+      "seconds": 35.51
     },
     {
       "id": "c02",
@@ -514,8 +665,23 @@
         ]
       ],
       "citation_points_to_gold": true,
+      "claim_support": 1.0,
+      "claims": [
+        {
+          "sentence": "This project uses 150 characters of overlap .",
+          "cited_blocks": [
+            1
+          ],
+          "best_block": 1,
+          "cited_overlap": 1.0,
+          "best_overlap": 1.0,
+          "cited_similarity": 0.67,
+          "best_similarity": 0.67,
+          "verdict": "supported"
+        }
+      ],
       "judge": null,
-      "seconds": 17.33
+      "seconds": 25.3
     },
     {
       "id": "c03",
@@ -558,8 +724,33 @@
         ]
       ],
       "citation_points_to_gold": false,
+      "claim_support": 0.0,
+      "claims": [
+        {
+          "sentence": "A 40-character fragment carries almost no retrievable meaning.",
+          "cited_blocks": [],
+          "best_block": null,
+          "cited_overlap": 0.0,
+          "best_overlap": 0.0,
+          "cited_similarity": 0.0,
+          "best_similarity": 0.0,
+          "verdict": "uncited"
+        },
+        {
+          "sentence": "Merging tails shorter than 80 characters into the previous chunk removes most of the junk.",
+          "cited_blocks": [
+            3
+          ],
+          "best_block": 1,
+          "cited_overlap": 0.0,
+          "best_overlap": 1.0,
+          "cited_similarity": 0.24,
+          "best_similarity": 0.516,
+          "verdict": "misattributed"
+        }
+      ],
       "judge": null,
-      "seconds": 19.87
+      "seconds": 29.77
     },
     {
       "id": "c04",
@@ -602,8 +793,23 @@
         ]
       ],
       "citation_points_to_gold": true,
+      "claim_support": 1.0,
+      "claims": [
+        {
+          "sentence": "A table is text positioned in a grid, and naive extraction interleaves rows and columns, so table questions often retrieve the right page and lose the columns.",
+          "cited_blocks": [
+            2
+          ],
+          "best_block": 2,
+          "cited_overlap": 1.0,
+          "best_overlap": 1.0,
+          "cited_similarity": 0.501,
+          "best_similarity": 0.501,
+          "verdict": "supported"
+        }
+      ],
       "judge": null,
-      "seconds": 22.38
+      "seconds": 33.89
     },
     {
       "id": "r01",
@@ -646,8 +852,23 @@
         ]
       ],
       "citation_points_to_gold": true,
+      "claim_support": 1.0,
+      "claims": [
+        {
+          "sentence": "A correct answer at position 3 scores 0.33 .",
+          "cited_blocks": [
+            1
+          ],
+          "best_block": 1,
+          "cited_overlap": 1.0,
+          "best_overlap": 1.0,
+          "cited_similarity": 0.325,
+          "best_similarity": 0.325,
+          "verdict": "supported"
+        }
+      ],
       "judge": null,
-      "seconds": 22.11
+      "seconds": 34.13
     },
     {
       "id": "r02",
@@ -690,8 +911,23 @@
         ]
       ],
       "citation_points_to_gold": true,
+      "claim_support": 1.0,
+      "claims": [
+        {
+          "sentence": "Thirty to forty questions over a corpus of thirty chunks is enough to see a difference between configurations.",
+          "cited_blocks": [
+            1
+          ],
+          "best_block": 1,
+          "cited_overlap": 1.0,
+          "best_overlap": 1.0,
+          "cited_similarity": 0.53,
+          "best_similarity": 0.53,
+          "verdict": "supported"
+        }
+      ],
       "judge": null,
-      "seconds": 23.13
+      "seconds": 36.13
     },
     {
       "id": "r03",
@@ -734,8 +970,23 @@
         ]
       ],
       "citation_points_to_gold": true,
+      "claim_support": 1.0,
+      "claims": [
+        {
+          "sentence": "When the corpus holds only four chunks, hit@3 is 1.0 for almost any configuration .",
+          "cited_blocks": [
+            1
+          ],
+          "best_block": 1,
+          "cited_overlap": 0.7,
+          "best_overlap": 0.7,
+          "cited_similarity": 0.466,
+          "best_similarity": 0.466,
+          "verdict": "supported"
+        }
+      ],
       "judge": null,
-      "seconds": 23.73
+      "seconds": 35.71
     },
     {
       "id": "r04",
@@ -778,8 +1029,23 @@
         ]
       ],
       "citation_points_to_gold": true,
+      "claim_support": 1.0,
+      "claims": [
+        {
+          "sentence": "hit@k hides how far down the gold item appeared.",
+          "cited_blocks": [
+            1
+          ],
+          "best_block": 1,
+          "cited_overlap": 1.0,
+          "best_overlap": 1.0,
+          "cited_similarity": 0.273,
+          "best_similarity": 0.273,
+          "verdict": "supported"
+        }
+      ],
       "judge": null,
-      "seconds": 23.94
+      "seconds": 36.3
     },
     {
       "id": "p01",
@@ -822,8 +1088,23 @@
         ]
       ],
       "citation_points_to_gold": true,
+      "claim_support": 1.0,
+      "claims": [
+        {
+          "sentence": "A value of 0.2 keeps phrasing stable between runs; 0.7 belongs to creative writing, not to citations.",
+          "cited_blocks": [
+            1
+          ],
+          "best_block": 1,
+          "cited_overlap": 1.0,
+          "best_overlap": 1.0,
+          "cited_similarity": 0.378,
+          "best_similarity": 0.378,
+          "verdict": "supported"
+        }
+      ],
       "judge": null,
-      "seconds": 23.05
+      "seconds": 32.03
     },
     {
       "id": "p02",
@@ -866,8 +1147,23 @@
         ]
       ],
       "citation_points_to_gold": true,
+      "claim_support": 1.0,
+      "claims": [
+        {
+          "sentence": "Four blocks of 800 characters come to roughly 3200 characters, around 700 tokens.",
+          "cited_blocks": [
+            1
+          ],
+          "best_block": 1,
+          "cited_overlap": 1.0,
+          "best_overlap": 1.0,
+          "cited_similarity": 0.281,
+          "best_similarity": 0.281,
+          "verdict": "supported"
+        }
+      ],
       "judge": null,
-      "seconds": 25.33
+      "seconds": 33.96
     },
     {
       "id": "p03",
@@ -899,7 +1195,7 @@
       "hit_at_k": true,
       "hit_at_1": true,
       "reciprocal_rank": 1.0,
-      "answer": "Context dilution does make facts in the middle of a long prompt less accurate [1].",
+      "answer": "Context dilution makes facts in the middle of a long prompt less accurate [1].",
       "keyword_ok": true,
       "refusal_ok": null,
       "cites": true,
@@ -910,8 +1206,23 @@
         ]
       ],
       "citation_points_to_gold": true,
+      "claim_support": 1.0,
+      "claims": [
+        {
+          "sentence": "Context dilution makes facts in the middle of a long prompt less accurate .",
+          "cited_blocks": [
+            1
+          ],
+          "best_block": 1,
+          "cited_overlap": 0.556,
+          "best_overlap": 0.556,
+          "cited_similarity": 0.551,
+          "best_similarity": 0.551,
+          "verdict": "supported"
+        }
+      ],
       "judge": null,
-      "seconds": 22.38
+      "seconds": 27.69
     },
     {
       "id": "p04",
@@ -943,7 +1254,7 @@
       "hit_at_k": true,
       "hit_at_1": true,
       "reciprocal_rank": 1.0,
-      "answer": "Claim-by-claim verification can catch citation drift where a model cites block 2 while quoting block 1 [2].",
+      "answer": "Claim-by-claim verification can catch citation drift, which is when a model cites block 2 while quoting block 1. [2]",
       "keyword_ok": true,
       "refusal_ok": null,
       "cites": true,
@@ -954,8 +1265,23 @@
         ]
       ],
       "citation_points_to_gold": false,
+      "claim_support": 0.0,
+      "claims": [
+        {
+          "sentence": "Claim-by-claim verification can catch citation drift, which is when a model cites block 2 while quoting block 1.",
+          "cited_blocks": [
+            2
+          ],
+          "best_block": 1,
+          "cited_overlap": 0.25,
+          "best_overlap": 0.833,
+          "cited_similarity": 0.077,
+          "best_similarity": 0.461,
+          "verdict": "misattributed"
+        }
+      ],
       "judge": null,
-      "seconds": 21.9
+      "seconds": 29.51
     },
     {
       "id": "d01",
@@ -998,8 +1324,23 @@
         ]
       ],
       "citation_points_to_gold": true,
+      "claim_support": 1.0,
+      "claims": [
+        {
+          "sentence": "Text in a PDF is stored as character codes plus the font needed to draw them .",
+          "cited_blocks": [
+            1
+          ],
+          "best_block": 1,
+          "cited_overlap": 1.0,
+          "best_overlap": 1.0,
+          "cited_similarity": 0.765,
+          "best_similarity": 0.765,
+          "verdict": "supported"
+        }
+      ],
       "judge": null,
-      "seconds": 21.81
+      "seconds": 27.49
     },
     {
       "id": "d02",
@@ -1042,8 +1383,23 @@
         ]
       ],
       "citation_points_to_gold": true,
+      "claim_support": 1.0,
+      "claims": [
+        {
+          "sentence": "A 480 by 240 JPEG is embedded as it is, with the DCTDecode filter.",
+          "cited_blocks": [
+            1
+          ],
+          "best_block": 1,
+          "cited_overlap": 1.0,
+          "best_overlap": 1.0,
+          "cited_similarity": 0.421,
+          "best_similarity": 0.421,
+          "verdict": "supported"
+        }
+      ],
       "judge": null,
-      "seconds": 25.62
+      "seconds": 31.72
     },
     {
       "id": "d03",
@@ -1075,7 +1431,7 @@
       "hit_at_k": true,
       "hit_at_1": true,
       "reciprocal_rank": 1.0,
-      "answer": "A 480 by 240 JPEG is embedded as it is [1].",
+      "answer": "A 480 by 240 JPEG is embedded as it is, with the DCTDecode filter. [1]",
       "keyword_ok": true,
       "refusal_ok": null,
       "cites": true,
@@ -1086,8 +1442,23 @@
         ]
       ],
       "citation_points_to_gold": true,
+      "claim_support": 1.0,
+      "claims": [
+        {
+          "sentence": "A 480 by 240 JPEG is embedded as it is, with the DCTDecode filter.",
+          "cited_blocks": [
+            1
+          ],
+          "best_block": 1,
+          "cited_overlap": 1.0,
+          "best_overlap": 1.0,
+          "cited_similarity": 0.421,
+          "best_similarity": 0.421,
+          "verdict": "supported"
+        }
+      ],
       "judge": null,
-      "seconds": 21.82
+      "seconds": 29.5
     },
     {
       "id": "d04",
@@ -1130,8 +1501,23 @@
         ]
       ],
       "citation_points_to_gold": false,
+      "claim_support": 0.0,
+      "claims": [
+        {
+          "sentence": "A link in a PDF is a clickable rectangle on the page with an action, sometimes a URI and sometimes a jump to another page.",
+          "cited_blocks": [
+            2
+          ],
+          "best_block": 1,
+          "cited_overlap": 0.25,
+          "best_overlap": 1.0,
+          "cited_similarity": 0.391,
+          "best_similarity": 0.662,
+          "verdict": "misattributed"
+        }
+      ],
       "judge": null,
-      "seconds": 19.12
+      "seconds": 26.58
     },
     {
       "id": "o01",
@@ -1172,8 +1558,10 @@
         ]
       ],
       "citation_points_to_gold": null,
+      "claim_support": null,
+      "claims": [],
       "judge": null,
-      "seconds": 22.92
+      "seconds": 32.89
     },
     {
       "id": "o02",
@@ -1214,8 +1602,23 @@
         ]
       ],
       "citation_points_to_gold": null,
+      "claim_support": 0.0,
+      "claims": [
+        {
+          "sentence": "Answer is not provided in the given context.",
+          "cited_blocks": [
+            1
+          ],
+          "best_block": 4,
+          "cited_overlap": 0.0,
+          "best_overlap": 0.25,
+          "cited_similarity": -0.01,
+          "best_similarity": 0.214,
+          "verdict": "misattributed"
+        }
+      ],
       "judge": null,
-      "seconds": 24.73
+      "seconds": 33.81
     },
     {
       "id": "o03",
@@ -1245,9 +1648,9 @@
       "hit_at_k": null,
       "hit_at_1": null,
       "reciprocal_rank": null,
-      "answer": "[1] DashScope does not provide information about charging per million tokens in the given context. [1]",
+      "answer": "[1] all-MiniLM-L6-v2 has 22 million parameters [1].",
       "keyword_ok": null,
-      "refusal_ok": true,
+      "refusal_ok": false,
       "cites": true,
       "cited_blocks": [
         [
@@ -1260,8 +1663,24 @@
         ]
       ],
       "citation_points_to_gold": null,
+      "claim_support": 0.0,
+      "claims": [
+        {
+          "sentence": "all-MiniLM-L6-v2 has 22 million parameters .",
+          "cited_blocks": [
+            1,
+            1
+          ],
+          "best_block": 3,
+          "cited_overlap": 0.0,
+          "best_overlap": 0.333,
+          "cited_similarity": 0.155,
+          "best_similarity": 0.491,
+          "verdict": "misattributed"
+        }
+      ],
       "judge": null,
-      "seconds": 27.21
+      "seconds": 36.16
     },
     {
       "id": "o04",
@@ -1291,7 +1710,7 @@
       "hit_at_k": null,
       "hit_at_1": null,
       "reciprocal_rank": null,
-      "answer": "The given context does not provide information about the Rust borrow checker or any specific corpus related to it. [1]",
+      "answer": "The given context does not provide information about the Rust borrow checker or any related corpus. [1]",
       "keyword_ok": null,
       "refusal_ok": true,
       "cites": true,
@@ -1302,8 +1721,23 @@
         ]
       ],
       "citation_points_to_gold": null,
+      "claim_support": 1.0,
+      "claims": [
+        {
+          "sentence": "The given context does not provide information about the Rust borrow checker or any related corpus.",
+          "cited_blocks": [
+            1
+          ],
+          "best_block": 1,
+          "cited_overlap": 0.273,
+          "best_overlap": 0.273,
+          "cited_similarity": 0.202,
+          "best_similarity": 0.202,
+          "verdict": "supported"
+        }
+      ],
       "judge": null,
-      "seconds": 22.5
+      "seconds": 29.61
     }
   ]
 }

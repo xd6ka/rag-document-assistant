@@ -15,7 +15,7 @@ Why a manual audit exists at all: an LLM judge was tried first and rejected — 
 ## Run 2 — with the cross-encoder (what `latest.json` holds now)
 
 Retrieval: hit@k 1.00, hit@1 0.96, MRR 0.980. Answer level: keyword 24/25, citation rate 25/25,
-**citation gold rate 20/25**, refusal 4/4.
+**citation gold rate 20/25**, **claim support 0.80**, refusal 3/4.
 
 Every in-scope answer is substantively correct on this run — **manual accuracy 25/25 = 1.00**.
 Two changes from run 1:
@@ -37,6 +37,32 @@ Two changes from run 1:
   This is why `citation_gold_rate` now exists alongside `citation_rate`: the presence check says
   1.00, the gold-page check says 0.80, and the gap is entirely generation-side. `c03` is the
   sharpest case — the model quotes chunking guidance and cites a retrieval-evaluation page.
+
+- **One refusal regressed.** `o03` (DashScope price per million tokens) answered "all-MiniLM-L6-v2 has
+  22 million parameters [1]" instead of declining. Run 1 refused all four out-of-scope questions with
+  the same prompt and settings, so this is model variance, not a detector bug: 3/4 is reported.
+  The five drifts above appeared identically in both runs, which is why they read as a property of
+  the prompt rather than a lucky sample.
+
+## Claim-level check against this audit
+
+`src/citations.py` splits each answer into sentences, attaches the `[n]` each sentence cites (including
+the common "… another page. [2]" shape, where the marker arrives after the final period), and asks
+whether the cited block is the best match for that sentence — lexically and by embedding — against
+the other blocks in the prompt. `eval/claim_audit.py` replays the retrieval and grades the stored
+answers without generating anything; per-sentence verdicts are in `eval/reports/claims.json`.
+
+Result on run 2: **mean claim support 0.80**, and the flagged sentences are exactly the five rows in
+the table above — `e05`, `v02`, `c03`, `p04`, `d04`. None of the twenty correct answers was flagged
+(false positives: 0). The automatic check therefore agrees with this hand audit 25/25, which is the
+only reason it is reported as a metric rather than as a curiosity.
+
+Two things it does **not** claim:
+- it is an attribution check, not entailment: a sentence can name the right block and then assert
+  something the block does not say;
+- thresholds (0.06 embedding margin, 0.35 lexical-overlap floor) were chosen on these 25 answers, so
+  the calibration is real but narrow — a different corpus needs its own audit before the number is
+  trusted.
 
 ## Run 1 — MMR only (`generated_at` 2026-11-20)
 
