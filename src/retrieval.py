@@ -75,18 +75,25 @@ class Retriever:
         sources: Optional[Sequence[str]] = None,
         rerank: bool = True,
         cross_encoder: Optional[bool] = None,
+        embed_model: Optional[str] = None,
+        rerank_model: Optional[str] = None,
     ) -> list[RetrievedChunk]:
-        """``rerank`` toggles MMR; ``cross_encoder`` toggles stage 2 (None = config)."""
+        """``rerank`` toggles MMR; ``cross_encoder`` toggles stage 2 (None = config).
+
+        ``embed_model`` / ``rerank_model`` override the configured checkpoints; the
+        embedding one must match the model the store was indexed with, so an
+        ablation that swaps embedders has to rebuild the collection too.
+        """
         use_cross_encoder = config.RERANK_ENABLED if cross_encoder is None else cross_encoder
         candidates = self.store.query(
-            embed_query(question),
+            embed_query(question, model_name=embed_model),
             retrieve_k or config.RETRIEVE_K,
             sources=sources,
         )
         self.last_stages = {"cross_encoder": use_cross_encoder, "mmr": rerank}
 
         if use_cross_encoder:
-            candidates = rerank_candidates(question, candidates)
+            candidates = rerank_candidates(question, candidates, model_name=rerank_model)
 
         final_k = k or config.CONTEXT_K
         if not rerank:

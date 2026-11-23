@@ -1,35 +1,47 @@
-"""Lazy singleton around sentence-transformers.
+"""Lazy cache of sentence-transformers models, keyed by model name.
 
-The model is loaded once per process: it costs ~5 s and ~90 MB of RAM, and
-Streamlit reruns the script on every interaction, so anything that reloads it
-per rerun makes the UI feel broken.
+Loading a model costs a few seconds and tens of megabytes of RAM, and Streamlit
+reruns the script on every interaction, so anything that reloads it per rerun
+makes the UI feel broken.
+
+The cache key is the *model name*, not a single global slot. A one-slot cache
+would let a multilingual ablation silently reuse the English model already in
+memory, and every "multilingual" number would then be measured against a model
+other than the one the config claims — a comparison that looks reasonable in a
+report and is simply wrong.
 """
 
 from __future__ import annotations
 
-from typing import Iterable, Sequence
+from typing import Iterable, Optional, Sequence
 
 from . import config  # noqa: F401  (sets HF_ENDPOINT before the heavy import)
 
-_model = None
+_models: dict[str, object] = {}
 
 
-def get_model():
-    """Return the shared ``SentenceTransformer`` instance, loading it on first use."""
-    global _model
-    if _model is None:
+def get_model(model_name: Optional[str] = None):
+    """Return a shared ``SentenceTransformer`` for ``model_name``, loading it once."""
+    name = model_name or config.EMBEDDING_MODEL
+    model = _models.get(name)
+    if model is None:
         from sentence_transformers import SentenceTransformer
 
-        _model = SentenceTransformer(config.EMBEDDING_MODEL)
-    return _model
+        model = SentenceTransformer(name)
+        _models[name] = model
+    return model
 
 
-def embed_texts(texts: Iterable[str], batch_size: int = 32) -> list[list[float]]:
+def embed_texts(
+    texts: Iterable[str],
+    batch_size: int = 32,
+    model_name: Optional[str] = None,
+) -> list[list[float]]:
     """Embed a batch of texts into plain Python lists (JSON/Chroma friendly)."""
     batch = [t for t in texts]
     if not batch:
         return []
-    vectors = get_model().encode(
+    vectors = get_model(model_name).encode(
         batch,
         batch_size=batch_size,
         show_progress_bar=False,
@@ -38,12 +50,12 @@ def embed_texts(texts: Iterable[str], batch_size: int = 32) -> list[list[float]]
     return vectors.tolist()
 
 
-def embed_text(text: str) -> list[float]:
-    return embed_texts([text])[0]
+def embed_text(text: str, model_name: Optional[str] = None) -> list[float]:
+    return embed_texts([text], model_name=model_name)[0]
 
 
-def embed_query(text: str) -> list[float]:
-    return embed_text(text)
+def embed_query(text: str, model_name: Optional[str] = None) -> list[float]:
+    return embed_text(text, model_name=model_name)
 
 
 __all__: Sequence[str] = ["get_model", "embed_texts", "embed_text", "embed_query"]

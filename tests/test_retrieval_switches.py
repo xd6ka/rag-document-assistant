@@ -46,7 +46,9 @@ def test_cross_encoder_off_is_recorded_and_skips_rerank(monkeypatch):
 def test_cross_encoder_on_is_recorded(monkeypatch):
     import src.retrieval as retrieval
 
-    def fake_rerank(question, candidates):
+    def fake_rerank(question, candidates, model_name=None):
+        # model_name is part of the real signature: the ablation picks the checkpoint
+        # per run, so retrieval always passes it through.
         for index, chunk in enumerate(candidates):
             chunk.rerank_score = 1.0 - index * 0.1
         return candidates

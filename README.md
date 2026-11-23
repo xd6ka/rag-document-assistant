@@ -4,7 +4,7 @@
 ![Streamlit](https://img.shields.io/badge/UI-Streamlit-FF4B4B?logo=streamlit&logoColor=white)
 ![ChromaDB](https://img.shields.io/badge/Vector%20store-ChromaDB-1F2937)
 ![LLM](https://img.shields.io/badge/LLM-Qwen%20(DashScope)-6B46C1)
-![Tests](https://img.shields.io/badge/tests-42%20passed-brightgreen)
+![Tests](https://img.shields.io/badge/tests-44%20passed-brightgreen)
 ![License](https://img.shields.io/badge/License-MIT-green)
 
 A local-first Retrieval-Augmented Generation assistant for PDF documents: upload PDFs, ask questions in plain language, and get answers grounded in the documents' own text — with the page each answer came from.
@@ -24,8 +24,8 @@ Chunking and embeddings run **entirely on the local machine** (`all-MiniLM-L6-v2
 - **Multi-document workspace** — per-document chunk/page counts, per-document delete, document-scoped filtering, one-click reset.
 - **Persistent vector store** — ChromaDB on disk; the index survives restarts.
 - **Grounded prompt** — the model is instructed to answer only from context and to refuse otherwise.
-- **Measured, not guessed** — a 6-document corpus, 29 labelled questions, a 9-configuration retrieval ablation, a gold-label validator that fails the run when a rubric drifts, and a **claim-level citation check**: every cited sentence is compared with the block it names.
-- **42 unit tests** — chunker behaviour, provider resolution, refusal detection, ranking order, citation mapping, claim parsing, stage switches, eval labels.
+- **Measured, not guessed** — a 6-document corpus, 29 labelled questions, a 9-configuration retrieval ablation, a gold-label validator that fails the run when a rubric drifts, a **claim-level citation check** in which every cited sentence is compared with the block it names, and a **5-configuration cross-lingual run** that asks the same facts in Russian and Chinese.
+- **44 unit tests** — chunker behaviour, provider resolution, refusal detection, ranking order, citation mapping, claim parsing, stage switches, per-model caching, eval labels.
 
 ## Architecture
 
@@ -57,7 +57,7 @@ flowchart LR
 2. **Chunking** — each page is split into ~800-character windows, cut on newline/space/period so words stay intact, with 150 characters of overlap; short tails are merged into the previous chunk.
 3. **Embedding** — every chunk is encoded locally with normalized 384-d vectors.
 4. **Storage** — one ChromaDB collection in cosine space, ids `"{source}:{page}:{index}"`. Re-indexing deletes the document's previous chunks first, so an edited PDF cannot leave stale tails.
-5. **Retrieval** — the question is embedded with the same model, 8 candidates are pulled, a cross-encoder scores each query–passage pair jointly (it is the only stage that sees the question and the passage together), then MMR (λ = 0.7) narrows them to 4. Both stages are switches; `RERANK_ENABLED=0` falls back to plain MMR order.
+5. **Retrieval** — the question is embedded with the same model, 8 candidates are pulled, a cross-encoder scores each query–passage pair jointly (it is the only stage that sees the question and the passage together), then MMR (λ = 0.7) narrows them to 4. Both stages are switches; `RERANK_ENABLED=0` falls back to plain MMR order. Both checkpoints are configurable (`EMBEDDING_MODEL`, `RERANK_MODEL`) and cached per name, so swapping languages is an environment change rather than a code change.
 6. **Generation** — blocks are numbered `[1]…[4]` with source and page inside each block; the model answers only from them and cites the blocks it used.
 
 ## Evaluation
@@ -111,7 +111,41 @@ Four honest readings:
 3. **MMR cost 0.007 MRR on top of the vector stage.** It pushes the exact gold chunk slightly down in exchange for context diversity, which this metric cannot observe. It stays enabled because the prompt benefits from non-redundant blocks — but claiming it improves retrieval would be wrong.
 4. **The cross-encoder is the one change that moved the ceiling**, not the margin: `hit@k` 0.96 → **1.00** (the single miss, `p04`, is recovered), `hit@1` 0.88 → **0.96**, MRR 0.913 → **0.980**. It costs ~0.3 s per query on CPU and adds no retrieval misses back. Notably, MMR applied *after* the cross-encoder costs nothing here — MMR reorders within a list the CE has already ranked correctly, and with only 8 candidates the diversity term rarely overrides a strong CE score.
 
-Two caveats on reading the CE row: the reranker is `ms-marco`, trained on **English** MS MARCO passages, so these numbers say "it works on English text", not "it works on Chinese or Russian PDFs". And with 25 questions, one recovered question is 4 points of `hit@1` — the direction is solid, the exact magnitude is not.
+Two caveats on reading the CE row: the reranker is `ms-marco`, trained on **English** MS MARCO passages, so these numbers say "it works on English text", not "it works on Chinese or Russian PDFs" — the next section measures that boundary directly. And with 25 questions, one recovered question is 4 points of `hit@1` — the direction is solid, the exact magnitude is not.
+
+### Cross-lingual questions — the same 12 facts asked in Russian and Chinese
+
+`eval/qa_set_multilingual.jsonl` mirrors twelve in-scope English questions into `ru` and `zh` (24 questions) against the **English** corpus, keeping the same documents and gold pages. The English `page_contains` token is kept in each row, so `validate_qa_set()` still proves every label points at text that really holds the fact — a translated question cannot silently inherit a stale rubric.
+
+`python eval/run_multilingual.py` runs five configurations, each changing exactly one thing, retrieval only (no model-generated answers, no cost):
+
+| Embedder | Cross-encoder | hit@4 | hit@1 | MRR | hit@4 ru | hit@4 zh | Misses | s/question |
+|---|---|---|---|---|---|---|---|---|
+| EN `all-MiniLM-L6` | — | 0.667 | 0.292 | 0.396 | 0.583 | 0.750 | 8 | 0.02 |
+| EN `all-MiniLM-L6` | EN `ms-marco` | 0.667 | 0.500 | 0.562 | 0.583 | 0.750 | 8 | 0.40 |
+| ML `paraphrase-multilingual` | — | **0.917** | 0.667 | 0.774 | 0.833 | 1.000 | 2 | 0.03 |
+| ML `paraphrase-multilingual` | EN `ms-marco` | 0.792 | 0.500 | 0.622 | 0.750 | 0.833 | 5 | 0.25 |
+| ML `paraphrase-multilingual` | ML `bge-reranker-base` | **0.958** | **0.875** | **0.917** | 0.917 | 1.000 | 1 | 1.55 |
+
+Six readings, in order of how much they changed the design:
+
+1. **A reranker cannot create candidates.** Row 1 → row 2 leaves `hit@4` at **0.667 with the same eight misses**; only `hit@1` moves (0.292 → 0.500) and MRR follows (0.396 → 0.562). The cross-encoder reorders the eight blocks the English embedder handed it and cannot pull in the page the embedder never retrieved.
+2. **The embedder is the decision.** Swapping only the bi-encoder takes `hit@4` 0.667 → **0.917** and cuts misses 8 → 2. This is why the pair is measured separately instead of "we added a multilingual reranker".
+3. **The wrong-language reranker is worse than none.** Multilingual candidates reordered by an English `ms-marco` score **0.792 / 0.500 / 0.622** — below row 3's 0.917 / 0.667 / 0.774, and misses go 2 → 5. The model reads a Russian or Chinese question against an English passage, prefers the wrong block, and displaces a gold chunk that plain cosine order had already placed in the window. Adding a reranker is not a monotone improvement; its language has to match the question's.
+4. **Both sides multilingual** is the best row: **0.958 / 0.875 / 0.917**, which is close to the English-only ceiling (1.000 / 0.960 / 0.980) but not equal to it.
+5. **The single remaining miss is MMR, not the model.** `p04-ru` (claim-by-claim verification) lands at **rank 4** after `bge-reranker-base`, then MMR's diversity term swaps it for a lower-scoring block from another document — the same trade the English ablation priced at 0.007 MRR. With MMR off it is a hit.
+6. **Chinese saturates, Russian does not.** `hit@4` for `zh` is 1.000 in two of the five rows; `ru` tops out at 0.917. Only one question separates them, so the honest statement is "a consistent gap of about one question", not "Chinese is easier".
+
+Costs: `bge-reranker-base` is 278 M parameters (XLM-RoBERTa based) and ~1.1 GB on disk against 22 M / ~90 MB for `ms-marco`, and it costs **1.55 s per query** versus 0.25 s — around six times slower, still under two seconds. This run was made on a 2-core CPU-only Linux box rather than the laptop used for the ablation above, so the two latency columns are not directly comparable and only retrieval ranks are hardware-independent.
+
+The shipped default stays English because the corpus and the demo are English. Switching is two environment variables plus a re-index:
+
+```bash
+EMBEDDING_MODEL=sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2
+RERANK_MODEL=BAAI/bge-reranker-base
+```
+
+A swapped embedder invalidates the existing collection: the stored vectors came from the old model and are not comparable with the new one, so `chroma_db/` has to be rebuilt (or a fresh collection used) rather than reused.
 
 ### Answer-level results (local 3B model, no API account)
 
@@ -219,7 +253,7 @@ python query.py --k 6 --source real.pdf
 
 ```powershell
 pip install -r requirements-dev.txt
-pytest -q                        # 30 tests
+pytest -q                        # 44 tests
 python eval/build_corpus.py      # regenerate the corpus PDFs
 python eval/run_ablation.py      # config comparison, no API cost
 ```
@@ -231,9 +265,9 @@ rag-document-assistant/
 ├── src/
 │   ├── config.py        # env loading, paths, defaults, LLM provider resolution
 │   ├── chunking.py      # page-aware overlapping windows, short-tail merging
-│   ├── embeddings.py    # lazy singleton SentenceTransformer, normalized vectors
+│   ├── embeddings.py    # SentenceTransformer cache keyed by model name, normalized vectors
 │   ├── store.py         # ChromaDB layer: upsert, delete-by-source, cosine query
-│   ├── rerank.py        # lazy cross-encoder singleton, min-max normalized scores
+│   ├── rerank.py        # per-model cross-encoder cache, min-max normalized scores
 │   ├── retrieval.py     # vector search → cross-encoder → MMR
 │   ├── citations.py     # sentence-level citation attribution checks
 │   ├── generation.py    # prompt assembly, vendor-neutral client, retry/backoff
@@ -246,10 +280,12 @@ rag-document-assistant/
 │   ├── build_corpus.py  # renders corpus_source.py into PDFs
 │   ├── corpus/          # generated PDFs (committed, ~4 KB each)
 │   ├── qa_set.jsonl     # 29 questions with doc + page gold labels
+│   ├── qa_set_multilingual.jsonl # the same 12 facts asked in ru and zh
 │   ├── run_eval.py      # validation, hit@k, hit@1, MRR, answer + citation + claim metrics, --rescore
 │   ├── run_ablation.py  # 9-configuration retrieval comparison with per-question latency
+│   ├── run_multilingual.py # 5-configuration cross-lingual retrieval comparison
 │   ├── claim_audit.py   # per-sentence citation verdicts against the stored answers
-│   └── reports/         # latest.json, ablation.json, claims.json, answer_audit.md, judge_experiment.json
+│   └── reports/         # latest.json, ablation.json, multilingual.json, claims.json, answer_audit.md, judge_experiment.json
 ├── tests/
 │   ├── test_chunking.py    # 8 cases
 │   ├── test_config.py      # 5 cases (provider resolution, legacy-env traps)
@@ -257,6 +293,7 @@ rag-document-assistant/
 │   ├── test_retrieval_stages.py # 6 cases (rerank-score ordering, citation mapping)
 │   ├── test_retrieval_switches.py # 3 cases (stage flags actually skip their stage)
 │   ├── test_citations.py   # 9 cases (sentence parsing, attribution verdicts)
+│   ├── test_model_selection.py # 2 cases (per-model caches actually swap models)
 │   └── test_eval_labels.py # 5 cases
 ├── data/                # source PDFs (git-ignored)
 ├── chroma_db/           # persisted vector store (git-ignored)
@@ -270,6 +307,7 @@ rag-document-assistant/
 - **MMR, priced honestly.** It trades a little retrieval precision for context diversity; the ablation shows the price (0.007 MRR) when it runs directly on cosine scores. The value is in the prompt, and the README says so instead of pretending the retrieval metric improved.
 - **Cross-encoder before diversity.** A bi-encoder embeds the question and the chunk separately, so it can only compare two summaries of meaning; a cross-encoder reads them together and is strictly better at ordering. It is the last stage to run *before* MMR, so the diversity pass reorders an already-correct list rather than rescuing a wrong one. Scores are min-max normalized into `rerank_score` and kept separate from the cosine `score`, so the UI still shows a number that is comparable across queries.
 - **Delete-then-upsert.** Positional ids (`doc_0`, `doc_1`, …) break on the second document; per-source ids plus delete-first ingest make re-indexing idempotent.
+- **An embedder and a reranker are a pair, not two separate features.** The embedder decides which candidates exist, the reranker only orders them; measured cross-lingually, swapping the reranker alone changed `hit@4` by exactly zero. So the two are swapped and reported together, and each model is cached **by name** (a dict in `embeddings.py`, `lru_cache(maxsize=4)` in `rerank.py`) — a single-slot cache would quietly serve the previous checkpoint and every number after that would belong to the wrong model.
 - **Labels are validated, not trusted.** Every eval run re-reads the gold pages and refuses to score if a label no longer matches the document.
 - **Metrics are audited before they are published.** A metric that scores clearly correct answers as failures gets fixed or removed, not reported. That is why the judge is null and the refusal detector has a negation fallback.
 - **Local embeddings.** Indexing stays free and offline; the 18-page corpus indexes in seconds on CPU.
@@ -282,21 +320,22 @@ rag-document-assistant/
 - **Citation support is measured, entailment is not.** `claim_support_rate` checks that a cited sentence's best-matching block is the block it names. A sentence can pass that and still add a claim the block never made; proving entailment needs a model that can be calibrated, which a local 3B judge is not.
 - **The faithfulness judge needs a stronger model.** A 3B judge is uncalibrated and was rejected; the metric returns only when judging runs on a hosted model.
 - **Local generation is slow.** ~47 s per answer on CPU. Good enough to prove the pipeline works offline, not good enough to demo interactively.
-- **The cross-encoder is an English model.** `ms-marco-MiniLM-L-6-v2` was trained on English MS MARCO; Chinese or Russian documents have no measured reranker yet — a multilingual `bge-reranker` is the swap.
+- **Cross-lingual retrieval is measured, but only in one direction.** Twenty-four translated questions hit an English corpus; a corpus written in Russian or Chinese (with its own tokenisation and paragraph lengths) is untested, and the shipped defaults are still English models. The gap between 0.958 and the English 1.000 is one question, so the multilingual row is "competitive", not "equal".
 - **First query pays for the reranker.** The model (~90 MB) downloads on first use and loads in ~4 s; afterwards it is steady at ~0.3 s/query on CPU.
 - **Scanned PDFs are not handled.** No OCR fallback; text-less pages are reported as "no extractable text".
 - **No streaming.** The answer appears when the full response arrives.
 - **Single collection.** Document filtering works, but there is no notion of workspaces or per-user isolation.
 
-Planned order: multilingual reranker → OCR fallback → streaming → a real-world corpus with variance estimates. (Claim-level citation checking is done: `src/citations.py`, calibrated against the manual audit.)
+Planned order: OCR fallback → streaming → a real-world corpus with variance estimates. (Cross-lingual retrieval is done: bi-encoder and reranker both swapped and measured separately, `eval/reports/multilingual.json`. Claim-level citation checking is done too: `src/citations.py`, calibrated against the manual audit.)
 
 ## 中文简介
 
 面向 PDF 文档的检索增强生成（RAG）问答助手。切分、向量化均在本地完成（`all-MiniLM-L6-v2`），只有检索到的片段与问题会发送给生成模型。
 
-- **核心能力**：页码级引用（`文件名 · 页码 · 相似度`）、800/150 重叠切块、cross-encoder 重排 + MMR、逐句引用归因、多文档管理
+- **核心能力**：页码级引用（`文件名 · 页码 · 相似度`）、800/150 重叠切块、cross-encoder 重排 + MMR（可整对切换为多语言 embedding + `bge-reranker-base`）、逐句引用归因、多文档管理
 - **技术栈**：Streamlit + pypdf + sentence-transformers + ChromaDB + 任意 OpenAI 兼容接口（DashScope / DeepSeek / 本地 Ollama）
 - **评测**：自建 6 文档 / 18 页合成语料 + 29 道人工题目；9 组配置对比中，cross-encoder 把检索从 hit@k 0.96 / hit@1 0.88 / MRR 0.913 提到 **1.00 / 0.96 / 0.980**（每题约 0.3 秒），并且补上了唯一漏检 `p04`；不加时 800/150 优于 500 字符，MMR 代价为 0.007 MRR
+- **跨语言检索**：同一批 12 个事实改写成俄语、中文共 24 题，英文语料不变，跑 5 组配置——只换重排器 `hit@4` 完全不动（0.667 → 0.667，漏检还是 8 个），只换 bi-encoder 才涨到 **0.917**（漏检 2 个）；用英文重排器给多语言候选打分反而更差（0.792，漏检 5 个）；两边都换多语言模型为 **0.958 / 0.875 / 0.917**（漏检 1 个，且是 MMR 把已经排到第 4 的 `p04-ru` 挤出窗口，不是模型的问题）。代价是 `bge-reranker-base` 278M 参数、约 1.1 GB、1.55 秒/题（英文重排器 0.25 秒）
 - **答案层指标**：本地 `qwen2.5:3b` 生成 29 条答案，引用率 1.0、拒答率 0.75（一次 4/4、一次 3/4，属于小模型自律性的波动）、关键词命中 0.96；人工复核 25/25 正确。**引用归因**：`citation_gold_rate` 0.80、`claim_support_rate` 0.80 —— 逐句比对「引用的块是否就是证据所在的块」，自动判定与人工标注在 25 条上完全一致（5 个漂移、0 个误报，两次运行漂移集合相同）。LLM 评委（judge）因 3B 模型打分不可靠被弃用，实验记录保留在 `eval/reports/judge_experiment.json`
 - **运行**：配置 `.env`（参考 `.env.example`）后执行 `streamlit run ui.py`；默认走本地 Ollama，无需 API Key 与付费账号
 
