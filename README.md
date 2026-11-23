@@ -4,7 +4,7 @@
 ![Streamlit](https://img.shields.io/badge/UI-Streamlit-FF4B4B?logo=streamlit&logoColor=white)
 ![ChromaDB](https://img.shields.io/badge/Vector%20store-ChromaDB-1F2937)
 ![LLM](https://img.shields.io/badge/LLM-Qwen%20(DashScope)-6B46C1)
-![Tests](https://img.shields.io/badge/tests-50%20passed-brightgreen)
+![Tests](https://img.shields.io/badge/tests-53%20passed-brightgreen)
 ![License](https://img.shields.io/badge/License-MIT-green)
 
 A local-first Retrieval-Augmented Generation assistant for PDF documents: upload PDFs, ask questions in plain language, and get answers grounded in the documents' own text — with the page each answer came from.
@@ -25,8 +25,9 @@ Chunking and embeddings run **entirely on the local machine** (`all-MiniLM-L6-v2
 - **Multi-document workspace** — per-document chunk/page counts, per-document delete, document-scoped filtering, one-click reset.
 - **Persistent vector store** — ChromaDB on disk; the index survives restarts.
 - **Grounded prompt** — the model is instructed to answer only from context and to refuse otherwise.
-- **Measured, not guessed** — a 6-document corpus, 29 labelled questions, a 9-configuration retrieval ablation, a gold-label validator that fails the run when a rubric drifts, a **claim-level citation check** in which every cited sentence is compared with the block it names, and a **5-configuration cross-lingual run** that asks the same facts in Russian and Chinese.
-- **50 unit tests** — chunker behaviour, provider resolution, refusal detection, ranking order, citation mapping, claim parsing, stage switches, per-model caching, the OCR fallback's trigger and failure path, eval labels.
+- **Streaming answers** — tokens appear as the model writes them, and the line under each answer reports `first token X s · complete in Y s` instead of leaving a 25-second empty box.
+- **Measured, not guessed** — a 6-document corpus, 29 labelled questions, a 9-configuration retrieval ablation, a gold-label validator that fails the run when a rubric drifts, a **claim-level citation check** in which every cited sentence is compared with the block it names, a **5-configuration cross-lingual run** that asks the same facts in Russian and Chinese, and an OCR run against a fully rasterised corpus.
+- **53 unit tests** — chunker behaviour, provider resolution, refusal detection, ranking order, citation mapping, claim parsing, stage switches, per-model caching, the OCR fallback's trigger and failure path, token-stream order, eval labels.
 
 ## Architecture
 
@@ -63,7 +64,7 @@ flowchart LR
 3. **Embedding** — every chunk is encoded locally with normalized 384-d vectors.
 4. **Storage** — one ChromaDB collection in cosine space, ids `"{source}:{page}:{index}"`. Re-indexing deletes the document's previous chunks first, so an edited PDF cannot leave stale tails.
 5. **Retrieval** — the question is embedded with the same model, 8 candidates are pulled, a cross-encoder scores each query–passage pair jointly (it is the only stage that sees the question and the passage together), then MMR (λ = 0.7) narrows them to 4. Both stages are switches; `RERANK_ENABLED=0` falls back to plain MMR order. Both checkpoints are configurable (`EMBEDDING_MODEL`, `RERANK_MODEL`) and cached per name, so swapping languages is an environment change rather than a code change.
-6. **Generation** — blocks are numbered `[1]…[4]` with source and page inside each block; the model answers only from them and cites the blocks it used.
+6. **Generation** — blocks are numbered `[1]…[4]` with source and page inside each block; the model answers only from them and cites the blocks it used. Tokens are streamed to the UI as they are produced, and the answer line reports the first-token time, because on CPU the wait is 20 s of prompt processing before the first word.
 
 ## Evaluation
 
@@ -197,7 +198,24 @@ Five things worth reading before trusting these numbers:
 6. **The LLM judge was tried and rejected.** The same 3B model scored 7 grounded answers as 1/5, and a controlled case scored `2` through the OpenAI-compatible shim versus `4` through Ollama's native API. An uncalibrated instrument is worse than no instrument, so the committed report carries `judge_mean_faithfulness: null` and the experiment is kept as evidence in `eval/reports/judge_experiment.json`. Per-answer verdicts are in `eval/reports/answer_audit.md`.
 7. **What reproduced, and what did not.** The drift set reproduced exactly (`e05`, `v02`, `c03`, `p04`, `d04` on both runs) and lexical accuracy moved only through `p04`; refusal moved 4/4 → 3/4 with no code change. That is the honest shape of a single-run number: retrieval is stable, citation behaviour is stable, and the 3B model's self-restraint is not.
 
-Latency on this machine: 46.7 s mean per question (retrieval + generation), 60.6 s max — usable for an audit, too slow for an interactive demo. A hosted model answers in 1–3 s; the code path is identical. Retrieval alone, including the cross-encoder, is 0.3–0.4 s per question.
+### Streaming — measured time to first token
+
+`python eval/measure_stream.py` asks three questions twice: once streamed (the UI path) and once blocking (the eval path), both with the retrieval pipeline in front. Same model, same session, model already warm.
+
+| Question | First token | Streamed total | Blocking total | Answer chars |
+|---|---|---|---|---|
+| `e01` | 23.8 s | 25.0 s | 25.3 s | 47 |
+| `v01` | 24.9 s | 26.4 s | 26.2 s | 69 |
+| `d02` | 22.6 s | 24.6 s | 24.3 s | 70 |
+| mean | **23.7 s** | 25.3 s | 25.3 s | 62 |
+
+What this says, including the part that is inconvenient:
+
+1. **Streaming does not make the model faster.** 25.3 s streamed against 25.3 s blocking — the same wall clock, and two of three answers were byte-identical.
+2. **It only hides about 1.6 s.** The first token arrives at 23.7 s of a 25.3 s answer. On CPU the wait is prompt prefill (~900 tokens of numbered context), not token generation (~20 tokens of answer). Streaming therefore fixes the *impression* of a freeze; it does not fix the latency, and the README should not pretend otherwise.
+3. **The real lever is the prompt, not the transport.** Fewer blocks (`Chunks sent to the model` in the sidebar), smaller chunks, or a faster backend. A hosted model answers in 1–3 s on the same code path.
+4. **Cache makes a fake 8× speedup easy to publish.** Ollama caches the longest common prefix: measured naively, the blocking call after a streamed one returns in 1.3–1.7 s because the whole context is already processed. The script puts a marker in the *first* context block so both modes are cold; a marker at the end of the question changes nothing and yields a number that measures the cache.
+5. **Latency is one-run data, and the spread shows why that matters.** The answer-level audit above measured **46.7 s** per question (retrieval + generation, 60.6 s max) for the same pipeline and model, this run **25.3 s** — a 1.8× difference between two sessions on one laptop with no code change. Retrieval alone, cross-encoder included, is 0.3–0.4 s per question. Retrieval ranks are stable across runs; wall-clock times are not, which is exactly the variance the roadmap still owes.
 
 Each run indexes into a throwaway store, so results never depend on your working collection. Reports land in `eval/reports/`.
 
@@ -208,6 +226,9 @@ python eval/run_eval.py --no-answers        # retrieval only, no model calls
 python eval/run_eval.py --no-ce             # retrieval ablation without the cross-encoder
 python eval/run_eval.py --rescore eval/reports/latest.json   # re-score stored answers, no model calls
 python eval/claim_audit.py                  # per-sentence citation verdicts for the stored answers
+python eval/run_multilingual.py             # 5-configuration cross-lingual retrieval
+python eval/run_ocr.py                      # rasterise the corpus, measure what OCR recovers
+python eval/measure_stream.py               # time to first token vs total, streamed vs blocking
 ```
 
 ## Tech stack
@@ -219,7 +240,8 @@ python eval/claim_audit.py                  # per-sentence citation verdicts for
 | Embeddings | sentence-transformers `all-MiniLM-L6-v2` (local, CPU) |
 | Vector store | ChromaDB (`PersistentClient`, cosine space) |
 | Reranking | cross-encoder `ms-marco-MiniLM-L-6-v2` + MMR over candidate embeddings (numpy) |
-| LLM | provider-agnostic: any OpenAI-compatible endpoint, or local Ollama |
+| OCR fallback | PyMuPDF raster + RapidOCR (PP-OCR on ONNX runtime, offline, no system binary) |
+| LLM | provider-agnostic: any OpenAI-compatible endpoint, or local Ollama; answers streamed |
 | Corpus fixtures | reportlab (dev only) |
 | Tests | pytest |
 
@@ -280,7 +302,7 @@ python query.py --k 6 --source real.pdf
 
 ```powershell
 pip install -r requirements-dev.txt
-pytest -q                        # 50 tests
+pytest -q                        # 53 tests
 python eval/build_corpus.py      # regenerate the corpus PDFs
 python eval/run_ablation.py      # config comparison, no API cost
 ```
@@ -297,7 +319,7 @@ rag-document-assistant/
 │   ├── rerank.py        # per-model cross-encoder cache, min-max normalized scores
 │   ├── retrieval.py     # vector search → cross-encoder → MMR
 │   ├── citations.py     # sentence-level citation attribution checks
-│   ├── generation.py    # prompt assembly, vendor-neutral client, retry/backoff
+│   ├── generation.py    # prompt assembly, vendor-neutral client, retry/backoff, token streaming
 │   ├── ingest.py        # PDF -> pages (with OCR fallback) -> chunks -> embeddings -> store
 │   └── ocr.py           # scanned-page fallback: PyMuPDF raster + RapidOCR, lazy engine
 ├── ui.py                # Streamlit app (upload, chat, citations, settings)
@@ -313,8 +335,9 @@ rag-document-assistant/
 │   ├── run_ablation.py  # 9-configuration retrieval comparison with per-question latency
 │   ├── run_multilingual.py # 5-configuration cross-lingual retrieval comparison
 │   ├── run_ocr.py       # rasterise the corpus and measure what OCR recovers
+│   ├── measure_stream.py # time to first token vs total, streamed vs blocking
 │   ├── claim_audit.py   # per-sentence citation verdicts against the stored answers
-│   └── reports/         # latest.json, ablation.json, multilingual.json, ocr.json, claims.json, answer_audit.md, judge_experiment.json
+│   └── reports/         # latest.json, ablation.json, multilingual.json, ocr.json, streaming.json, claims.json, answer_audit.md, judge_experiment.json
 ├── tests/
 │   ├── test_chunking.py    # 8 cases
 │   ├── test_config.py      # 5 cases (provider resolution, legacy-env traps)
@@ -324,6 +347,7 @@ rag-document-assistant/
 │   ├── test_citations.py   # 9 cases (sentence parsing, attribution verdicts)
 │   ├── test_model_selection.py # 2 cases (per-model caches actually swap models)
 │   ├── test_ocr.py         # 6 cases (OCR trigger, replacement rule, failure path)
+│   ├── test_streaming.py   # 3 cases (token order, prompt content, no double generation)
 │   └── test_eval_labels.py # 5 cases
 ├── data/                # source PDFs (git-ignored)
 ├── chroma_db/           # persisted vector store (git-ignored)
@@ -353,10 +377,10 @@ rag-document-assistant/
 - **Cross-lingual retrieval is measured, but only in one direction.** Twenty-four translated questions hit an English corpus; a corpus written in Russian or Chinese (with its own tokenisation and paragraph lengths) is untested, and the shipped defaults are still English models. The gap between 0.958 and the English 1.000 is one question, so the multilingual row is "competitive", not "equal".
 - **First query pays for the reranker.** The model (~90 MB) downloads on first use and loads in ~4 s; afterwards it is steady at ~0.3 s/query on CPU.
 - **OCR is text recovery, not layout recovery.** A scanned page is reduced to a line order, so tables lose their columns and two-column pages can interleave. The bundled PP-OCR model covers Latin and Chinese; Cyrillic comes back as transliterated Latin (~5 % word recall), and another recogniser is a separate model swap. Handwriting and skewed scans are untested.
-- **No streaming.** The answer appears when the full response arrives.
+- **Streaming hides the last 1.6 s, not the 23 s before it.** Time to first token is 23.7 s on CPU because prompt prefill dominates; the lever is a shorter prompt or a faster backend, not the transport.
 - **Single collection.** Document filtering works, but there is no notion of workspaces or per-user isolation.
 
-Planned order: streaming → a real-world corpus with variance estimates. (Cross-lingual retrieval is done: bi-encoder and reranker both swapped and measured separately, `eval/reports/multilingual.json`. Claim-level citation checking is done too: `src/citations.py`, calibrated against the manual audit. OCR is done: `src/ocr.py`, measured on a fully rasterised corpus, `eval/reports/ocr.json`.)
+Planned order: a real-world corpus with variance estimates. (Cross-lingual retrieval is done: bi-encoder and reranker both swapped and measured separately, `eval/reports/multilingual.json`. Claim-level citation checking is done too: `src/citations.py`, calibrated against the manual audit. OCR is done: `src/ocr.py`, measured on a fully rasterised corpus, `eval/reports/ocr.json`. Streaming is done and measured honestly: `src/generation.py:stream_answer`, `eval/reports/streaming.json` — it removes the freeze, not the latency.)
 
 ## 中文简介
 
@@ -367,6 +391,7 @@ Planned order: streaming → a real-world corpus with variance estimates. (Cross
 - **评测**：自建 6 文档 / 18 页合成语料 + 29 道人工题目；9 组配置对比中，cross-encoder 把检索从 hit@k 0.96 / hit@1 0.88 / MRR 0.913 提到 **1.00 / 0.96 / 0.980**（每题约 0.3 秒），并且补上了唯一漏检 `p04`；不加时 800/150 优于 500 字符，MMR 代价为 0.007 MRR
 - **跨语言检索**：同一批 12 个事实改写成俄语、中文共 24 题，英文语料不变，跑 5 组配置——只换重排器 `hit@4` 完全不动（0.667 → 0.667，漏检还是 8 个），只换 bi-encoder 才涨到 **0.917**（漏检 2 个）；用英文重排器给多语言候选打分反而更差（0.792，漏检 5 个）；两边都换多语言模型为 **0.958 / 0.875 / 0.917**（漏检 1 个，且是 MMR 把已经排到第 4 的 `p04-ru` 挤出窗口，不是模型的问题）。代价是 `bge-reranker-base` 278M 参数、约 1.1 GB、1.55 秒/题（英文重排器 0.25 秒）
 - **扫描件 OCR**：把整本语料逐页栅格化成「只有图片」的 PDF（脚本会先断言这 18 页确实没有文字层），同一批 25 题对比三种索引：数字版 **1.000 / 0.960 / 0.980**；栅格版不开 OCR **0.000 / 0.000 / 0.000（0 个 chunk，25 题全错过）**；栅格版开 OCR **0.960 / 0.920 / 0.940**，只丢一题（`p02`，原因是 OCR 漏检一整行，正好是那行数字）。页面词覆盖率均值 **96.1%**、最差页 74.8%；每页约 4.2 秒，18 页索引 76 秒。300 dpi 对比 200 dpi：均值 95.2% 但最差页只有 57.7%、`hit@1` 0.880，而引擎会把输入缩放到固定尺寸，所以 300 dpi 并没有更慢。语言边界如实写清：拉丁与中文可用，西里尔字母实测只有 5% 词覆盖率
+- **流式输出**：`stream_answer` 逐 token 推送，答案下方显示「首 token … 秒 · 完成 … 秒」。三题实测：首个 token 平均 **23.7 秒**、整段 **25.3 秒**，阻塞模式同样 25.3 秒——CPU 上瓶颈是约 900 token 的 prompt 预填充，不是解码，所以流式消掉的是「看起来卡死」的观感，并没有真正变快；真正的杠杆是把窗口调小或换更快的后端。同一个环境两次运行还差 1.8 倍（46.7 秒 vs 25.3 秒），单次延迟数字不可当结论
 - **答案层指标**：本地 `qwen2.5:3b` 生成 29 条答案，引用率 1.0、拒答率 0.75（一次 4/4、一次 3/4，属于小模型自律性的波动）、关键词命中 0.96；人工复核 25/25 正确。**引用归因**：`citation_gold_rate` 0.80、`claim_support_rate` 0.80 —— 逐句比对「引用的块是否就是证据所在的块」，自动判定与人工标注在 25 条上完全一致（5 个漂移、0 个误报，两次运行漂移集合相同）。LLM 评委（judge）因 3B 模型打分不可靠被弃用，实验记录保留在 `eval/reports/judge_experiment.json`
 - **运行**：配置 `.env`（参考 `.env.example`）后执行 `streamlit run ui.py`；默认走本地 Ollama，无需 API Key 与付费账号
 

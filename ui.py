@@ -2,10 +2,12 @@
 
 from __future__ import annotations
 
+import time
+
 import streamlit as st
 
 from src import config
-from src.generation import answer_question
+from src.generation import stream_answer
 from src.ingest import ingest_pdf
 from src.retrieval import Retriever
 from src.store import DocumentStore, RetrievedChunk
@@ -172,9 +174,27 @@ if prompt:
                     answer = "Nothing relevant found for that question in the indexed documents."
                     st.warning(answer)
                 else:
+                    # Streamed on purpose: a local 3B model needs ~45 s per answer and
+                    # an empty box for 45 s reads as a hang. The spinner stops as soon
+                    # as the first token arrives.
+                    placeholder = st.empty()
+                    buffer: list[str] = []
+                    first_token_at: float | None = None
+                    started = time.perf_counter()
                     with st.spinner("Generating answer..."):
-                        answer = answer_question(prompt, contexts)
-                    st.markdown(answer)
+                        for delta in stream_answer(prompt, contexts):
+                            if first_token_at is None:
+                                first_token_at = time.perf_counter() - started
+                            buffer.append(delta)
+                            placeholder.markdown("".join(buffer) + "▌")
+                    answer = "".join(buffer).strip()
+                    placeholder.markdown(answer)
+                    st.caption(
+                        f"first token {first_token_at:.1f} s · complete in "
+                        f"{time.perf_counter() - started:.1f} s"
+                        if first_token_at is not None
+                        else f"complete in {time.perf_counter() - started:.1f} s"
+                    )
                     render_sources(contexts)
             except Exception as exc:  # noqa: BLE001 - show API/configuration errors in the UI
                 answer = f"Error: {exc}"

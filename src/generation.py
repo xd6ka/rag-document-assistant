@@ -73,6 +73,42 @@ def build_prompt(question: str, contexts: Sequence[RetrievedChunk]) -> str:
     )
 
 
+def stream_answer(
+    question: str,
+    contexts: Sequence[RetrievedChunk],
+    model: Optional[str] = None,
+    temperature: float = 0.2,
+    max_tokens: Optional[int] = None,
+):
+    """Yield the answer token by token as the model produces it.
+
+    A local 3B model needs ~45 s for a full answer, and all of that used to be
+    spent behind a spinner with nothing on screen. Streaming does not make the
+    model faster — it makes the wait visible, which is the difference between
+    "broken" and "working" from the user's side.
+
+    No retry loop here on purpose: once tokens have been handed to the UI,
+    replaying the request would append a second answer to the first.
+    """
+    client = get_client()
+    messages = [
+        {"role": "system", "content": SYSTEM_PROMPT},
+        {"role": "user", "content": build_prompt(question, contexts)},
+    ]
+
+    stream = client.chat.completions.create(
+        model=model or config.LLM_MODEL,
+        messages=messages,
+        temperature=temperature,
+        max_tokens=max_tokens or config.LLM_MAX_TOKENS,
+        stream=True,
+    )
+    for event in stream:
+        delta = event.choices[0].delta.content if event.choices else None
+        if delta:
+            yield delta
+
+
 def answer_question(
     question: str,
     contexts: Sequence[RetrievedChunk],
