@@ -1,0 +1,163 @@
+{
+  "generated_at": "2026-11-23T13:25:20",
+  "dpi": 300,
+  "n_questions": 25,
+  "raster_seconds": 7.8,
+  "ocr_seconds_per_page": 4.18,
+  "word_recall": {
+    "mean": 0.961,
+    "min": 0.748,
+    "pages": [
+      {
+        "doc": "chunking-strategies.pdf",
+        "page": 1,
+        "word_recall": 1.0
+      },
+      {
+        "doc": "chunking-strategies.pdf",
+        "page": 2,
+        "word_recall": 0.989
+      },
+      {
+        "doc": "chunking-strategies.pdf",
+        "page": 3,
+        "word_recall": 1.0
+      },
+      {
+        "doc": "embedding-models.pdf",
+        "page": 1,
+        "word_recall": 0.99
+      },
+      {
+        "doc": "embedding-models.pdf",
+        "page": 2,
+        "word_recall": 0.992
+      },
+      {
+        "doc": "embedding-models.pdf",
+        "page": 3,
+        "word_recall": 1.0
+      },
+      {
+        "doc": "pdf-internals.pdf",
+        "page": 1,
+        "word_recall": 0.874
+      },
+      {
+        "doc": "pdf-internals.pdf",
+        "page": 2,
+        "word_recall": 1.0
+      },
+      {
+        "doc": "pdf-internals.pdf",
+        "page": 3,
+        "word_recall": 0.987
+      },
+      {
+        "doc": "prompt-design.pdf",
+        "page": 1,
+        "word_recall": 1.0
+      },
+      {
+        "doc": "prompt-design.pdf",
+        "page": 2,
+        "word_recall": 0.826
+      },
+      {
+        "doc": "prompt-design.pdf",
+        "page": 3,
+        "word_recall": 1.0
+      },
+      {
+        "doc": "retrieval-eval.pdf",
+        "page": 1,
+        "word_recall": 1.0
+      },
+      {
+        "doc": "retrieval-eval.pdf",
+        "page": 2,
+        "word_recall": 1.0
+      },
+      {
+        "doc": "retrieval-eval.pdf",
+        "page": 3,
+        "word_recall": 1.0
+      },
+      {
+        "doc": "vector-store-notes.pdf",
+        "page": 1,
+        "word_recall": 0.894
+      },
+      {
+        "doc": "vector-store-notes.pdf",
+        "page": 2,
+        "word_recall": 0.748
+      },
+      {
+        "doc": "vector-store-notes.pdf",
+        "page": 3,
+        "word_recall": 1.0
+      }
+    ]
+  },
+  "results": {
+    "digital": {
+      "chunks": 18,
+      "hit_at_k": 1.0,
+      "hit_at_1": 0.96,
+      "mrr": 0.98,
+      "seconds_per_question": 0.502,
+      "misses": [],
+      "index_seconds": 32.4,
+      "ocr_pages": 0
+    },
+    "scanned_no_ocr": {
+      "chunks": 0,
+      "hit_at_k": 0.0,
+      "hit_at_1": 0.0,
+      "mrr": 0.0,
+      "seconds_per_question": 0.015,
+      "misses": [
+        "e01",
+        "e02",
+        "e03",
+        "e04",
+        "e05",
+        "v01",
+        "v02",
+        "v03",
+        "v04",
+        "c01",
+        "c02",
+        "c03",
+        "c04",
+        "r01",
+        "r02",
+        "r03",
+        "r04",
+        "p01",
+        "p02",
+        "p03",
+        "p04",
+        "d01",
+        "d02",
+        "d03",
+        "d04"
+      ],
+      "index_seconds": 0.0,
+      "ocr_pages": 0
+    },
+    "scanned_ocr": {
+      "chunks": 18,
+      "hit_at_k": 0.96,
+      "hit_at_1": 0.92,
+      "mrr": 0.94,
+      "seconds_per_question": 0.22,
+      "misses": [
+        "p02"
+      ],
+      "index_seconds": 75.9,
+      "ocr_pages": 18
+    }
+  }
+}

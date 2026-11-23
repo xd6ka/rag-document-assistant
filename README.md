@@ -4,7 +4,7 @@
 ![Streamlit](https://img.shields.io/badge/UI-Streamlit-FF4B4B?logo=streamlit&logoColor=white)
 ![ChromaDB](https://img.shields.io/badge/Vector%20store-ChromaDB-1F2937)
 ![LLM](https://img.shields.io/badge/LLM-Qwen%20(DashScope)-6B46C1)
-![Tests](https://img.shields.io/badge/tests-44%20passed-brightgreen)
+![Tests](https://img.shields.io/badge/tests-50%20passed-brightgreen)
 ![License](https://img.shields.io/badge/License-MIT-green)
 
 A local-first Retrieval-Augmented Generation assistant for PDF documents: upload PDFs, ask questions in plain language, and get answers grounded in the documents' own text — with the page each answer came from.
@@ -18,6 +18,7 @@ Chunking and embeddings run **entirely on the local machine** (`all-MiniLM-L6-v2
 ## Features
 
 - **Upload from the browser**, several PDFs at once — no CLI needed to index.
+- **Scanned pages are readable** — a page without a text layer is rasterised and read with OCR (PP-OCR on ONNX runtime; no `tesseract.exe`, no model download at first use). Measured on a fully rasterised corpus: `hit@4` 0.00 → **0.96**, with 96 % of each page's words recovered.
 - **Page-level citations** — every answer links to `source · page N · similarity`, with the retrieved excerpts in a collapsible panel.
 - **Overlapping chunking** (800 chars / 150 overlap) cut on word boundaries, never across pages.
 - **Two-stage reranking** — a cross-encoder (`ms-marco-MiniLM-L-6-v2`) re-reads each query–passage pair, then MMR picks for relevance *and* diversity. Both stages toggle independently in the UI.
@@ -25,7 +26,7 @@ Chunking and embeddings run **entirely on the local machine** (`all-MiniLM-L6-v2
 - **Persistent vector store** — ChromaDB on disk; the index survives restarts.
 - **Grounded prompt** — the model is instructed to answer only from context and to refuse otherwise.
 - **Measured, not guessed** — a 6-document corpus, 29 labelled questions, a 9-configuration retrieval ablation, a gold-label validator that fails the run when a rubric drifts, a **claim-level citation check** in which every cited sentence is compared with the block it names, and a **5-configuration cross-lingual run** that asks the same facts in Russian and Chinese.
-- **44 unit tests** — chunker behaviour, provider resolution, refusal detection, ranking order, citation mapping, claim parsing, stage switches, per-model caching, eval labels.
+- **50 unit tests** — chunker behaviour, provider resolution, refusal detection, ranking order, citation mapping, claim parsing, stage switches, per-model caching, the OCR fallback's trigger and failure path, eval labels.
 
 ## Architecture
 
@@ -33,15 +34,19 @@ Chunking and embeddings run **entirely on the local machine** (`all-MiniLM-L6-v2
 flowchart LR
     subgraph Ingest
         A[PDF upload] --> B[pypdf<br/>page-by-page text]
-        B --> C[Chunking<br/>800 chars / 150 overlap<br/>page-scoped]
-        C --> D[all-MiniLM-L6-v2<br/>normalized embeddings]
-        D --> E[(ChromaDB<br/>cosine space<br/>source + page metadata)]
+        B --> C{text layer?}
+        C -->|no| O[OCR fallback<br/>PyMuPDF 300 dpi<br/>+ RapidOCR]
+        O --> D0[page text]
+        C -->|yes| D0
+        D0 --> D[Chunking<br/>800 chars / 150 overlap<br/>page-scoped]
+        D --> E[all-MiniLM-L6-v2<br/>normalized embeddings]
+        E --> F[(ChromaDB<br/>cosine space<br/>source + page metadata)]
     end
 
     subgraph Query
         Q[Question] --> QE[Query embedding]
         QE --> R[Top-8 vector search]
-        E --> R
+        F --> R
         R --> CE[Cross-encoder rerank<br/>ms-marco-MiniLM-L-6<br/>query-passage scoring]
         CE --> M[MMR rerank<br/>lambda = 0.7]
         M --> P[Top-4 blocks<br/>numbered context]
@@ -53,7 +58,7 @@ flowchart LR
 
 ## How it works
 
-1. **Extraction** — `pypdf` pulls text page by page; an unreadable page yields `""` instead of failing the job.
+1. **Extraction** — `pypdf` pulls text page by page; an unreadable page yields `""` instead of failing the job. A page with almost no text (`< 60` characters) is treated as a scan: PyMuPDF rasterises it at 300 dpi and RapidOCR reads it, and the OCR text replaces the empty layer only when it is clearly longer. A normal PDF never touches the engine, and an OCR crash never aborts an upload.
 2. **Chunking** — each page is split into ~800-character windows, cut on newline/space/period so words stay intact, with 150 characters of overlap; short tails are merged into the previous chunk.
 3. **Embedding** — every chunk is encoded locally with normalized 384-d vectors.
 4. **Storage** — one ChromaDB collection in cosine space, ids `"{source}:{page}:{index}"`. Re-indexing deletes the document's previous chunks first, so an edited PDF cannot leave stale tails.
@@ -147,7 +152,29 @@ RERANK_MODEL=BAAI/bge-reranker-base
 
 A swapped embedder invalidates the existing collection: the stored vectors came from the old model and are not comparable with the new one, so `chroma_db/` has to be rebuilt (or a fresh collection used) rather than reused.
 
+### Scanned pages — what the OCR fallback recovers
+
+The whole corpus is rasterised page by page into image-only PDFs (same layout, same 18 pages, no text layer) — what a scanner actually produces. `python eval/run_ocr.py` aborts if the rasterised copies still expose any text, so "scanned" cannot quietly mean "digital".
+
+| Index | Chunks | hit@4 | hit@1 | MRR | Misses |
+|---|---|---|---|---|---|
+| digital (the shipped PDFs) | 18 | 1.000 | 0.960 | 0.980 | 0 |
+| rasterised, no OCR | **0** | 0.000 | 0.000 | 0.000 | 25 |
+| rasterised, OCR 300 dpi | 18 | **0.960** | 0.920 | 0.940 | 1 |
+
+Readings:
+
+1. **Without a text layer the failure is total, not gradual.** Zero chunks are written, so all 25 questions miss: there is nothing to retrieve. This is the case the fallback exists for.
+2. **With OCR almost everything comes back** — 0.960 / 0.920 / 0.940, one question short of the digital ceiling. The single miss is `p02`, and the cause is visible: OCR dropped one whole line of that page (the line holding "four blocks of 800 characters ≈ 3200 tokens"). Line-level detection failures are the residual error mode, not character misreads.
+3. **Page fidelity is the honest intermediate metric.** Against the digital text, the engine reproduces **96.1 %** of a page's words on average, worst page **74.8 %** (`vector-store-notes` p2). Every page above 90 % except three.
+4. **300 dpi, not 150 or 200.** A pilot on one page gave 61.5 % / 83.7 % / 99.0 % word recall at 150 / 200 / 300 dpi. On the full corpus, 200 dpi reaches 95.2 % mean recall but a **57.7 %** worst page and `hit@1` 0.880 instead of 0.920. The engine rescales its input to a fixed working size, so 300 dpi cost the same wall time as 200 dpi on this laptop — the quality was free.
+5. **Cost:** 4.2 s per page, 75.9 s to index the 18 scanned pages, against 32.4 s for the digital version of the same corpus (embeddings dominate both). Indexing is a one-off; a 200-page scan is ~15 minutes.
+
+What OCR does **not** fix: layout. Tables and multi-column pages come out in detection order, so a row of numbers can be read across the wrong columns. Language coverage is the bundled PP-OCR model — Latin and Chinese; on a Russian test sentence it returned transliterated Latin (`BekTopHoe xpaHWnWue`, 5 % word recall against 94 % character recall for a Chinese line). A Cyrillic recogniser is a different model, not a tuning flag, and the README would rather say so than imply "OCR" means "every language".
+
 ### Answer-level results (local 3B model, no API account)
+
+
 
 Generated with `LLM_PROVIDER=ollama`, `qwen2.5:3b`, temperature 0.2, no hosted calls at all, retrieval running the full cross-encoder pipeline. 29 answers, `api_errors: 0`.
 
@@ -253,7 +280,7 @@ python query.py --k 6 --source real.pdf
 
 ```powershell
 pip install -r requirements-dev.txt
-pytest -q                        # 44 tests
+pytest -q                        # 50 tests
 python eval/build_corpus.py      # regenerate the corpus PDFs
 python eval/run_ablation.py      # config comparison, no API cost
 ```
@@ -271,7 +298,8 @@ rag-document-assistant/
 │   ├── retrieval.py     # vector search → cross-encoder → MMR
 │   ├── citations.py     # sentence-level citation attribution checks
 │   ├── generation.py    # prompt assembly, vendor-neutral client, retry/backoff
-│   └── ingest.py        # PDF -> pages -> chunks -> embeddings -> store
+│   ├── ingest.py        # PDF -> pages (with OCR fallback) -> chunks -> embeddings -> store
+│   └── ocr.py           # scanned-page fallback: PyMuPDF raster + RapidOCR, lazy engine
 ├── ui.py                # Streamlit app (upload, chat, citations, settings)
 ├── query.py             # interactive CLI
 ├── app.py               # CLI ingestion
@@ -284,8 +312,9 @@ rag-document-assistant/
 │   ├── run_eval.py      # validation, hit@k, hit@1, MRR, answer + citation + claim metrics, --rescore
 │   ├── run_ablation.py  # 9-configuration retrieval comparison with per-question latency
 │   ├── run_multilingual.py # 5-configuration cross-lingual retrieval comparison
+│   ├── run_ocr.py       # rasterise the corpus and measure what OCR recovers
 │   ├── claim_audit.py   # per-sentence citation verdicts against the stored answers
-│   └── reports/         # latest.json, ablation.json, multilingual.json, claims.json, answer_audit.md, judge_experiment.json
+│   └── reports/         # latest.json, ablation.json, multilingual.json, ocr.json, claims.json, answer_audit.md, judge_experiment.json
 ├── tests/
 │   ├── test_chunking.py    # 8 cases
 │   ├── test_config.py      # 5 cases (provider resolution, legacy-env traps)
@@ -294,6 +323,7 @@ rag-document-assistant/
 │   ├── test_retrieval_switches.py # 3 cases (stage flags actually skip their stage)
 │   ├── test_citations.py   # 9 cases (sentence parsing, attribution verdicts)
 │   ├── test_model_selection.py # 2 cases (per-model caches actually swap models)
+│   ├── test_ocr.py         # 6 cases (OCR trigger, replacement rule, failure path)
 │   └── test_eval_labels.py # 5 cases
 ├── data/                # source PDFs (git-ignored)
 ├── chroma_db/           # persisted vector store (git-ignored)
@@ -322,20 +352,21 @@ rag-document-assistant/
 - **Local generation is slow.** ~47 s per answer on CPU. Good enough to prove the pipeline works offline, not good enough to demo interactively.
 - **Cross-lingual retrieval is measured, but only in one direction.** Twenty-four translated questions hit an English corpus; a corpus written in Russian or Chinese (with its own tokenisation and paragraph lengths) is untested, and the shipped defaults are still English models. The gap between 0.958 and the English 1.000 is one question, so the multilingual row is "competitive", not "equal".
 - **First query pays for the reranker.** The model (~90 MB) downloads on first use and loads in ~4 s; afterwards it is steady at ~0.3 s/query on CPU.
-- **Scanned PDFs are not handled.** No OCR fallback; text-less pages are reported as "no extractable text".
+- **OCR is text recovery, not layout recovery.** A scanned page is reduced to a line order, so tables lose their columns and two-column pages can interleave. The bundled PP-OCR model covers Latin and Chinese; Cyrillic comes back as transliterated Latin (~5 % word recall), and another recogniser is a separate model swap. Handwriting and skewed scans are untested.
 - **No streaming.** The answer appears when the full response arrives.
 - **Single collection.** Document filtering works, but there is no notion of workspaces or per-user isolation.
 
-Planned order: OCR fallback → streaming → a real-world corpus with variance estimates. (Cross-lingual retrieval is done: bi-encoder and reranker both swapped and measured separately, `eval/reports/multilingual.json`. Claim-level citation checking is done too: `src/citations.py`, calibrated against the manual audit.)
+Planned order: streaming → a real-world corpus with variance estimates. (Cross-lingual retrieval is done: bi-encoder and reranker both swapped and measured separately, `eval/reports/multilingual.json`. Claim-level citation checking is done too: `src/citations.py`, calibrated against the manual audit. OCR is done: `src/ocr.py`, measured on a fully rasterised corpus, `eval/reports/ocr.json`.)
 
 ## 中文简介
 
 面向 PDF 文档的检索增强生成（RAG）问答助手。切分、向量化均在本地完成（`all-MiniLM-L6-v2`），只有检索到的片段与问题会发送给生成模型。
 
-- **核心能力**：页码级引用（`文件名 · 页码 · 相似度`）、800/150 重叠切块、cross-encoder 重排 + MMR（可整对切换为多语言 embedding + `bge-reranker-base`）、逐句引用归因、多文档管理
-- **技术栈**：Streamlit + pypdf + sentence-transformers + ChromaDB + 任意 OpenAI 兼容接口（DashScope / DeepSeek / 本地 Ollama）
+- **核心能力**：页码级引用（`文件名 · 页码 · 相似度`）、800/150 重叠切块、cross-encoder 重排 + MMR（可整对切换为多语言 embedding + `bge-reranker-base`）、扫描件 OCR 回退、逐句引用归因、多文档管理
+- **技术栈**：Streamlit + pypdf + sentence-transformers + ChromaDB + PyMuPDF/RapidOCR（扫描页回退）+ 任意 OpenAI 兼容接口（DashScope / DeepSeek / 本地 Ollama）
 - **评测**：自建 6 文档 / 18 页合成语料 + 29 道人工题目；9 组配置对比中，cross-encoder 把检索从 hit@k 0.96 / hit@1 0.88 / MRR 0.913 提到 **1.00 / 0.96 / 0.980**（每题约 0.3 秒），并且补上了唯一漏检 `p04`；不加时 800/150 优于 500 字符，MMR 代价为 0.007 MRR
 - **跨语言检索**：同一批 12 个事实改写成俄语、中文共 24 题，英文语料不变，跑 5 组配置——只换重排器 `hit@4` 完全不动（0.667 → 0.667，漏检还是 8 个），只换 bi-encoder 才涨到 **0.917**（漏检 2 个）；用英文重排器给多语言候选打分反而更差（0.792，漏检 5 个）；两边都换多语言模型为 **0.958 / 0.875 / 0.917**（漏检 1 个，且是 MMR 把已经排到第 4 的 `p04-ru` 挤出窗口，不是模型的问题）。代价是 `bge-reranker-base` 278M 参数、约 1.1 GB、1.55 秒/题（英文重排器 0.25 秒）
+- **扫描件 OCR**：把整本语料逐页栅格化成「只有图片」的 PDF（脚本会先断言这 18 页确实没有文字层），同一批 25 题对比三种索引：数字版 **1.000 / 0.960 / 0.980**；栅格版不开 OCR **0.000 / 0.000 / 0.000（0 个 chunk，25 题全错过）**；栅格版开 OCR **0.960 / 0.920 / 0.940**，只丢一题（`p02`，原因是 OCR 漏检一整行，正好是那行数字）。页面词覆盖率均值 **96.1%**、最差页 74.8%；每页约 4.2 秒，18 页索引 76 秒。300 dpi 对比 200 dpi：均值 95.2% 但最差页只有 57.7%、`hit@1` 0.880，而引擎会把输入缩放到固定尺寸，所以 300 dpi 并没有更慢。语言边界如实写清：拉丁与中文可用，西里尔字母实测只有 5% 词覆盖率
 - **答案层指标**：本地 `qwen2.5:3b` 生成 29 条答案，引用率 1.0、拒答率 0.75（一次 4/4、一次 3/4，属于小模型自律性的波动）、关键词命中 0.96；人工复核 25/25 正确。**引用归因**：`citation_gold_rate` 0.80、`claim_support_rate` 0.80 —— 逐句比对「引用的块是否就是证据所在的块」，自动判定与人工标注在 25 条上完全一致（5 个漂移、0 个误报，两次运行漂移集合相同）。LLM 评委（judge）因 3B 模型打分不可靠被弃用，实验记录保留在 `eval/reports/judge_experiment.json`
 - **运行**：配置 `.env`（参考 `.env.example`）后执行 `streamlit run ui.py`；默认走本地 Ollama，无需 API Key 与付费账号
 

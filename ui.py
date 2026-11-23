@@ -70,12 +70,18 @@ with st.sidebar:
             with st.spinner(f"Indexing {uploaded.name}..."):
                 try:
                     result = ingest_pdf(uploaded.name, uploaded, store=store)
-                    if result["skipped"]:
+                    if result["skipped"] and result.get("scanned"):
+                        st.warning(
+                            f"{uploaded.name}: no text layer and OCR read nothing. "
+                            "Is the OCR engine installed (`pip install rapidocr-onnxruntime`)?"
+                        )
+                    elif result["skipped"]:
                         st.warning(f"{uploaded.name}: no extractable text (scanned PDF?).")
                     else:
+                        ocr_note = f", {result['ocr_pages']} of them via OCR" if result.get("ocr_pages") else ""
                         st.success(
                             f"{uploaded.name}: {result['chunks']} chunks "
-                            f"from {result['pages']} pages."
+                            f"from {result['pages']} pages{ocr_note}."
                         )
                 except Exception as exc:  # noqa: BLE001 - surface the reason in the UI
                     st.error(f"{uploaded.name}: {exc}")
