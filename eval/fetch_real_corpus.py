@@ -38,10 +38,6 @@ DOCS = {
         "https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-63b.pdf",
         "formal standard: numbered clauses, running headers and footers",
     ),
-    "rfc6750": (
-        "https://www.rfc-editor.org/rfc/rfc6750.pdf",
-        "IETF memo: short pages, running header, unusual line wrapping",
-    ),
     "gpo-911": (
         "https://www.govinfo.gov/content/pkg/GPO-911REPORT/pdf/GPO-911REPORT.pdf",
         "government commission report: 585 pages, photos with captions, footnotes",
@@ -49,6 +45,29 @@ DOCS = {
     "bills-hr3684": (
         "https://www.govinfo.gov/content/pkg/BILLS-117hr3684enr/pdf/BILLS-117hr3684enr.pdf",
         "legislative text: numbered sections, dense cross-references, no prose",
+    ),
+    # Second round: layouts the first six did not cover. A dead rfc6750 entry was
+    # dropped from this list — rfc-editor.org 500s on its PDF endpoint and
+    # datatracker returns 403, so the IETF-memo case stays unmeasured rather than
+    # quietly failing in the manifest.
+    "patent-us9600411": (
+        "https://patentimages.storage.googleapis.com/28/71/84/848d5050ce2b50/US9600411.pdf",
+        "patent: claims, numbered paragraphs, figure references, two-column OCR-like text",
+    ),
+    # fiscal.treasury.gov/files/.../FR-2023.pdf answers with a 119 KB HTML page
+    # (a PDF reader reports "invalid pdf header: b'<!DOC'"), so the financial-report
+    # slot is filled by the Federal Reserve's annual report instead.
+    "fed-annual-2023": (
+        "https://www.federalreserve.gov/publications/files/2023-annual-report.pdf",
+        "central-bank annual report: financial statements, tables split across pages, footnotes",
+    ),
+    "ipcc-ar6-ch3": (
+        "https://www.ipcc.ch/report/ar6/wg1/downloads/report/IPCC_AR6_WGI_Chapter03.pdf",
+        "scientific assessment chapter: dense figures, captions, cross-chapter references",
+    ),
+    "dropout-2012": (
+        "https://arxiv.org/pdf/1207.0580v1",
+        "older preprint: single column, heavy notation, experiment tables",
     ),
 }
 

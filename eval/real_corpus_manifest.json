@@ -31,18 +31,13 @@
     "note": "formal standard: numbered clauses, running headers and footers",
     "cached": true
   },
-  "rfc6750": {
-    "url": "https://www.rfc-editor.org/rfc/rfc6750.pdf",
-    "note": "IETF memo: short pages, running header, unusual line wrapping",
-    "error": "HTTP Error 404: Not Found"
-  },
   "gpo-911": {
     "file": "gpo-911.pdf",
     "url": "https://www.govinfo.gov/content/pkg/GPO-911REPORT/pdf/GPO-911REPORT.pdf",
     "bytes": 2475163,
     "sha256": "657d41475eb3a9a5e3e87a6c7c51ac1dfbe1af7566d1abff7bf7286e7e1c0e1b",
     "note": "government commission report: 585 pages, photos with captions, footnotes",
-    "cached": false
+    "cached": true
   },
   "bills-hr3684": {
     "file": "bills-hr3684.pdf",
@@ -50,6 +45,38 @@
     "bytes": 2416174,
     "sha256": "60477c5964b398ec6b5569e245848650124682f75349d363eb96ff2fda8aa728",
     "note": "legislative text: numbered sections, dense cross-references, no prose",
-    "cached": false
+    "cached": true
+  },
+  "patent-us9600411": {
+    "file": "patent-us9600411.pdf",
+    "url": "https://patentimages.storage.googleapis.com/28/71/84/848d5050ce2b50/US9600411.pdf",
+    "bytes": 2880476,
+    "sha256": "e8c86740fd9bbdb0acbc96416ea650763757c2fb4fd06046f021760fc140950a",
+    "note": "patent: claims, numbered paragraphs, figure references, two-column OCR-like text",
+    "cached": true
+  },
+  "fed-annual-2023": {
+    "file": "fed-annual-2023.pdf",
+    "url": "https://www.federalreserve.gov/publications/files/2023-annual-report.pdf",
+    "bytes": 2255266,
+    "sha256": "aacf44d05ebbc21f5e78d029864dc69871f88364b61a2ae405ad4ca43143f666",
+    "note": "central-bank annual report: financial statements, tables split across pages, footnotes",
+    "cached": true
+  },
+  "ipcc-ar6-ch3": {
+    "file": "ipcc-ar6-ch3.pdf",
+    "url": "https://www.ipcc.ch/report/ar6/wg1/downloads/report/IPCC_AR6_WGI_Chapter03.pdf",
+    "bytes": 31492102,
+    "sha256": "77266b1d3186f15b6f1f7f5e76fdf274e62237dc11ce6ddb2b63c2ead32f0075",
+    "note": "scientific assessment chapter: dense figures, captions, cross-chapter references",
+    "cached": true
+  },
+  "dropout-2012": {
+    "file": "dropout-2012.pdf",
+    "url": "https://arxiv.org/pdf/1207.0580v1",
+    "bytes": 1665256,
+    "sha256": "997046169952532654f9ab620d511ed4e49eb30018893b7de144fdb485030358",
+    "note": "older preprint: single column, heavy notation, experiment tables",
+    "cached": true
   }
 }

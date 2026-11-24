@@ -1,8 +1,8 @@
 {
-  "generated_at": "2026-11-24T13:00:11",
+  "generated_at": "2026-11-24T14:12:46",
   "corpus": {
-    "documents": 6,
-    "chunks": 1023,
+    "documents": 10,
+    "chunks": 2063,
     "page_cap": 60
   },
   "settings": {
@@ -15,28 +15,31 @@
   },
   "results": [
     {
-      "n_questions": 18,
-      "stage1_recall": 0.944,
-      "hit_at_k": 0.889,
-      "hit_at_1": 0.722,
-      "mrr": 0.796,
+      "n_questions": 29,
+      "stage1_recall": 0.862,
+      "hit_at_k": 0.862,
+      "hit_at_1": 0.759,
+      "mrr": 0.799,
       "misses": [
         "a_r4",
-        "b_r1"
+        "b_r1",
+        "b_r2",
+        "d_r1"
       ],
-      "seconds_per_question": 1.001,
+      "seconds_per_question": 1.006,
       "mode": "no filter"
     },
     {
-      "n_questions": 18,
-      "stage1_recall": 0.944,
-      "hit_at_k": 0.944,
-      "hit_at_1": 0.778,
-      "mrr": 0.852,
+      "n_questions": 29,
+      "stage1_recall": 0.931,
+      "hit_at_k": 0.931,
+      "hit_at_1": 0.793,
+      "mrr": 0.851,
       "misses": [
-        "b_r1"
+        "b_r1",
+        "d_r1"
       ],
-      "seconds_per_question": 0.679,
+      "seconds_per_question": 0.692,
       "mode": "document-scoped"
     }
   ]

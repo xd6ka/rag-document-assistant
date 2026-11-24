@@ -1,10 +1,10 @@
 {
   "summary": {
     "corpus": {
-      "documents": 6,
-      "pages_indexed": 230,
-      "pages_in_files": 1754,
-      "chunks": 1023,
+      "documents": 10,
+      "pages_indexed": 399,
+      "pages_in_files": 2155,
+      "chunks": 2063,
       "page_cap": 60
     },
     "settings": {
@@ -21,11 +21,11 @@
       "llm_provider": "ollama",
       "llm_model": "qwen2.5:3b"
     },
-    "n_questions": 19,
-    "n_in_scope": 18,
-    "hit_at_k": 0.889,
-    "hit_at_1": 0.722,
-    "mrr": 0.796,
+    "n_questions": 30,
+    "n_in_scope": 29,
+    "hit_at_k": 0.862,
+    "hit_at_1": 0.759,
+    "mrr": 0.799,
     "by_document": {
       "attention": {
         "n": 4,
@@ -35,11 +35,23 @@
       },
       "bert": {
         "n": 3,
-        "hit_at_k": 0.667,
+        "hit_at_k": 0.333,
         "hit_at_1": 0.333,
-        "mrr": 0.5
+        "mrr": 0.333
       },
       "bills-hr3684": {
+        "n": 3,
+        "hit_at_k": 1.0,
+        "hit_at_1": 1.0,
+        "mrr": 1.0
+      },
+      "dropout-2012": {
+        "n": 3,
+        "hit_at_k": 0.667,
+        "hit_at_1": 0.667,
+        "mrr": 0.667
+      },
+      "fed-annual-2023": {
         "n": 3,
         "hit_at_k": 1.0,
         "hit_at_1": 1.0,
@@ -51,11 +63,23 @@
         "hit_at_1": 1.0,
         "mrr": 1.0
       },
+      "ipcc-ar6-ch3": {
+        "n": 2,
+        "hit_at_k": 1.0,
+        "hit_at_1": 1.0,
+        "mrr": 1.0
+      },
       "nist-800-63b": {
         "n": 3,
         "hit_at_k": 1.0,
         "hit_at_1": 1.0,
         "mrr": 1.0
+      },
+      "patent-us9600411": {
+        "n": 3,
+        "hit_at_k": 1.0,
+        "hit_at_1": 0.667,
+        "mrr": 0.778
       },
       "rag": {
         "n": 2,
@@ -85,8 +109,8 @@
             6
           ],
           [
-            "attention.pdf",
-            8
+            "gpo-911.pdf",
+            13
           ]
         ]
       },
@@ -114,14 +138,64 @@
             9
           ]
         ]
+      },
+      {
+        "id": "b_r2",
+        "doc": "bert",
+        "gold_pages": [
+          16
+        ],
+        "retrieved": [
+          [
+            "bert.pdf",
+            12
+          ],
+          [
+            "rag.pdf",
+            7
+          ],
+          [
+            "bert.pdf",
+            14
+          ],
+          [
+            "bert.pdf",
+            8
+          ]
+        ]
+      },
+      {
+        "id": "d_r1",
+        "doc": "dropout-2012",
+        "gold_pages": [
+          1
+        ],
+        "retrieved": [
+          [
+            "attention.pdf",
+            11
+          ],
+          [
+            "nist-800-63b.pdf",
+            9
+          ],
+          [
+            "bert.pdf",
+            12
+          ],
+          [
+            "patent-us9600411.pdf",
+            15
+          ]
+        ]
       }
     ],
-    "answer_keyword_accuracy": 0.722,
+    "answer_keyword_accuracy": 0.793,
     "citation_rate": 1.0,
-    "citation_gold_rate": 0.556,
-    "claim_support_rate": 0.941,
-    "answer_mean_chars": 117,
-    "refusal_ok": 1.0,
+    "citation_gold_rate": 0.724,
+    "claim_support_rate": 1.0,
+    "answer_mean_chars": 122,
+    "refusal_ok": 0.0,
     "api_errors": 0,
     "documents": [
       {
@@ -130,7 +204,7 @@
         "pages_in_file": 15,
         "chunks": 68,
         "ocr_pages": 0,
-        "ingest_seconds": 73.4,
+        "ingest_seconds": 41.9,
         "mean_chars": 699,
         "min_chars": 203,
         "max_chars": 799,
@@ -148,7 +222,7 @@
         "pages_in_file": 16,
         "chunks": 105,
         "ocr_pages": 0,
-        "ingest_seconds": 18.3,
+        "ingest_seconds": 5.4,
         "mean_chars": 738,
         "min_chars": 199,
         "max_chars": 798,
@@ -166,10 +240,46 @@
         "pages_in_file": 1039,
         "chunks": 270,
         "ocr_pages": 0,
-        "ingest_seconds": 47.6,
+        "ingest_seconds": 10.5,
         "mean_chars": 716,
         "min_chars": 159,
         "max_chars": 798,
+        "tiny": 0,
+        "boilerplate": {
+          "header": null,
+          "pages_with_header": 0,
+          "page_share": 0.0,
+          "char_share": 0.0
+        }
+      },
+      {
+        "document": "dropout-2012.pdf",
+        "pages_indexed": 18,
+        "pages_in_file": 18,
+        "chunks": 76,
+        "ocr_pages": 0,
+        "ingest_seconds": 3.3,
+        "mean_chars": 697,
+        "min_chars": 187,
+        "max_chars": 799,
+        "tiny": 0,
+        "boilerplate": {
+          "header": "(a)",
+          "pages_with_header": 2,
+          "page_share": 0.111,
+          "char_share": 0.0001
+        }
+      },
+      {
+        "document": "fed-annual-2023.pdf",
+        "pages_indexed": 60,
+        "pages_in_file": 222,
+        "chunks": 254,
+        "ocr_pages": 0,
+        "ingest_seconds": 24.1,
+        "mean_chars": 705,
+        "min_chars": 150,
+        "max_chars": 799,
         "tiny": 0,
         "boilerplate": {
           "header": null,
@@ -184,11 +294,29 @@
         "pages_in_file": 585,
         "chunks": 216,
         "ocr_pages": 0,
-        "ingest_seconds": 32.8,
+        "ingest_seconds": 14.7,
         "mean_chars": 712,
         "min_chars": 28,
         "max_chars": 798,
         "tiny": 1,
+        "boilerplate": {
+          "header": null,
+          "pages_with_header": 0,
+          "page_share": 0.0,
+          "char_share": 0.0
+        }
+      },
+      {
+        "document": "ipcc-ar6-ch3.pdf",
+        "pages_indexed": 60,
+        "pages_in_file": 130,
+        "chunks": 498,
+        "ocr_pages": 1,
+        "ingest_seconds": 67.1,
+        "mean_chars": 731,
+        "min_chars": 212,
+        "max_chars": 799,
+        "tiny": 0,
         "boilerplate": {
           "header": null,
           "pages_with_header": 0,
@@ -202,7 +330,7 @@
         "pages_in_file": 80,
         "chunks": 257,
         "ocr_pages": 0,
-        "ingest_seconds": 27.1,
+        "ingest_seconds": 12.7,
         "mean_chars": 703,
         "min_chars": 149,
         "max_chars": 798,
@@ -215,12 +343,30 @@
         }
       },
       {
+        "document": "patent-us9600411.pdf",
+        "pages_indexed": 31,
+        "pages_in_file": 31,
+        "chunks": 213,
+        "ocr_pages": 8,
+        "ingest_seconds": 31.9,
+        "mean_chars": 683,
+        "min_chars": 41,
+        "max_chars": 798,
+        "tiny": 8,
+        "boilerplate": {
+          "header": "US 9,600,411 B2",
+          "pages_with_header": 16,
+          "page_share": 0.516,
+          "char_share": 0.002
+        }
+      },
+      {
         "document": "rag.pdf",
         "pages_indexed": 19,
         "pages_in_file": 19,
         "chunks": 118,
         "ocr_pages": 0,
-        "ingest_seconds": 11.8,
+        "ingest_seconds": 5.5,
         "mean_chars": 711,
         "min_chars": 246,
         "max_chars": 799,
@@ -233,7 +379,7 @@
         }
       }
     ],
-    "generated_at": "2026-11-24T10:07:01"
+    "generated_at": "2026-11-24T13:57:54"
   },
   "rows": [
     {
@@ -324,8 +470,8 @@
       "hit_at_k": true,
       "hit_at_1": true,
       "reciprocal_rank": 1.0,
-      "answer": "[3] The big transformer model achieves a BLEU score of 41.8 on the WMT 2014 English-to-French translation task. [3]",
-      "answer_chars": 115,
+      "answer": "[3] The big transformer model achieves a BLEU score of 41.8 on the WMT 2014 English-to-French translation task after training for 3.5 days on eight GPUs. [3]",
+      "answer_chars": 157,
       "keyword_ok": true,
       "refusal_ok": null,
       "cites": true,
@@ -343,16 +489,16 @@
       "claim_support": 1.0,
       "claims": [
         {
-          "sentence": "The big transformer model achieves a BLEU score of 41.8 on the WMT 2014 English-to-French translation task.",
+          "sentence": "The big transformer model achieves a BLEU score of 41.8 on the WMT 2014 English-to-French translation task after training for 3.5 days on eight GPUs.",
           "cited_blocks": [
             3,
             3
           ],
           "best_block": 2,
-          "cited_overlap": 0.818,
-          "best_overlap": 1.0,
-          "cited_similarity": 0.736,
-          "best_similarity": 0.835,
+          "cited_overlap": 0.875,
+          "best_overlap": 0.875,
+          "cited_similarity": 0.692,
+          "best_similarity": 0.853,
           "verdict": "supported"
         }
       ]
@@ -387,8 +533,8 @@
       "hit_at_k": true,
       "hit_at_1": true,
       "reciprocal_rank": 1.0,
-      "answer": "Eight attention heads run in parallel, and each head is 64 wide [1][3] [4].",
-      "answer_chars": 75,
+      "answer": "Eight attention heads run in parallel, and each head is 64 wide [1][2].",
+      "answer_chars": 71,
       "keyword_ok": true,
       "refusal_ok": null,
       "cites": true,
@@ -399,22 +545,17 @@
         ],
         [
           "attention.pdf",
-          14
-        ],
-        [
-          "attention.pdf",
-          5
+          4
         ]
       ],
       "citation_points_to_gold": true,
       "claim_support": 1.0,
       "claims": [
         {
-          "sentence": "Eight attention heads run in parallel, and each head is 64 wide  .",
+          "sentence": "Eight attention heads run in parallel, and each head is 64 wide .",
           "cited_blocks": [
             1,
-            3,
-            4
+            2
           ],
           "best_block": 1,
           "cited_overlap": 0.625,
@@ -447,16 +588,16 @@
           6
         ],
         [
-          "attention.pdf",
-          8
+          "gpo-911.pdf",
+          13
         ]
       ],
       "hit_rank": null,
       "hit_at_k": false,
       "hit_at_1": false,
       "reciprocal_rank": 0.0,
-      "answer": "I do not know based on the provided document. [1][2]",
-      "answer_chars": 52,
+      "answer": "I do not know [1].",
+      "answer_chars": 18,
       "keyword_ok": false,
       "refusal_ok": null,
       "cites": true,
@@ -464,29 +605,11 @@
         [
           "gpo-911.pdf",
           14
-        ],
-        [
-          "gpo-911.pdf",
-          14
         ]
       ],
       "citation_points_to_gold": false,
-      "claim_support": 1.0,
-      "claims": [
-        {
-          "sentence": "I do not know based on the provided document.",
-          "cited_blocks": [
-            1,
-            2
-          ],
-          "best_block": 3,
-          "cited_overlap": 0.0,
-          "best_overlap": 0.0,
-          "cited_similarity": 0.134,
-          "best_similarity": 0.183,
-          "verdict": "supported"
-        }
-      ]
+      "claim_support": null,
+      "claims": []
     },
     {
       "id": "b_r1",
@@ -518,31 +641,26 @@
       "hit_at_k": false,
       "hit_at_1": false,
       "reciprocal_rank": 0.0,
-      "answer": "The paper in Section 5.3 does not evaluate an alternative to fine-tuning based on the provided context [1].",
-      "answer_chars": 107,
+      "answer": "The paper in Section 5.3 does not explicitly mention evaluating an alternative to fine-tuning. [5]",
+      "answer_chars": 98,
       "keyword_ok": false,
       "refusal_ok": null,
       "cites": true,
-      "cited_blocks": [
-        [
-          "bert.pdf",
-          14
-        ]
-      ],
+      "cited_blocks": [],
       "citation_points_to_gold": false,
-      "claim_support": 1.0,
+      "claim_support": null,
       "claims": [
         {
-          "sentence": "The paper in Section 5.3 does not evaluate an alternative to fine-tuning based on the provided context .",
+          "sentence": "The paper in Section 5.3 does not explicitly mention evaluating an alternative to fine-tuning.",
           "cited_blocks": [
-            1
+            5
           ],
-          "best_block": 1,
-          "cited_overlap": 0.25,
-          "best_overlap": 0.25,
-          "cited_similarity": 0.338,
-          "best_similarity": 0.338,
-          "verdict": "supported"
+          "best_block": null,
+          "cited_overlap": 0.0,
+          "best_overlap": 0.0,
+          "cited_similarity": 0.0,
+          "best_similarity": 0.0,
+          "verdict": "uncited"
         }
       ]
     },
@@ -560,24 +678,24 @@
           12
         ],
         [
-          "bert.pdf",
-          16
-        ],
-        [
           "rag.pdf",
           7
         ],
         [
           "bert.pdf",
           14
+        ],
+        [
+          "bert.pdf",
+          8
         ]
       ],
-      "hit_rank": 2,
-      "hit_at_k": true,
+      "hit_rank": null,
+      "hit_at_k": false,
       "hit_at_1": false,
-      "reciprocal_rank": 0.5,
-      "answer": "The Appendix C collects the additional ablation studies on training steps. [1]",
-      "answer_chars": 78,
+      "reciprocal_rank": 0.0,
+      "answer": "The Appendix C collects the additional ablation studies on training steps. [1][5]",
+      "answer_chars": 81,
       "keyword_ok": true,
       "refusal_ok": null,
       "cites": true,
@@ -593,7 +711,8 @@
         {
           "sentence": "The Appendix C collects the additional ablation studies on training steps.",
           "cited_blocks": [
-            1
+            1,
+            5
           ],
           "best_block": 1,
           "cited_overlap": 0.857,
@@ -634,8 +753,8 @@
       "hit_at_k": true,
       "hit_at_1": true,
       "reciprocal_rank": 1.0,
-      "answer": "Besides masked language modelling, next sentence prediction is also used to jointly pre-train text-pair representations. [2]",
-      "answer_chars": 124,
+      "answer": "Besides masked language modelling, next sentence prediction task is also used to jointly pre-train text-pair representations. [1]",
+      "answer_chars": 129,
       "keyword_ok": true,
       "refusal_ok": null,
       "cites": true,
@@ -646,19 +765,19 @@
         ]
       ],
       "citation_points_to_gold": true,
-      "claim_support": 0.0,
+      "claim_support": 1.0,
       "claims": [
         {
-          "sentence": "Besides masked language modelling, next sentence prediction is also used to jointly pre-train text-pair representations.",
+          "sentence": "Besides masked language modelling, next sentence prediction task is also used to jointly pre-train text-pair representations.",
           "cited_blocks": [
-            2
+            1
           ],
           "best_block": 1,
-          "cited_overlap": 0.308,
-          "best_overlap": 0.692,
-          "cited_similarity": 0.63,
-          "best_similarity": 0.765,
-          "verdict": "misattributed"
+          "cited_overlap": 0.714,
+          "best_overlap": 0.714,
+          "cited_similarity": 0.77,
+          "best_similarity": 0.77,
+          "verdict": "supported"
         }
       ]
     },
@@ -692,34 +811,29 @@
       "hit_at_k": true,
       "hit_at_1": false,
       "reciprocal_rank": 0.3333333333333333,
-      "answer": "The RAG-Token model marginalizes over documents when decoding [2][4].",
-      "answer_chars": 69,
+      "answer": "The RAG-Token model marginalizes over documents when decoding. [3]",
+      "answer_chars": 66,
       "keyword_ok": false,
       "refusal_ok": null,
       "cites": true,
       "cited_blocks": [
         [
           "rag.pdf",
-          3
-        ],
-        [
-          "rag.pdf",
-          3
+          4
         ]
       ],
-      "citation_points_to_gold": false,
+      "citation_points_to_gold": true,
       "claim_support": 1.0,
       "claims": [
         {
-          "sentence": "The RAG-Token model marginalizes over documents when decoding .",
+          "sentence": "The RAG-Token model marginalizes over documents when decoding.",
           "cited_blocks": [
-            2,
-            4
+            3
           ],
           "best_block": 1,
-          "cited_overlap": 0.714,
+          "cited_overlap": 0.429,
           "best_overlap": 0.714,
-          "cited_similarity": 0.599,
+          "cited_similarity": 0.672,
           "best_similarity": 0.681,
           "verdict": "supported"
         }
@@ -1327,6 +1441,743 @@
       "claims": []
     },
     {
+      "id": "p_r1",
+      "doc": "patent-us9600411",
+      "question": "Who is the inventor and who is the assignee of US Patent 9,600,411 B2?",
+      "in_scope": true,
+      "gold_pages": [
+        1
+      ],
+      "retrieved": [
+        [
+          "patent-us9600411.pdf",
+          1
+        ],
+        [
+          "patent-us9600411.pdf",
+          7
+        ],
+        [
+          "patent-us9600411.pdf",
+          5
+        ],
+        [
+          "patent-us9600411.pdf",
+          12
+        ]
+      ],
+      "hit_rank": 1,
+      "hit_at_k": true,
+      "hit_at_1": true,
+      "reciprocal_rank": 1.0,
+      "answer": "The inventor is David A. Foti [1]. The assignee is ths latworks Inc., Natick, MA [1].",
+      "answer_chars": 85,
+      "keyword_ok": true,
+      "refusal_ok": null,
+      "cites": true,
+      "cited_blocks": [
+        [
+          "patent-us9600411.pdf",
+          1
+        ],
+        [
+          "patent-us9600411.pdf",
+          1
+        ]
+      ],
+      "citation_points_to_gold": true,
+      "claim_support": 1.0,
+      "claims": [
+        {
+          "sentence": "The assignee is ths latworks Inc., Natick, MA .",
+          "cited_blocks": [
+            1
+          ],
+          "best_block": 1,
+          "cited_overlap": 1.0,
+          "best_overlap": 1.0,
+          "cited_similarity": 0.321,
+          "best_similarity": 0.321,
+          "verdict": "supported"
+        }
+      ]
+    },
+    {
+      "id": "p_r2",
+      "doc": "patent-us9600411",
+      "question": "By how many days was the term of US Patent 9,600,411 B2 adjusted under 35 U.S.C. 154(b)?",
+      "in_scope": true,
+      "gold_pages": [
+        1
+      ],
+      "retrieved": [
+        [
+          "patent-us9600411.pdf",
+          1
+        ],
+        [
+          "patent-us9600411.pdf",
+          7
+        ],
+        [
+          "patent-us9600411.pdf",
+          12
+        ],
+        [
+          "patent-us9600411.pdf",
+          13
+        ]
+      ],
+      "hit_rank": 1,
+      "hit_at_k": true,
+      "hit_at_1": true,
+      "reciprocal_rank": 1.0,
+      "answer": "[1] By 550 days. [1]",
+      "answer_chars": 20,
+      "keyword_ok": true,
+      "refusal_ok": null,
+      "cites": true,
+      "cited_blocks": [
+        [
+          "patent-us9600411.pdf",
+          1
+        ],
+        [
+          "patent-us9600411.pdf",
+          1
+        ]
+      ],
+      "citation_points_to_gold": true,
+      "claim_support": null,
+      "claims": []
+    },
+    {
+      "id": "p_r3",
+      "doc": "patent-us9600411",
+      "question": "In claim 1, which direction are the edges of the root record graph configured to point relative to the references to the objects?",
+      "in_scope": true,
+      "gold_pages": [
+        29
+      ],
+      "retrieved": [
+        [
+          "patent-us9600411.pdf",
+          31
+        ],
+        [
+          "patent-us9600411.pdf",
+          30
+        ],
+        [
+          "patent-us9600411.pdf",
+          29
+        ],
+        [
+          "patent-us9600411.pdf",
+          18
+        ]
+      ],
+      "hit_rank": 3,
+      "hit_at_k": true,
+      "hit_at_1": false,
+      "reciprocal_rank": 0.3333333333333333,
+      "answer": "The edges of the root record graph are configured to point in an opposite direction relative to the references to the objects defined in the object-oriented programming environment [1][2][3].",
+      "answer_chars": 191,
+      "keyword_ok": true,
+      "refusal_ok": null,
+      "cites": true,
+      "cited_blocks": [
+        [
+          "patent-us9600411.pdf",
+          31
+        ],
+        [
+          "patent-us9600411.pdf",
+          30
+        ],
+        [
+          "patent-us9600411.pdf",
+          29
+        ]
+      ],
+      "citation_points_to_gold": true,
+      "claim_support": 1.0,
+      "claims": [
+        {
+          "sentence": "The edges of the root record graph are configured to point in an opposite direction relative to the references to the objects defined in the object-oriented programming environment .",
+          "cited_blocks": [
+            1,
+            2,
+            3
+          ],
+          "best_block": 3,
+          "cited_overlap": 0.933,
+          "best_overlap": 0.933,
+          "cited_similarity": 0.814,
+          "best_similarity": 0.814,
+          "verdict": "supported"
+        }
+      ]
+    },
+    {
+      "id": "f_r1",
+      "doc": "fed-annual-2023",
+      "question": "By what percentage did real U.S. GDP increase in 2023?",
+      "in_scope": true,
+      "gold_pages": [
+        11
+      ],
+      "retrieved": [
+        [
+          "fed-annual-2023.pdf",
+          11
+        ],
+        [
+          "fed-annual-2023.pdf",
+          9
+        ],
+        [
+          "fed-annual-2023.pdf",
+          15
+        ],
+        [
+          "fed-annual-2023.pdf",
+          25
+        ]
+      ],
+      "hit_rank": 1,
+      "hit_at_k": true,
+      "hit_at_1": true,
+      "reciprocal_rank": 1.0,
+      "answer": "The real U.S. GDP increased by 3.1 percent last year [1].",
+      "answer_chars": 57,
+      "keyword_ok": true,
+      "refusal_ok": null,
+      "cites": true,
+      "cited_blocks": [
+        [
+          "fed-annual-2023.pdf",
+          11
+        ]
+      ],
+      "citation_points_to_gold": true,
+      "claim_support": 1.0,
+      "claims": [
+        {
+          "sentence": "GDP increased by 3.1 percent last year .",
+          "cited_blocks": [
+            1
+          ],
+          "best_block": 1,
+          "cited_overlap": 1.0,
+          "best_overlap": 1.0,
+          "cited_similarity": 0.591,
+          "best_similarity": 0.591,
+          "verdict": "supported"
+        }
+      ]
+    },
+    {
+      "id": "f_r2",
+      "doc": "fed-annual-2023",
+      "question": "At year-end 2023, how many U.S. bank holding companies were in operation and how many of them were top-tier holding companies?",
+      "in_scope": true,
+      "gold_pages": [
+        33
+      ],
+      "retrieved": [
+        [
+          "fed-annual-2023.pdf",
+          33
+        ],
+        [
+          "fed-annual-2023.pdf",
+          34
+        ],
+        [
+          "fed-annual-2023.pdf",
+          33
+        ],
+        [
+          "fed-annual-2023.pdf",
+          32
+        ]
+      ],
+      "hit_rank": 1,
+      "hit_at_k": true,
+      "hit_at_1": true,
+      "reciprocal_rank": 1.0,
+      "answer": "At year-end 2023, a total of 3,794 U.S. bank holding companies (BHCs) were in operation [1]. Of these, 3,407 were top-tier BHCs [1].",
+      "answer_chars": 132,
+      "keyword_ok": true,
+      "refusal_ok": null,
+      "cites": true,
+      "cited_blocks": [
+        [
+          "fed-annual-2023.pdf",
+          33
+        ],
+        [
+          "fed-annual-2023.pdf",
+          33
+        ]
+      ],
+      "citation_points_to_gold": true,
+      "claim_support": 1.0,
+      "claims": [
+        {
+          "sentence": "At year-end 2023, a total of 3,794 U.S.",
+          "cited_blocks": [],
+          "best_block": null,
+          "cited_overlap": 0.0,
+          "best_overlap": 0.0,
+          "cited_similarity": 0.0,
+          "best_similarity": 0.0,
+          "verdict": "uncited"
+        },
+        {
+          "sentence": "bank holding companies (BHCs) were in operation .",
+          "cited_blocks": [
+            1
+          ],
+          "best_block": 1,
+          "cited_overlap": 1.0,
+          "best_overlap": 1.0,
+          "cited_similarity": 0.735,
+          "best_similarity": 0.735,
+          "verdict": "supported"
+        },
+        {
+          "sentence": "Of these, 3,407 were top-tier BHCs .",
+          "cited_blocks": [
+            1
+          ],
+          "best_block": 1,
+          "cited_overlap": 1.0,
+          "best_overlap": 1.0,
+          "cited_similarity": 0.434,
+          "best_similarity": 0.434,
+          "verdict": "supported"
+        }
+      ]
+    },
+    {
+      "id": "f_r3",
+      "doc": "fed-annual-2023",
+      "question": "From what 2022 peak did the PCE price index come down, and what was the 12-month PCE inflation rate ending in January?",
+      "in_scope": true,
+      "gold_pages": [
+        10
+      ],
+      "retrieved": [
+        [
+          "fed-annual-2023.pdf",
+          10
+        ],
+        [
+          "fed-annual-2023.pdf",
+          15
+        ],
+        [
+          "fed-annual-2023.pdf",
+          15
+        ],
+        [
+          "fed-annual-2023.pdf",
+          24
+        ]
+      ],
+      "hit_rank": 1,
+      "hit_at_k": true,
+      "hit_at_1": true,
+      "reciprocal_rank": 1.0,
+      "answer": "The PCE price index came down from its peak of 7.1 percent last year, as measured by the 12-month change in the price index for personal consumption expenditures (PCE) [1]. The 12-month PCE inflation rate ending in January was 2.4 percent [1].",
+      "answer_chars": 243,
+      "keyword_ok": true,
+      "refusal_ok": null,
+      "cites": true,
+      "cited_blocks": [
+        [
+          "fed-annual-2023.pdf",
+          10
+        ],
+        [
+          "fed-annual-2023.pdf",
+          10
+        ]
+      ],
+      "citation_points_to_gold": true,
+      "claim_support": 1.0,
+      "claims": [
+        {
+          "sentence": "The PCE price index came down from its peak of 7.1 percent last year, as measured by the 12-month change in the price index for personal consumption expenditures (PCE) .",
+          "cited_blocks": [
+            1
+          ],
+          "best_block": 2,
+          "cited_overlap": 0.667,
+          "best_overlap": 0.944,
+          "cited_similarity": 0.693,
+          "best_similarity": 0.625,
+          "verdict": "supported"
+        },
+        {
+          "sentence": "The 12-month PCE inflation rate ending in January was 2.4 percent .",
+          "cited_blocks": [
+            1
+          ],
+          "best_block": 1,
+          "cited_overlap": 0.857,
+          "best_overlap": 0.857,
+          "cited_similarity": 0.747,
+          "best_similarity": 0.747,
+          "verdict": "supported"
+        }
+      ]
+    },
+    {
+      "id": "i_r1",
+      "doc": "ipcc-ar6-ch3",
+      "question": "What did the IPCC Second Assessment Report of 1995 conclude about human influence on the global climate?",
+      "in_scope": true,
+      "gold_pages": [
+        3
+      ],
+      "retrieved": [
+        [
+          "ipcc-ar6-ch3.pdf",
+          3
+        ],
+        [
+          "ipcc-ar6-ch3.pdf",
+          6
+        ],
+        [
+          "ipcc-ar6-ch3.pdf",
+          7
+        ],
+        [
+          "ipcc-ar6-ch3.pdf",
+          6
+        ]
+      ],
+      "hit_rank": 1,
+      "hit_at_k": true,
+      "hit_at_1": true,
+      "reciprocal_rank": 1.0,
+      "answer": "The IPCC Second Assessment Report (SAR, 1995) concluded 'the balance of evidence suggests that there is a discernible human influence on global climate' [1].",
+      "answer_chars": 157,
+      "keyword_ok": true,
+      "refusal_ok": null,
+      "cites": true,
+      "cited_blocks": [
+        [
+          "ipcc-ar6-ch3.pdf",
+          3
+        ]
+      ],
+      "citation_points_to_gold": true,
+      "claim_support": 1.0,
+      "claims": [
+        {
+          "sentence": "The IPCC Second Assessment Report (SAR, 1995) concluded 'the balance of evidence suggests that there is a discernible human influence on global climate' .",
+          "cited_blocks": [
+            1
+          ],
+          "best_block": 1,
+          "cited_overlap": 1.0,
+          "best_overlap": 1.0,
+          "cited_similarity": 0.848,
+          "best_similarity": 0.848,
+          "verdict": "supported"
+        }
+      ]
+    },
+    {
+      "id": "i_r2",
+      "doc": "ipcc-ar6-ch3",
+      "question": "Which five-year period does the chapter describe as the warmest in the instrumental record since at least 1850?",
+      "in_scope": true,
+      "gold_pages": [
+        4
+      ],
+      "retrieved": [
+        [
+          "ipcc-ar6-ch3.pdf",
+          4
+        ],
+        [
+          "ipcc-ar6-ch3.pdf",
+          25
+        ],
+        [
+          "ipcc-ar6-ch3.pdf",
+          18
+        ],
+        [
+          "ipcc-ar6-ch3.pdf",
+          17
+        ]
+      ],
+      "hit_rank": 1,
+      "hit_at_k": true,
+      "hit_at_1": true,
+      "reciprocal_rank": 1.0,
+      "answer": "The past five-year period (2016–2020) is described as the warmest five-year period in the instrumental record since at least 1850 [1][4].",
+      "answer_chars": 137,
+      "keyword_ok": true,
+      "refusal_ok": null,
+      "cites": true,
+      "cited_blocks": [
+        [
+          "ipcc-ar6-ch3.pdf",
+          4
+        ],
+        [
+          "ipcc-ar6-ch3.pdf",
+          17
+        ]
+      ],
+      "citation_points_to_gold": true,
+      "claim_support": 1.0,
+      "claims": [
+        {
+          "sentence": "The past five-year period (2016–2020) is described as the warmest five-year period in the instrumental record since at least 1850 .",
+          "cited_blocks": [
+            1,
+            4
+          ],
+          "best_block": 1,
+          "cited_overlap": 0.929,
+          "best_overlap": 0.929,
+          "cited_similarity": 0.418,
+          "best_similarity": 0.377,
+          "verdict": "supported"
+        }
+      ]
+    },
+    {
+      "id": "d_r1",
+      "doc": "dropout-2012",
+      "question": "What is the title of the 2012 preprint by Hinton, Srivastava, Krizhevsky, Sutskever and Salakhutdinov?",
+      "in_scope": true,
+      "gold_pages": [
+        1
+      ],
+      "retrieved": [
+        [
+          "attention.pdf",
+          11
+        ],
+        [
+          "nist-800-63b.pdf",
+          9
+        ],
+        [
+          "bert.pdf",
+          12
+        ],
+        [
+          "patent-us9600411.pdf",
+          15
+        ]
+      ],
+      "hit_rank": null,
+      "hit_at_k": false,
+      "hit_at_1": false,
+      "reciprocal_rank": 0.0,
+      "answer": "[1] The title of the 2012 preprint by Hinton, Srivastava, Krizhevsky, Sutskever and Salakhutdinov is not mentioned in the provided context.",
+      "answer_chars": 139,
+      "keyword_ok": false,
+      "refusal_ok": null,
+      "cites": true,
+      "cited_blocks": [
+        [
+          "attention.pdf",
+          11
+        ]
+      ],
+      "citation_points_to_gold": false,
+      "claim_support": 1.0,
+      "claims": [
+        {
+          "sentence": "The title of the 2012 preprint by Hinton, Srivastava, Krizhevsky, Sutskever and Salakhutdinov is not mentioned in the provided context.",
+          "cited_blocks": [
+            1
+          ],
+          "best_block": 1,
+          "cited_overlap": 0.091,
+          "best_overlap": 0.091,
+          "cited_similarity": 0.296,
+          "best_similarity": 0.296,
+          "verdict": "supported"
+        }
+      ]
+    },
+    {
+      "id": "d_r2",
+      "doc": "dropout-2012",
+      "question": "In the MNIST experiments, what dropout rates were used for hidden units and for visible units?",
+      "in_scope": true,
+      "gold_pages": [
+        8
+      ],
+      "retrieved": [
+        [
+          "dropout-2012.pdf",
+          8
+        ],
+        [
+          "dropout-2012.pdf",
+          8
+        ],
+        [
+          "dropout-2012.pdf",
+          3
+        ],
+        [
+          "dropout-2012.pdf",
+          9
+        ]
+      ],
+      "hit_rank": 1,
+      "hit_at_k": true,
+      "hit_at_1": true,
+      "reciprocal_rank": 1.0,
+      "answer": "For hidden units, 50% dropout rate was used [1][2]. For visible units, 20% dropout rate was used [1][2].",
+      "answer_chars": 104,
+      "keyword_ok": true,
+      "refusal_ok": null,
+      "cites": true,
+      "cited_blocks": [
+        [
+          "dropout-2012.pdf",
+          8
+        ],
+        [
+          "dropout-2012.pdf",
+          8
+        ],
+        [
+          "dropout-2012.pdf",
+          8
+        ],
+        [
+          "dropout-2012.pdf",
+          8
+        ]
+      ],
+      "citation_points_to_gold": true,
+      "claim_support": 1.0,
+      "claims": [
+        {
+          "sentence": "For hidden units, 50% dropout rate was used .",
+          "cited_blocks": [
+            1,
+            2
+          ],
+          "best_block": 2,
+          "cited_overlap": 1.0,
+          "best_overlap": 1.0,
+          "cited_similarity": 0.533,
+          "best_similarity": 0.533,
+          "verdict": "supported"
+        },
+        {
+          "sentence": "For visible units, 20% dropout rate was used .",
+          "cited_blocks": [
+            1,
+            2
+          ],
+          "best_block": 2,
+          "cited_overlap": 1.0,
+          "best_overlap": 1.0,
+          "cited_similarity": 0.503,
+          "best_similarity": 0.503,
+          "verdict": "supported"
+        }
+      ]
+    },
+    {
+      "id": "d_r3",
+      "doc": "dropout-2012",
+      "question": "Which GPU were the CIFAR-10 models trained on, and roughly how long did that training take?",
+      "in_scope": true,
+      "gold_pages": [
+        17
+      ],
+      "retrieved": [
+        [
+          "dropout-2012.pdf",
+          17
+        ],
+        [
+          "dropout-2012.pdf",
+          13
+        ],
+        [
+          "dropout-2012.pdf",
+          17
+        ],
+        [
+          "attention.pdf",
+          7
+        ]
+      ],
+      "hit_rank": 1,
+      "hit_at_k": true,
+      "hit_at_1": true,
+      "reciprocal_rank": 1.0,
+      "answer": "The CIFAR-10 models were trained on a single NVIDIA GTX 580 GPU [1][3]. Training took roughly 90 minutes for CIFAR-10 and four days with dropout and two days without [3].",
+      "answer_chars": 170,
+      "keyword_ok": true,
+      "refusal_ok": null,
+      "cites": true,
+      "cited_blocks": [
+        [
+          "dropout-2012.pdf",
+          17
+        ],
+        [
+          "dropout-2012.pdf",
+          17
+        ],
+        [
+          "dropout-2012.pdf",
+          17
+        ]
+      ],
+      "citation_points_to_gold": true,
+      "claim_support": 1.0,
+      "claims": [
+        {
+          "sentence": "The CIFAR-10 models were trained on a single NVIDIA GTX 580 GPU .",
+          "cited_blocks": [
+            1,
+            3
+          ],
+          "best_block": 1,
+          "cited_overlap": 0.875,
+          "best_overlap": 0.875,
+          "cited_similarity": 0.499,
+          "best_similarity": 0.499,
+          "verdict": "supported"
+        },
+        {
+          "sentence": "Training took roughly 90 minutes for CIFAR-10 and four days with dropout and two days without .",
+          "cited_blocks": [
+            3
+          ],
+          "best_block": 1,
+          "cited_overlap": 0.636,
+          "best_overlap": 0.909,
+          "cited_similarity": 0.538,
+          "best_similarity": 0.437,
+          "verdict": "supported"
+        }
+      ]
+    },
+    {
       "id": "x_r1",
       "doc": null,
       "question": "What overnight lending rate does the Federal Reserve charge commercial banks?",
@@ -1334,55 +2185,55 @@
       "gold_pages": [],
       "retrieved": [
         [
-          "bills-hr3684.pdf",
-          16
+          "fed-annual-2023.pdf",
+          32
         ],
         [
-          "bills-hr3684.pdf",
-          16
+          "fed-annual-2023.pdf",
+          60
         ],
         [
-          "bills-hr3684.pdf",
-          15
+          "fed-annual-2023.pdf",
+          19
         ],
         [
-          "bills-hr3684.pdf",
-          18
+          "fed-annual-2023.pdf",
+          3
         ]
       ],
       "hit_rank": null,
       "hit_at_k": null,
       "hit_at_1": null,
       "reciprocal_rank": null,
-      "answer": "I do not know based on the document. [1][2]",
-      "answer_chars": 43,
+      "answer": "[1] The Overnight Reverse Repurchase Agreement (ON RRP) facility continued to serve its intended purpose of helping to provide a floor under short-term interest rates and supporting effective implementation of monetary policy. [3]",
+      "answer_chars": 230,
       "keyword_ok": null,
-      "refusal_ok": true,
+      "refusal_ok": false,
       "cites": true,
       "cited_blocks": [
         [
-          "bills-hr3684.pdf",
-          16
+          "fed-annual-2023.pdf",
+          32
         ],
         [
-          "bills-hr3684.pdf",
-          16
+          "fed-annual-2023.pdf",
+          19
         ]
       ],
       "citation_points_to_gold": null,
       "claim_support": 1.0,
       "claims": [
         {
-          "sentence": "I do not know based on the document.",
+          "sentence": "The Overnight Reverse Repurchase Agreement (ON RRP) facility continued to serve its intended purpose of helping to provide a floor under short-term interest rates and supporting effective implementation of monetary policy.",
           "cited_blocks": [
             1,
-            2
+            3
           ],
           "best_block": 3,
-          "cited_overlap": 0.0,
-          "best_overlap": 0.0,
-          "cited_similarity": 0.228,
-          "best_similarity": 0.255,
+          "cited_overlap": 1.0,
+          "best_overlap": 1.0,
+          "cited_similarity": 0.809,
+          "best_similarity": 0.809,
           "verdict": "supported"
         }
       ]

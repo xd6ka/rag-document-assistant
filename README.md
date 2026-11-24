@@ -22,11 +22,11 @@ Chunking and embeddings run **entirely on the local machine** (`all-MiniLM-L6-v2
 - **Page-level citations** — every answer links to `source · page N · similarity`, with the retrieved excerpts in a collapsible panel.
 - **Overlapping chunking** (800 chars / 150 overlap) cut on word boundaries, never across pages, after **stripping running headers and footers** (lines repeating on more than 40 % of a document's pages, page numbers normalised) — on a NIST standard the header repeats on 56 of 60 pages.
 - **Two-stage reranking** — a cross-encoder (`ms-marco-MiniLM-L-6-v2`) re-reads each query–passage pair, then MMR picks for relevance *and* diversity. Both stages toggle independently in the UI; the candidate pool is 16 by default because stage-1 recall on real PDFs is 0.78 at 8 and 0.94 at 16.
-- **Multi-document workspace** — per-document chunk/page counts, per-document delete, document-scoped filtering (measured: scoping to the right PDF recovers a block the unscoped pipeline drops, hit@k 0.889 → **0.944**), one-click reset.
+- **Multi-document workspace** — per-document chunk/page counts, per-document delete, document-scoped filtering (measured: scoping to the right PDF recovers two gold pages the unscoped pool never returns, hit@k 0.862 → **0.931**), one-click reset.
 - **Persistent vector store** — ChromaDB on disk; the index survives restarts.
 - **Grounded prompt** — the model is instructed to answer only from context and to refuse otherwise.
 - **Streaming answers** — tokens appear as the model writes them, and the line under each answer reports `first token X s · complete in Y s` instead of leaving a 25-second empty box.
-- **Measured, not guessed** — a 6-document synthetic corpus, 29 labelled questions, a 9-configuration retrieval ablation, a gold-label validator that fails the run when a rubric drifts, a **claim-level citation check** in which every cited sentence is compared with the block it names, a **5-configuration cross-lingual run** that asks the same facts in Russian and Chinese, an OCR run against a fully rasterised corpus, and a **second corpus of six real PDFs** (1 754 pages, arXiv papers, a NIST standard, a government report, a bill) that shows what the synthetic fixtures could not.
+- **Measured, not guessed** — a 6-document synthetic corpus, 29 labelled questions, a 9-configuration retrieval ablation, a gold-label validator that fails the run when a rubric drifts, a **claim-level citation check** in which every cited sentence is compared with the block it names, a **5-configuration cross-lingual run** that asks the same facts in Russian and Chinese, an OCR run against a fully rasterised corpus, and a **second corpus of ten real PDFs** (2 155 pages, arXiv papers, a patent, a central-bank annual report, an IPCC chapter, a NIST standard, a government report, a bill) that shows what the synthetic fixtures could not.
 - **Numbers with an interval, not a single reading** — `eval/run_variance.py` repeats the answer step three times on frozen retrieval and reports the spread plus pooled 95 % Wilson intervals.
 - **59 unit tests** — chunker behaviour, provider resolution, refusal detection, ranking order, citation mapping, claim parsing, stage switches, per-model caching, the OCR fallback's trigger and failure path, token-stream order, boilerplate stripping, eval labels.
 
@@ -78,7 +78,7 @@ flowchart LR
 - several documents discuss the same concepts (chunk size, overlap, top-k, citations) and only the numbers differ;
 - facts are pinned to specific pages, which is what the citation metric needs.
 
-It is a **test fixture, not a benchmark**: the numbers are internally consistent but invented, and the point is comparing configurations against each other. A second corpus of six genuine PDFs — 1 754 pages of arXiv papers, a NIST standard, a government report and a bill — is measured separately in [the real-corpus section](#a-real-corpus--six-pdfs-nobody-wrote-for-this-project), and the gap between the two is the most useful number on this page.
+It is a **test fixture, not a benchmark**: the numbers are internally consistent but invented, and the point is comparing configurations against each other. A second corpus of ten genuine PDFs — 2 155 pages of arXiv papers, a patent, a central-bank annual report, an IPCC chapter, a NIST standard, a government report and a bill — is measured separately in [the real-corpus section](#a-real-corpus--ten-pdfs-nobody-wrote-for-this-project), and the gap between the two is the most useful number on this page.
 
 ### Questions
 
@@ -219,9 +219,9 @@ What this says, including the part that is inconvenient:
 4. **Cache makes a fake 8× speedup easy to publish.** Ollama caches the longest common prefix: measured naively, the blocking call after a streamed one returns in 1.3–1.7 s because the whole context is already processed. The script puts a marker in the *first* context block so both modes are cold; a marker at the end of the question changes nothing and yields a number that measures the cache.
 5. **Latency is one-run data, and the spread shows why that matters.** The answer-level audit above measured **46.7 s** per question (retrieval + generation, 60.6 s max) for the same pipeline and model, this run **25.3 s** — a 1.8× difference between two sessions on one laptop with no code change. Retrieval alone, cross-encoder included, is 0.3–0.4 s per question. Retrieval ranks are stable across runs; wall-clock times are not, which is what the variance section below measures instead of guessing.
 
-### A real corpus — six PDFs nobody wrote for this project
+### A real corpus — ten PDFs nobody wrote for this project
 
-The synthetic corpus is friendly by construction: one idea per page, prose in a simple layout, no running headers. `eval/real_corpus/` holds six genuine documents instead — downloaded by `eval/fetch_real_corpus.py` (sha256-checked, **not committed**: they belong to their authors) and scored by `eval/run_real.py`:
+The synthetic corpus is friendly by construction: one idea per page, prose in a simple layout, no running headers. `eval/real_corpus/` holds ten genuine documents instead — downloaded by `eval/fetch_real_corpus.py` (sha256-checked, **not committed**: they belong to their authors) and scored by `eval/run_real.py`:
 
 | Document | Source | Why it is here | Pages used |
 |---|---|---|---|
@@ -231,29 +231,37 @@ The synthetic corpus is friendly by construction: one idea per page, prose in a 
 | `nist-800-63b.pdf` | NIST SP 800-63B | numbered clauses, running header on 56 of 60 pages | 60 / 80 |
 | `gpo-911.pdf` | GPO 9/11 report | photographic pages, captions, footnotes | 60 / 585 |
 | `bills-hr3684.pdf` | US bill HR 3684 | legislative text, dense cross-references, no prose | 60 / 1039 |
+| `patent-us9600411.pdf` | US patent 9,600,411 B2 | claims, numbered paragraphs, figure sheets with almost no text | 31 / 31 |
+| `fed-annual-2023.pdf` | Federal Reserve 2023 annual report | financial prose with tables split across pages | 60 / 222 |
+| `ipcc-ar6-ch3.pdf` | IPCC AR6 WG1 chapter 3 | figure captions, cross-chapter references, 30 MB of dense typesetting | 60 / 130 |
+| `dropout-2012.pdf` | arXiv 1207.0580 | older single-column preprint, heavy notation, experiment tables | 18 / 18 |
 
-1 754 pages in the files; the first 60 pages of each document are indexed (230 pages, 1 034 chunks). The cap is deliberate — the open question is layout and boilerplate, not scale, and 230 pages already make a 384-d vector search over 1 034 chunks feel different from 18.
+2 155 pages in the files; the first 60 pages of each document are indexed (399 pages, 2 063 chunks). The cap is deliberate — the open question is layout and boilerplate, not scale, and 399 pages of real typesetting already make a 384-d vector search feel different from 18 synthetic pages.
 
-`eval/qa_set_real.jsonl` — 19 questions (18 in scope, 1 the corpus cannot answer), every gold page checked by the same `validate_qa_set()` used everywhere else. Shipped defaults (retrieve 16 → cross-encoder → MMR, k = 4, boilerplate stripped, `qwen2.5:3b`):
+Two of the ten needed the OCR path on real input, which is the first time that happened outside the rasterised fixture: `patent-us9600411.pdf` spent 8 of its 31 pages under OCR (figure sheets carry reference numerals, not prose) and `ipcc-ar6-ch3.pdf` sent one page to OCR after its text layer refused to parse.
 
-| Metric | Real corpus | Synthetic corpus |
-|---|---|---|
-| hit@k | **0.889** (16/18) | 1.00 (25/25) |
-| hit@1 | **0.722** (13/18) | 0.96 (24/25) |
-| MRR | **0.796** | 0.980 |
-| answer keyword accuracy | **0.722** (13/18) | 0.96 (24/25) |
-| citation rate (some `[n]`) | **1.0** (18/18) | 1.0 (25/25) |
-| **citation gold rate** | **0.556** (10/18) | 0.80 (20/25) |
-| claim support rate | **0.941** | 0.80 |
-| refusal (out-of-scope) | **1.0** (1/1) | 0.75 (3/4) |
+`eval/qa_set_real.jsonl` — 30 questions (29 in scope, 1 the corpus cannot answer), every gold page checked by the same `validate_qa_set()` used everywhere else. Shipped defaults (retrieve 16 → cross-encoder → MMR, k = 4, boilerplate stripped, `qwen2.5:3b`):
+
+| Metric | Real corpus (10 docs) | Real corpus, first six docs | Synthetic corpus |
+|---|---|---|---|
+| hit@k | **0.862** (25/29) | 0.889 (16/18) | 1.00 (25/25) |
+| hit@1 | **0.759** (22/29) | 0.722 (13/18) | 0.96 (24/25) |
+| MRR | **0.799** | 0.796 | 0.980 |
+| answer keyword accuracy | **0.793** (23/29) | 0.722 (13/18) | 0.96 (24/25) |
+| citation rate (some `[n]`) | **1.0** (29/29) | 1.0 (18/18) | 1.0 (25/25) |
+| **citation gold rate** | **0.724** (21/29) | 0.556 (10/18) | 0.80 (20/25) |
+| claim support rate | **1.0** | 0.941 | 0.80 |
+| refusal (out-of-scope) | **1.0** (1/1) | 1.0 (1/1) | 0.75 (3/4) |
 
 Five readings:
 
-1. **Retrieval loses 11 points, and both misses are "find the place" questions.** `a_r4` asks for a paper affiliation stated on page 1 (the gold page never enters the top 16 — pages 14, 6 and 8 come back instead), and `b_r1` asks about "section 5.3", which is a *pointer* to a place rather than a sentence about a fact. Fact questions do fine on every document — 13 of 18 land at rank 1, and the remaining three in-window ones are `rag` at ranks 2 and 3 plus `bert` at rank 2.
-2. **Citation gold rate is the number that degrades most: 0.80 → 0.556**, while claim support stays at 0.941. Real pages hold several paragraphs that plausibly answer the question, so the failure is right sentence / wrong block: the model cites a neighbouring chunk from the same document. On the synthetic corpus the same failure was rarer because each page holds one idea.
-3. **Depth, not the reranker, is the lever on a bigger corpus.** Stage-1 recall of the gold page at candidate cutoffs 8 / 16 / 32 / 64 is **0.778 / 0.944 / 0.944 / 1.000** — one gold page sits at rank 13, another at rank 50. A cross-encoder can only reorder what it is handed, so `RETRIEVE_K` is now **16** by default, not 8: at retrieve 8 the shipped pipeline scored 0.778 on these questions, at 16 it scores 0.889, and on the synthetic 18-chunk corpus 8 and 16 are identical. Raising it to 32 buys nothing here (0.833–0.889 depending on boilerplate) and costs the reranker two extra forwards per query.
-4. **Boilerplate is real text, and stripping it helps measurably.** The NIST header repeats on 56 of 60 pages (`NIST SP 800-63B DIGITAL IDENTITY GUIDELINES:` plus a free-of-charge URL line) — 1.66 % of the characters, but the first line of a large share of chunks. `src/clean.py` removes edge lines that repeat on more than 40 % of a document's pages, normalising digits so a page-numbered header still matches. Effect at retrieve 16: chunks 1 034 → 1 023, hit@k 0.833 → **0.889**, MRR 0.741 → **0.796**; on a 15-page arXiv paper nothing is stripped, because its header does not repeat often enough to qualify.
-5. **What the real corpus does not say.** Eighteen questions read by one person, six documents, a 60-page cap — enough to find the failure modes above, not enough to quote as "the accuracy of this pipeline". The `gpo-911` scan also produced one 28-character chunk (a caption on an image-heavy page), which is why `MIN_CHUNK_CHARS` matters on real layouts.
+1. **Four documents cost three points of hit@k, and only one of the four misses is a new question.** `a_r4` (an affiliation printed on page 1) and `b_r1` ("section 5.3", a pointer to a place rather than a sentence about a fact) still miss. `d_r1` asks for a paper's *title* — topical blocks outrank the title page. The interesting one is `b_r2`: it was a hit on six documents, and on ten it falls out of the final four although both its question and its gold appendix page are unchanged. Widening the corpus changed what the cross-encoder and MMR see around that page, not the page itself — a reminder that a retrieval score is a property of the corpus as much as of the pipeline.
+2. **The answer layer moved in this run, and that is the least trustworthy row in the table.** Keyword accuracy 0.722 → 0.793, citation gold 0.556 → **0.724**, claim support 0.941 → 1.0 on the same model and prompt. Two runs over different corpora are not a trend: the variance section below shows answer-side ratios moving (citation gold 0.800 on all three runs, Wilson 0.696–0.875) even when retrieval is frozen. Read the citation gold rate as "roughly three quarters of answers cite the block the gold page is in", not as a gain over the previous section.
+3. **The OCR fallback earned its keep on real input, and found a case it cannot fix.** `patent-us9600411.pdf` sent 8 of its 31 pages to OCR (figure sheets carry reference numerals, not prose) and `ipcc-ar6-ch3.pdf` sent one page whose text layer refused to parse at all. The patent also shows the other failure mode: its front page extracts as `Assignee: ths latworks Inc.` — the text layer is present, so OCR never fires, and the name is simply wrong. OCR recovers a missing layer; it does not repair a garbled one.
+4. **Boilerplate stripping catches a second header, at half the pages.** Beyond the NIST header (56 of 60 pages, 1.66 % of characters), the patent repeats `US 9,600,411 B2` on 16 of 31 pages and it is stripped at the 40 % threshold. Across the ten documents that footing changes little in absolute terms — 2 063 chunks are indexed — but it keeps the patent's claim pages from starting with a bare patent number.
+5. **What the corpus still does not say.** Twenty-nine questions read by one person, ten documents, a 60-page cap (the patent is 31 pages, the Fed report 222, the IPCC chapter 130, the bill 1 039). It is enough to show the four failure modes above; it is not enough to quote as "the accuracy of this pipeline". No Cyrillic document made it into the corpus — the Russian EUR-Lex PDF endpoint returns 404 from this network and the RFC PDF endpoints 500/403, so the non-Latin-script case is still unmeasured, and `gpo-911` still contributes one 28-character "chunk" from an image-heavy page, which is why `MIN_CHUNK_CHARS` matters on real layouts. The out-of-scope probe also had to change: it used to ask for an overnight Federal Reserve lending rate, which was unanswerable from six documents and became *nearly* answerable once the Fed report joined the corpus (the model replied with an ON RRP paragraph instead of refusing). It is now a question no document covers. Widening a corpus silently changes which questions are unanswerable, which is the sort of drift the validator catches for gold pages and nothing catches for probes.
+
+`RETRIEVE_K = 16` still comes from the depth sweep on the six-document stage (stage-1 recall 0.778 / 0.944 / 0.944 / 1.000 at cutoffs 8 / 16 / 32 / 64). The sweep was not repeated after the four documents were added; the miss list above is the evidence that 16 is still leaving gold pages out of the final four, not out of the index.
 
 ### Document-scoped questions — does the filter help, and how much?
 
@@ -261,14 +269,14 @@ The sidebar lets a user scope a question to one PDF, and `DocumentStore.query` p
 
 | Mode | stage-1 recall | hit@4 | hit@1 | MRR | misses | s/question |
 |---|---|---|---|---|---|---|
-| no filter | 0.944 | 0.889 | 0.722 | 0.796 | 2 | 1.00 |
-| document-scoped | 0.944 | **0.944** | **0.778** | **0.852** | 1 | 0.68 |
+| no filter | 0.862 | 0.862 | 0.759 | 0.799 | 4 | 1.01 |
+| document-scoped | **0.931** | **0.931** | **0.793** | **0.851** | 2 | 0.69 |
 
 Three readings:
 
-1. **Filtering does not improve recall in the slightest.** Stage-1 recall is 0.944 in both modes: the gold page for `a_r4` was already inside the sixteen candidates. The unscoped pipeline dropped it out of the final four because the cross-encoder had fifteen other blocks from other documents to prefer. Restricting the pool changes the *competition*, not what the index can find — a fact worth keeping in mind before crediting the filter with "better retrieval".
-2. **It recovers `a_r4` and leaves `b_r1` missing.** `a_r4` (a paper affiliation stated on page 1) goes from out-of-window to a hit; `b_r1` ("section 5.3") fails inside its own document too. That splits the two real-corpus misses into two different kinds: one is corpus-scale competition, the other is a question that points at a place instead of stating a fact, and the filter does not help a vague question.
-3. **It is also cheaper: 0.68 s per question against 1.00.** Both the vector scan and the cross-encoder work on a smaller pool, so a user who knows which document to ask about gets a better answer, faster.
+1. **On ten documents the filter does move stage 1, and that corrects a claim the six-document run supported.** Stage-1 recall goes 0.862 → 0.931: with four more documents the sixteen-candidate pool is crowded enough that two gold pages (`a_r4`, `b_r2`) never enter it unscoped, and a one-document pool lets them in. On the six-document corpus the same experiment showed 0.944 in both modes, which is where the earlier "the filter changes the competition, not what the index can find" reading came from. It was true at that size and it is not true here — the honest version is that how much the filter buys depends on how crowded the pool is.
+2. **It recovers `a_r4` and `b_r2`, and still leaves `b_r1` and `d_r1`.** `a_r4` (an affiliation printed on page 1) and `b_r2` (an appendix pointer) were losing to other documents' blocks; scoping removes those. `b_r1` ("section 5.3") still misses inside `bert` alone, so its problem is the question's form, not the corpus size. `d_r1` is the surprise: it asks for the *title* of the paper and misses even with only `dropout-2012` in the pool — the cross-encoder prefers pages that discuss dropout over the title page that merely names the paper. A filter cannot fix a question about the document itself.
+3. **It is also cheaper: 0.69 s per question against 1.01.** Both the vector scan and the cross-encoder work on a smaller pool, so a user who knows which document to ask about gets a better answer, faster.
 
 ### Variance — how much do the numbers move between identical runs?
 
@@ -297,7 +305,7 @@ Five readings:
 4. **The interval is the honest headline.** On 25 questions, "0.80" means 0.70–0.88 and "1.00" means 0.95–1.00. Any answer-level number from this project should be quoted with its interval, or at least as a direction.
 5. **Latency is stable inside a session and not between sessions.** Three repeats of the same 25 questions took 588.0 / 581.7 / 586.9 s — 23.5 s each, under 1 % spread. The 1.8× gap quoted in the streaming section (46.7 s vs 25.3 s) is therefore between sessions — machine state and prompt length — not sampler noise, and wall-clock times should never be compared across sessions without saying so.
 
-What this does **not** cover: the real corpus (18 questions, one run), any change of retrieval configuration, and the temperature-0.2 sampler's effect on wording beyond the one flaky question observed.
+What this does **not** cover: the real corpus (29 in-scope questions, one run), any change of retrieval configuration, and the temperature-0.2 sampler's effect on wording beyond the one flaky question observed.
 
 Each run indexes into a throwaway store, so results never depend on your working collection. Reports land in `eval/reports/`.
 
@@ -311,7 +319,7 @@ python eval/claim_audit.py                  # per-sentence citation verdicts for
 python eval/run_multilingual.py             # 5-configuration cross-lingual retrieval
 python eval/run_ocr.py                      # rasterise the corpus, measure what OCR recovers
 python eval/measure_stream.py               # time to first token vs total, streamed vs blocking
-python eval/fetch_real_corpus.py            # download the 6 real PDFs once (sha256-checked, not committed)
+python eval/fetch_real_corpus.py            # download the 10 real PDFs once (sha256-checked, not committed)
 python eval/run_real.py                     # retrieval + answers on the real corpus
 python eval/sweep_real_depth.py             # RETRIEVE_K 8/16/32 x cross-encoder on/off
 python eval/run_variance.py --runs 3        # repeat the answer step, report spread + Wilson intervals
@@ -426,7 +434,7 @@ rag-document-assistant/
 │   ├── run_ocr.py       # rasterise the corpus and measure what OCR recovers
 │   ├── measure_stream.py # time to first token vs total, streamed vs blocking
 │   ├── claim_audit.py   # per-sentence citation verdicts against the stored answers
-│   ├── fetch_real_corpus.py # download the 6 real PDFs, verified by sha256 (not committed)
+│   ├── fetch_real_corpus.py # download the 10 real PDFs, verified by sha256 (not committed)
 │   ├── real_corpus_manifest.json # what was downloaded, from where, and why
 │   ├── qa_set_real.jsonl # 19 questions on the real documents
 │   ├── run_real.py      # retrieval + answers + boilerplate report on the real corpus
@@ -466,9 +474,9 @@ rag-document-assistant/
 
 ## Limitations & roadmap
 
-- **The synthetic corpus is a fixture, and the real one is small.** Six documents written to stress retrieval by design are good for comparing configurations and useless as a claim about real-world libraries; the six real PDFs offset that but stop at 230 indexed pages and 18 questions read by one person.
-- **18 questions cannot pin a rate down.** Even after three repeated runs the Wilson interval on a 25-question set is about ±15 points; the variance section reports the spread instead of hiding it, but a portfolio number should be read as a direction, not a measurement.
-- **Citation support is measured, entailment is not.** `claim_support_rate` checks that a cited sentence's best-matching block is the block it names. A sentence can pass that and still add a claim the block never made; proving entailment needs a model that can be calibrated, which a local 3B judge is not. On real pages the check also gets easier: long blocks make almost any sentence look supported, which is why it reads 0.941 while `citation_gold_rate` reads 0.556.
+- **The synthetic corpus is a fixture, and the real one is small.** Six documents written to stress retrieval by design are good for comparing configurations and useless as a claim about real-world libraries; the ten real PDFs offset that but stop at 399 indexed pages and 29 questions read by one person.
+- **29 in-scope questions cannot pin a rate down.** Even after three repeated runs the Wilson interval on a 25-question set is about ±15 points; the variance section reports the spread instead of hiding it, but a portfolio number should be read as a direction, not a measurement.
+- **Citation support is measured, entailment is not.** `claim_support_rate` checks that a cited sentence's best-matching block is the block it names. A sentence can pass that and still add a claim the block never made; proving entailment needs a model that can be calibrated, which a local 3B judge is not. On real pages the check also gets easier: long blocks make almost any sentence look supported, which is why it reads 1.0 while `citation_gold_rate` reads 0.724.
 - **The faithfulness judge needs a stronger model.** A 3B judge is uncalibrated and was rejected; the metric returns only when judging runs on a hosted model.
 - **Local generation is slow.** ~47 s per answer on CPU. Good enough to prove the pipeline works offline, not good enough to demo interactively.
 - **Cross-lingual retrieval is measured, but only in one direction.** Twenty-four translated questions hit an English corpus; a corpus written in Russian or Chinese (with its own tokenisation and paragraph lengths) is untested, and the shipped defaults are still English models. The gap between 0.958 and the English 1.000 is one question, so the multilingual row is "competitive", not "equal".
@@ -477,7 +485,7 @@ rag-document-assistant/
 - **Streaming hides the last 1.6 s, not the 23 s before it.** Time to first token is 23.7 s on CPU because prompt prefill dominates; the lever is a shorter prompt or a faster backend, not the transport.
 - **Single collection.** Document filtering works, but there is no notion of workspaces or per-user isolation.
 
-Planned order: a bigger real corpus (more documents, several readers), then an entailment checker that a bigger model can be calibrated against, then latency work on the prompt. (Everything from the original roadmap is done and measured: cross-lingual retrieval — `eval/reports/multilingual.json`; claim-level citation checking — `src/citations.py`, calibrated against the manual audit; the OCR fallback — `src/ocr.py`, `eval/reports/ocr.json`; streaming — `eval/reports/streaming.json`, which removes the freeze and not the latency; a real corpus with variance estimates — `eval/reports/real_corpus.json`, `real_depth*.json`, `variance.json`; and document-scoped filtering — `eval/reports/real_filter.json`.)
+Planned order: an entailment checker that a bigger model can be calibrated against, then latency work on the prompt. (Everything from the original roadmap is done and measured: cross-lingual retrieval — `eval/reports/multilingual.json`; claim-level citation checking — `src/citations.py`, calibrated against the manual audit; the OCR fallback — `src/ocr.py`, `eval/reports/ocr.json`; streaming — `eval/reports/streaming.json`, which removes the freeze and not the latency; a real corpus with variance estimates — `eval/reports/real_corpus.json`, `real_depth*.json`, `variance.json`; document-scoped filtering — `eval/reports/real_filter.json`; and the widened real corpus of ten documents with 30 labelled questions — `eval/qa_set_real.jsonl`, `real_corpus.json`.)
 
 ## 中文简介
 
@@ -490,9 +498,9 @@ Planned order: a bigger real corpus (more documents, several readers), then an e
 - **扫描件 OCR**：把整本语料逐页栅格化成「只有图片」的 PDF（脚本会先断言这 18 页确实没有文字层），同一批 25 题对比三种索引：数字版 **1.000 / 0.960 / 0.980**；栅格版不开 OCR **0.000 / 0.000 / 0.000（0 个 chunk，25 题全错过）**；栅格版开 OCR **0.960 / 0.920 / 0.940**，只丢一题（`p02`，原因是 OCR 漏检一整行，正好是那行数字）。页面词覆盖率均值 **96.1%**、最差页 74.8%；每页约 4.2 秒，18 页索引 76 秒。300 dpi 对比 200 dpi：均值 95.2% 但最差页只有 57.7%、`hit@1` 0.880，而引擎会把输入缩放到固定尺寸，所以 300 dpi 并没有更慢。语言边界如实写清：拉丁与中文可用，西里尔字母实测只有 5% 词覆盖率
 - **流式输出**：`stream_answer` 逐 token 推送，答案下方显示「首 token … 秒 · 完成 … 秒」。三题实测：首个 token 平均 **23.7 秒**、整段 **25.3 秒**，阻塞模式同样 25.3 秒——CPU 上瓶颈是约 900 token 的 prompt 预填充，不是解码，所以流式消掉的是「看起来卡死」的观感，并没有真正变快；真正的杠杆是把窗口调小或换更快的后端。同一个环境两次运行还差 1.8 倍（46.7 秒 vs 25.3 秒），单次延迟数字不可当结论
 - **答案层指标**：本地 `qwen2.5:3b` 生成 29 条答案，引用率 1.0、拒答率 0.75（一次 4/4、一次 3/4，属于小模型自律性的波动）、关键词命中 0.96；人工复核 25/25 正确。**引用归因**：`citation_gold_rate` 0.80、`claim_support_rate` 0.80 —— 逐句比对「引用的块是否就是证据所在的块」，自动判定与人工标注在 25 条上完全一致（5 个漂移、0 个误报，两次运行漂移集合相同）。LLM 评委（judge）因 3B 模型打分不可靠被弃用，实验记录保留在 `eval/reports/judge_experiment.json`
-- **真实语料**：另外下载 6 份真实 PDF（Transformer / RAG / BERT 论文、NIST SP 800-63B、9/11 调查报告、HR 3684 法案），共 1754 页、每份只用前 60 页（230 页 / 1034 chunk），19 题人工标注。结果：hit@k **0.889**、hit@1 **0.722**、MRR 0.796；引用归因掉到 **0.556**（但 claim_support 0.941）——真实页面上有多段都「像答案」，模型引用了邻块，问题从「没找到」变成「找对了段、指错了块」。两个漏检都是「找地点」类问题（论文首页的作者单位、正文「5.3 节」这种指代）。深度实验把 `RETRIEVE_K` 默认值从 8 提到 16：第一阶段召回率在 8/16/32/64 上分别是 0.778 / 0.944 / 0.944 / 1.000（有一页排在第 50 名），而合成语料上 8 和 16 完全一样。页眉页脚剥离（`src/clean.py`，NIST 那份 60 页里有 56 页带同一行页眉）让 chunk 从 1034 降到 1023、retrieve 16 时 hit@k 从 0.833 升到 0.889
+- **真实语料**：另外下载 10 份真实 PDF（Transformer / RAG / BERT / Dropout 论文、美国专利 9,600,411 B2、美联储 2023 年报、IPCC AR6 第 3 章、NIST SP 800-63B、9/11 调查报告、HR 3684 法案），共 2155 页、每份只用前 60 页（399 页 / 2063 chunk），30 题人工标注（29 道可答 + 1 道不可答）。结果：hit@k **0.862**、hit@1 **0.759**、MRR 0.799、关键词命中 0.793；引用归因 **0.724**、claim_support 1.0。四个漏检分两类：`a_r4`（论文首页作者单位）与 `b_r1`（「5.3 节」这种指代）是老问题；`b_r2` 在 6 文档时是命中、加到 10 文档后掉出前 4——题目和标准页都没变，变的是它周围的候选池；`d_r1`（问论文标题）是「描述文档本身」而不是「查文档里的事实」。深度实验（仍在 6 文档阶段）把 `RETRIEVE_K` 从 8 提到 16：第一阶段召回在 8/16/32/64 上是 0.778 / 0.944 / 0.944 / 1.000。页眉剥离在 NIST（60 页里 56 页同页眉）和专利（31 页里 16 页页眉 `US 9,600,411 B2`）两份上都生效；OCR 首次在真实文档上触发：专利 31 页里 8 页走 OCR、IPCC 有 1 页文字层解析失败也走 OCR——而专利首页把 `The MathWorks, Inc.` 抽成 `ths latworks Inc.`，说明文字层「有但抽错」时 OCR 补不上
 - **方差**：`eval/run_variance.py` 在检索冻结的前提下把答题步骤重复 3 遍，报告每次的指标、三遍的标准差，以及 pooling 后的 95% Wilson 区间——单次跑出来的 0.80 到底能信多少，用区间写清楚，而不是只留一个数
-- **文档过滤**：侧边栏限定到单个 PDF 时检索是否真的变好，在真实语料上按「过滤到标准答案所在文档」这种已知答案的上界情形测：第一阶段召回**完全不变**（0.944 → 0.944，说明那一页本来就在候选中，是全流程把它挤出了前 4），但 hit@k 0.889 → **0.944**、hit@1 0.722 → 0.778、MRR 0.796 → 0.852，每题耗时还从 1.00 秒降到 0.68 秒；另一个漏检 `b_r1`（「5.3 节」这类指代型问题）在本文件内依旧漏，说明问题在提问方式而不是语料规模
+- **文档过滤**：侧边栏限定到单个 PDF 时检索是否真的变好，在真实语料上按「过滤到标准答案所在文档」这种已知答案的上界情形测：10 文档口径下第一阶段召回 0.862 → **0.931**、hit@4 0.862 → 0.931、hit@1 0.759 → 0.793、MRR 0.799 → 0.851，漏检从 4 个减到 2 个，每题耗时从 1.01 秒降到 0.69 秒。恢复的是 `a_r4`（论文首页作者单位）和 `b_r2`（附录题目）——它们都是被别的文档挤掉的；`b_r1`（「5.3 节」指代）和 `d_r1`（问论文标题）就算只留这一份文档也照样漏，说明这两类问题不是语料规模造成的（6 文档那轮曾得出「过滤完全不改召回」的结论，是因为那时候选池还没这么挤）
 - **运行**：配置 `.env`（参考 `.env.example`）后执行 `streamlit run ui.py`；默认走本地 Ollama，无需 API Key 与付费账号
 
 ## License
