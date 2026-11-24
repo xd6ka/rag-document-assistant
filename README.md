@@ -22,7 +22,7 @@ Chunking and embeddings run **entirely on the local machine** (`all-MiniLM-L6-v2
 - **Page-level citations** — every answer links to `source · page N · similarity`, with the retrieved excerpts in a collapsible panel.
 - **Overlapping chunking** (800 chars / 150 overlap) cut on word boundaries, never across pages, after **stripping running headers and footers** (lines repeating on more than 40 % of a document's pages, page numbers normalised) — on a NIST standard the header repeats on 56 of 60 pages.
 - **Two-stage reranking** — a cross-encoder (`ms-marco-MiniLM-L-6-v2`) re-reads each query–passage pair, then MMR picks for relevance *and* diversity. Both stages toggle independently in the UI; the candidate pool is 16 by default because stage-1 recall on real PDFs is 0.78 at 8 and 0.94 at 16.
-- **Multi-document workspace** — per-document chunk/page counts, per-document delete, document-scoped filtering, one-click reset.
+- **Multi-document workspace** — per-document chunk/page counts, per-document delete, document-scoped filtering (measured: scoping to the right PDF recovers a block the unscoped pipeline drops, hit@k 0.889 → **0.944**), one-click reset.
 - **Persistent vector store** — ChromaDB on disk; the index survives restarts.
 - **Grounded prompt** — the model is instructed to answer only from context and to refuse otherwise.
 - **Streaming answers** — tokens appear as the model writes them, and the line under each answer reports `first token X s · complete in Y s` instead of leaving a 25-second empty box.
@@ -255,6 +255,21 @@ Five readings:
 4. **Boilerplate is real text, and stripping it helps measurably.** The NIST header repeats on 56 of 60 pages (`NIST SP 800-63B DIGITAL IDENTITY GUIDELINES:` plus a free-of-charge URL line) — 1.66 % of the characters, but the first line of a large share of chunks. `src/clean.py` removes edge lines that repeat on more than 40 % of a document's pages, normalising digits so a page-numbered header still matches. Effect at retrieve 16: chunks 1 034 → 1 023, hit@k 0.833 → **0.889**, MRR 0.741 → **0.796**; on a 15-page arXiv paper nothing is stripped, because its header does not repeat often enough to qualify.
 5. **What the real corpus does not say.** Eighteen questions read by one person, six documents, a 60-page cap — enough to find the failure modes above, not enough to quote as "the accuracy of this pipeline". The `gpo-911` scan also produced one 28-character chunk (a caption on an image-heavy page), which is why `MIN_CHUNK_CHARS` matters on real layouts.
 
+### Document-scoped questions — does the filter help, and how much?
+
+The sidebar lets a user scope a question to one PDF, and `DocumentStore.query` passes that to Chroma as a `sources` filter. `python eval/run_real_filter.py` measures it on the real corpus, in the honest version: the filter is set to the document the answer really comes from. That is what a user who knows where to look gets, and it is an **upper bound** — filtering on the wrong document returns nothing from the right one, by definition, so a wrong guess is a guaranteed miss.
+
+| Mode | stage-1 recall | hit@4 | hit@1 | MRR | misses | s/question |
+|---|---|---|---|---|---|---|
+| no filter | 0.944 | 0.889 | 0.722 | 0.796 | 2 | 1.00 |
+| document-scoped | 0.944 | **0.944** | **0.778** | **0.852** | 1 | 0.68 |
+
+Three readings:
+
+1. **Filtering does not improve recall in the slightest.** Stage-1 recall is 0.944 in both modes: the gold page for `a_r4` was already inside the sixteen candidates. The unscoped pipeline dropped it out of the final four because the cross-encoder had fifteen other blocks from other documents to prefer. Restricting the pool changes the *competition*, not what the index can find — a fact worth keeping in mind before crediting the filter with "better retrieval".
+2. **It recovers `a_r4` and leaves `b_r1` missing.** `a_r4` (a paper affiliation stated on page 1) goes from out-of-window to a hit; `b_r1` ("section 5.3") fails inside its own document too. That splits the two real-corpus misses into two different kinds: one is corpus-scale competition, the other is a question that points at a place instead of stating a fact, and the filter does not help a vague question.
+3. **It is also cheaper: 0.68 s per question against 1.00.** Both the vector scan and the cross-encoder work on a smaller pool, so a user who knows which document to ask about gets a better answer, faster.
+
 ### Variance — how much do the numbers move between identical runs?
 
 Every answer-level number above was measured once. `python eval/run_variance.py --runs 3` repeats the answer step three times on the same 25 synthetic questions with retrieval **frozen** (the same four blocks for every run), so any spread is the sampler, not the index.
@@ -300,6 +315,7 @@ python eval/fetch_real_corpus.py            # download the 6 real PDFs once (sha
 python eval/run_real.py                     # retrieval + answers on the real corpus
 python eval/sweep_real_depth.py             # RETRIEVE_K 8/16/32 x cross-encoder on/off
 python eval/run_variance.py --runs 3        # repeat the answer step, report spread + Wilson intervals
+python eval/run_real_filter.py              # document-scoped vs unscoped retrieval on the real corpus
 ```
 
 ## Tech stack
@@ -416,7 +432,8 @@ rag-document-assistant/
 │   ├── run_real.py      # retrieval + answers + boilerplate report on the real corpus
 │   ├── run_variance.py  # repeat the answer step on frozen retrieval, report spread + Wilson intervals
 │   ├── sweep_real_depth.py # RETRIEVE_K 8/16/32 x cross-encoder on/off on the real corpus
-│   └── reports/         # latest.json, ablation.json, multilingual.json, ocr.json, streaming.json, real_corpus.json, real_depth*.json, variance.json, claims.json, answer_audit.md, judge_experiment.json
+│   ├── run_real_filter.py # document-scoped vs unscoped retrieval, same questions
+│   └── reports/         # latest.json, ablation.json, multilingual.json, ocr.json, streaming.json, real_corpus.json, real_depth*.json, real_filter.json, variance.json, claims.json, answer_audit.md, judge_experiment.json
 ├── tests/
 │   ├── test_chunking.py    # 8 cases
 │   ├── test_config.py      # 5 cases (provider resolution, legacy-env traps)
@@ -460,7 +477,7 @@ rag-document-assistant/
 - **Streaming hides the last 1.6 s, not the 23 s before it.** Time to first token is 23.7 s on CPU because prompt prefill dominates; the lever is a shorter prompt or a faster backend, not the transport.
 - **Single collection.** Document filtering works, but there is no notion of workspaces or per-user isolation.
 
-Planned order: bigger real corpus (more documents, several readers, per-document filtering measured), then an entailment checker that a bigger model can be calibrated against, then latency work on the prompt. (Everything from the original roadmap is done and measured: cross-lingual retrieval — `eval/reports/multilingual.json`; claim-level citation checking — `src/citations.py`, calibrated against the manual audit; the OCR fallback — `src/ocr.py`, `eval/reports/ocr.json`; streaming — `eval/reports/streaming.json`, which removes the freeze and not the latency; and a real corpus with variance estimates — `eval/reports/real_corpus.json`, `real_depth*.json`, `variance.json`.)
+Planned order: a bigger real corpus (more documents, several readers), then an entailment checker that a bigger model can be calibrated against, then latency work on the prompt. (Everything from the original roadmap is done and measured: cross-lingual retrieval — `eval/reports/multilingual.json`; claim-level citation checking — `src/citations.py`, calibrated against the manual audit; the OCR fallback — `src/ocr.py`, `eval/reports/ocr.json`; streaming — `eval/reports/streaming.json`, which removes the freeze and not the latency; a real corpus with variance estimates — `eval/reports/real_corpus.json`, `real_depth*.json`, `variance.json`; and document-scoped filtering — `eval/reports/real_filter.json`.)
 
 ## 中文简介
 
@@ -475,6 +492,7 @@ Planned order: bigger real corpus (more documents, several readers, per-document
 - **答案层指标**：本地 `qwen2.5:3b` 生成 29 条答案，引用率 1.0、拒答率 0.75（一次 4/4、一次 3/4，属于小模型自律性的波动）、关键词命中 0.96；人工复核 25/25 正确。**引用归因**：`citation_gold_rate` 0.80、`claim_support_rate` 0.80 —— 逐句比对「引用的块是否就是证据所在的块」，自动判定与人工标注在 25 条上完全一致（5 个漂移、0 个误报，两次运行漂移集合相同）。LLM 评委（judge）因 3B 模型打分不可靠被弃用，实验记录保留在 `eval/reports/judge_experiment.json`
 - **真实语料**：另外下载 6 份真实 PDF（Transformer / RAG / BERT 论文、NIST SP 800-63B、9/11 调查报告、HR 3684 法案），共 1754 页、每份只用前 60 页（230 页 / 1034 chunk），19 题人工标注。结果：hit@k **0.889**、hit@1 **0.722**、MRR 0.796；引用归因掉到 **0.556**（但 claim_support 0.941）——真实页面上有多段都「像答案」，模型引用了邻块，问题从「没找到」变成「找对了段、指错了块」。两个漏检都是「找地点」类问题（论文首页的作者单位、正文「5.3 节」这种指代）。深度实验把 `RETRIEVE_K` 默认值从 8 提到 16：第一阶段召回率在 8/16/32/64 上分别是 0.778 / 0.944 / 0.944 / 1.000（有一页排在第 50 名），而合成语料上 8 和 16 完全一样。页眉页脚剥离（`src/clean.py`，NIST 那份 60 页里有 56 页带同一行页眉）让 chunk 从 1034 降到 1023、retrieve 16 时 hit@k 从 0.833 升到 0.889
 - **方差**：`eval/run_variance.py` 在检索冻结的前提下把答题步骤重复 3 遍，报告每次的指标、三遍的标准差，以及 pooling 后的 95% Wilson 区间——单次跑出来的 0.80 到底能信多少，用区间写清楚，而不是只留一个数
+- **文档过滤**：侧边栏限定到单个 PDF 时检索是否真的变好，在真实语料上按「过滤到标准答案所在文档」这种已知答案的上界情形测：第一阶段召回**完全不变**（0.944 → 0.944，说明那一页本来就在候选中，是全流程把它挤出了前 4），但 hit@k 0.889 → **0.944**、hit@1 0.722 → 0.778、MRR 0.796 → 0.852，每题耗时还从 1.00 秒降到 0.68 秒；另一个漏检 `b_r1`（「5.3 节」这类指代型问题）在本文件内依旧漏，说明问题在提问方式而不是语料规模
 - **运行**：配置 `.env`（参考 `.env.example`）后执行 `streamlit run ui.py`；默认走本地 Ollama，无需 API Key 与付费账号
 
 ## License

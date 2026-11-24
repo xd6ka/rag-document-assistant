@@ -1,0 +1,43 @@
+{
+  "generated_at": "2026-11-24T13:00:11",
+  "corpus": {
+    "documents": 6,
+    "chunks": 1023,
+    "page_cap": 60
+  },
+  "settings": {
+    "retrieve_k": 16,
+    "context_k": 4,
+    "mmr_lambda": 0.7,
+    "cross_encoder": true,
+    "rerank_model": "cross-encoder/ms-marco-MiniLM-L-6-v2",
+    "embedding_model": "all-MiniLM-L6-v2"
+  },
+  "results": [
+    {
+      "n_questions": 18,
+      "stage1_recall": 0.944,
+      "hit_at_k": 0.889,
+      "hit_at_1": 0.722,
+      "mrr": 0.796,
+      "misses": [
+        "a_r4",
+        "b_r1"
+      ],
+      "seconds_per_question": 1.001,
+      "mode": "no filter"
+    },
+    {
+      "n_questions": 18,
+      "stage1_recall": 0.944,
+      "hit_at_k": 0.944,
+      "hit_at_1": 0.778,
+      "mrr": 0.852,
+      "misses": [
+        "b_r1"
+      ],
+      "seconds_per_question": 0.679,
+      "mode": "document-scoped"
+    }
+  ]
+}
