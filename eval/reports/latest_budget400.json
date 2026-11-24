@@ -1,0 +1,1758 @@
+{
+  "summary": {
+    "corpus": {
+      "documents": 6,
+      "pages": 18,
+      "chunks": 18
+    },
+    "settings": {
+      "chunk_size": 800,
+      "chunk_overlap": 150,
+      "embedding_model": "all-MiniLM-L6-v2",
+      "retrieve_k": 16,
+      "context_k": 4,
+      "mmr_lambda": 0.7,
+      "cross_encoder": true,
+      "rerank_model": "cross-encoder/ms-marco-MiniLM-L-6-v2",
+      "llm_provider": "ollama",
+      "llm_model": "qwen2.5:3b"
+    },
+    "n_questions": 29,
+    "n_in_scope": 25,
+    "hit_at_k": 1.0,
+    "hit_at_1": 0.96,
+    "mrr": 0.98,
+    "answer_keyword_accuracy": 0.96,
+    "citation_rate": 1.0,
+    "citation_gold_rate": 0.88,
+    "claim_support_rate": 0.88,
+    "refusal_rate": 0.75,
+    "judge_mean_faithfulness": null,
+    "judge_reliable": null,
+    "api_errors": 0,
+    "answer_metrics_valid": true,
+    "generated_at": "2026-11-24T19:57:34"
+  },
+  "rows": [
+    {
+      "id": "e01",
+      "doc": "embedding-models",
+      "question": "How many parameters does all-MiniLM-L6-v2 have?",
+      "in_scope": true,
+      "gold_pages": [
+        1
+      ],
+      "retrieved": [
+        [
+          "embedding-models.pdf",
+          1
+        ],
+        [
+          "embedding-models.pdf",
+          2
+        ],
+        [
+          "prompt-design.pdf",
+          2
+        ],
+        [
+          "embedding-models.pdf",
+          3
+        ]
+      ],
+      "hit_rank": 1,
+      "hit_at_k": true,
+      "hit_at_1": true,
+      "reciprocal_rank": 1.0,
+      "answer": "all-MiniLM-L6-v2 has 22 million parameters [1].",
+      "keyword_ok": true,
+      "refusal_ok": null,
+      "cites": true,
+      "cited_blocks": [
+        [
+          "embedding-models.pdf",
+          1
+        ]
+      ],
+      "citation_points_to_gold": true,
+      "claim_support": 1.0,
+      "claims": [
+        {
+          "sentence": "all-MiniLM-L6-v2 has 22 million parameters .",
+          "cited_blocks": [
+            1
+          ],
+          "best_block": 1,
+          "cited_overlap": 0.333,
+          "best_overlap": 0.333,
+          "cited_similarity": 0.491,
+          "best_similarity": 0.491,
+          "verdict": "supported"
+        }
+      ],
+      "judge": null,
+      "seconds": 42.65
+    },
+    {
+      "id": "e02",
+      "doc": "embedding-models",
+      "question": "What MTEB retrieval average does bge-small-en-v1.5 reach?",
+      "in_scope": true,
+      "gold_pages": [
+        2
+      ],
+      "retrieved": [
+        [
+          "embedding-models.pdf",
+          2
+        ],
+        [
+          "embedding-models.pdf",
+          1
+        ],
+        [
+          "retrieval-eval.pdf",
+          1
+        ],
+        [
+          "pdf-internals.pdf",
+          2
+        ]
+      ],
+      "hit_rank": 1,
+      "hit_at_k": true,
+      "hit_at_1": true,
+      "reciprocal_rank": 1.0,
+      "answer": "bge-small-en-v1.5 reaches 62.2 on the MTEB retrieval average [1].",
+      "keyword_ok": true,
+      "refusal_ok": null,
+      "cites": true,
+      "cited_blocks": [
+        [
+          "embedding-models.pdf",
+          2
+        ]
+      ],
+      "citation_points_to_gold": true,
+      "claim_support": 1.0,
+      "claims": [
+        {
+          "sentence": "bge-small-en-v1.5 reaches 62.2 on the MTEB retrieval average .",
+          "cited_blocks": [
+            1
+          ],
+          "best_block": 1,
+          "cited_overlap": 1.0,
+          "best_overlap": 1.0,
+          "cited_similarity": 0.5,
+          "best_similarity": 0.5,
+          "verdict": "supported"
+        }
+      ],
+      "judge": null,
+      "seconds": 27.5
+    },
+    {
+      "id": "e03",
+      "doc": "embedding-models",
+      "question": "Which embedding family requires the literal query prefix?",
+      "in_scope": true,
+      "gold_pages": [
+        3
+      ],
+      "retrieved": [
+        [
+          "embedding-models.pdf",
+          3
+        ],
+        [
+          "vector-store-notes.pdf",
+          2
+        ],
+        [
+          "chunking-strategies.pdf",
+          1
+        ],
+        [
+          "pdf-internals.pdf",
+          1
+        ]
+      ],
+      "hit_rank": 1,
+      "hit_at_k": true,
+      "hit_at_1": true,
+      "reciprocal_rank": 1.0,
+      "answer": "The e5 family expects an asymmetric prefix: documents are embedded as they are, while queries must be prefixed with the literal string 'query: '. [1]",
+      "keyword_ok": true,
+      "refusal_ok": null,
+      "cites": true,
+      "cited_blocks": [
+        [
+          "embedding-models.pdf",
+          3
+        ]
+      ],
+      "citation_points_to_gold": true,
+      "claim_support": 1.0,
+      "claims": [
+        {
+          "sentence": "The e5 family expects an asymmetric prefix: documents are embedded as they are, while queries must be prefixed with the literal string 'query: '.",
+          "cited_blocks": [
+            1
+          ],
+          "best_block": 1,
+          "cited_overlap": 1.0,
+          "best_overlap": 1.0,
+          "cited_similarity": 0.623,
+          "best_similarity": 0.623,
+          "verdict": "supported"
+        }
+      ],
+      "judge": null,
+      "seconds": 27.46
+    },
+    {
+      "id": "e04",
+      "doc": "embedding-models",
+      "question": "How much memory do the MiniLM weights need?",
+      "in_scope": true,
+      "gold_pages": [
+        2
+      ],
+      "retrieved": [
+        [
+          "embedding-models.pdf",
+          2
+        ],
+        [
+          "embedding-models.pdf",
+          1
+        ],
+        [
+          "prompt-design.pdf",
+          1
+        ],
+        [
+          "embedding-models.pdf",
+          3
+        ]
+      ],
+      "hit_rank": 1,
+      "hit_at_k": true,
+      "hit_at_1": true,
+      "reciprocal_rank": 1.0,
+      "answer": "MiniLM needs about 90 megabytes of weights [1].",
+      "keyword_ok": true,
+      "refusal_ok": null,
+      "cites": true,
+      "cited_blocks": [
+        [
+          "embedding-models.pdf",
+          2
+        ]
+      ],
+      "citation_points_to_gold": true,
+      "claim_support": 1.0,
+      "claims": [
+        {
+          "sentence": "MiniLM needs about 90 megabytes of weights .",
+          "cited_blocks": [
+            1
+          ],
+          "best_block": 1,
+          "cited_overlap": 1.0,
+          "best_overlap": 1.0,
+          "cited_similarity": 0.519,
+          "best_similarity": 0.519,
+          "verdict": "supported"
+        }
+      ],
+      "judge": null,
+      "seconds": 23.99
+    },
+    {
+      "id": "e05",
+      "doc": "embedding-models",
+      "question": "What dimensionality does bge-base-en-v1.5 produce?",
+      "in_scope": true,
+      "gold_pages": [
+        1
+      ],
+      "retrieved": [
+        [
+          "embedding-models.pdf",
+          1
+        ],
+        [
+          "embedding-models.pdf",
+          2
+        ],
+        [
+          "prompt-design.pdf",
+          1
+        ],
+        [
+          "vector-store-notes.pdf",
+          3
+        ]
+      ],
+      "hit_rank": 1,
+      "hit_at_k": true,
+      "hit_at_1": true,
+      "reciprocal_rank": 1.0,
+      "answer": "bge-base-en-v1.5 produces 768-dimensional vectors [2].",
+      "keyword_ok": true,
+      "refusal_ok": null,
+      "cites": true,
+      "cited_blocks": [
+        [
+          "embedding-models.pdf",
+          2
+        ]
+      ],
+      "citation_points_to_gold": false,
+      "claim_support": 0.0,
+      "claims": [
+        {
+          "sentence": "bge-base-en-v1.5 produces 768-dimensional vectors .",
+          "cited_blocks": [
+            2
+          ],
+          "best_block": 1,
+          "cited_overlap": 0.25,
+          "best_overlap": 1.0,
+          "cited_similarity": 0.287,
+          "best_similarity": 0.533,
+          "verdict": "misattributed"
+        }
+      ],
+      "judge": null,
+      "seconds": 27.07
+    },
+    {
+      "id": "v01",
+      "doc": "vector-store-notes",
+      "question": "What is the default number of HNSW neighbours per node in ChromaDB?",
+      "in_scope": true,
+      "gold_pages": [
+        2
+      ],
+      "retrieved": [
+        [
+          "vector-store-notes.pdf",
+          2
+        ],
+        [
+          "prompt-design.pdf",
+          2
+        ],
+        [
+          "pdf-internals.pdf",
+          1
+        ],
+        [
+          "vector-store-notes.pdf",
+          1
+        ]
+      ],
+      "hit_rank": 1,
+      "hit_at_k": true,
+      "hit_at_1": true,
+      "reciprocal_rank": 1.0,
+      "answer": "The default number of HNSW neighbours per node in ChromaDB is 16 [1].",
+      "keyword_ok": true,
+      "refusal_ok": null,
+      "cites": true,
+      "cited_blocks": [
+        [
+          "vector-store-notes.pdf",
+          2
+        ]
+      ],
+      "citation_points_to_gold": true,
+      "claim_support": 1.0,
+      "claims": [
+        {
+          "sentence": "The default number of HNSW neighbours per node in ChromaDB is 16 .",
+          "cited_blocks": [
+            1
+          ],
+          "best_block": 1,
+          "cited_overlap": 0.714,
+          "best_overlap": 0.714,
+          "cited_similarity": 0.479,
+          "best_similarity": 0.479,
+          "verdict": "supported"
+        }
+      ],
+      "judge": null,
+      "seconds": 24.8
+    },
+    {
+      "id": "v02",
+      "doc": "vector-store-notes",
+      "question": "Which vector store keeps vectors next to relational data?",
+      "in_scope": true,
+      "gold_pages": [
+        1
+      ],
+      "retrieved": [
+        [
+          "vector-store-notes.pdf",
+          1
+        ],
+        [
+          "vector-store-notes.pdf",
+          2
+        ],
+        [
+          "vector-store-notes.pdf",
+          3
+        ],
+        [
+          "pdf-internals.pdf",
+          2
+        ]
+      ],
+      "hit_rank": 1,
+      "hit_at_k": true,
+      "hit_at_1": true,
+      "reciprocal_rank": 1.0,
+      "answer": "pgvector keeps vectors next to relational data [1].",
+      "keyword_ok": true,
+      "refusal_ok": null,
+      "cites": true,
+      "cited_blocks": [
+        [
+          "vector-store-notes.pdf",
+          1
+        ]
+      ],
+      "citation_points_to_gold": true,
+      "claim_support": 1.0,
+      "claims": [
+        {
+          "sentence": "pgvector keeps vectors next to relational data .",
+          "cited_blocks": [
+            1
+          ],
+          "best_block": 1,
+          "cited_overlap": 1.0,
+          "best_overlap": 1.0,
+          "cited_similarity": 0.494,
+          "best_similarity": 0.494,
+          "verdict": "supported"
+        }
+      ],
+      "judge": null,
+      "seconds": 23.04
+    },
+    {
+      "id": "v03",
+      "doc": "vector-store-notes",
+      "question": "Why should a command-line script and a running app avoid indexing at the same time?",
+      "in_scope": true,
+      "gold_pages": [
+        3
+      ],
+      "retrieved": [
+        [
+          "vector-store-notes.pdf",
+          3
+        ],
+        [
+          "prompt-design.pdf",
+          1
+        ],
+        [
+          "embedding-models.pdf",
+          3
+        ],
+        [
+          "pdf-internals.pdf",
+          2
+        ]
+      ],
+      "hit_rank": 1,
+      "hit_at_k": true,
+      "hit_at_1": true,
+      "reciprocal_rank": 1.0,
+      "answer": "A command-line script and a running app should avoid indexing at the same time because Persistence is one file lock away from trouble: two writers on the same directory are not supported, so a command-line script and a running app should not index at the same time. [1]",
+      "keyword_ok": true,
+      "refusal_ok": null,
+      "cites": true,
+      "cited_blocks": [
+        [
+          "vector-store-notes.pdf",
+          3
+        ]
+      ],
+      "citation_points_to_gold": true,
+      "claim_support": 1.0,
+      "claims": [
+        {
+          "sentence": "A command-line script and a running app should avoid indexing at the same time because Persistence is one file lock away from trouble: two writers on the same directory are not supported, so a command-line script and a running app should not index at the same time.",
+          "cited_blocks": [
+            1
+          ],
+          "best_block": 1,
+          "cited_overlap": 0.897,
+          "best_overlap": 0.897,
+          "cited_similarity": 0.639,
+          "best_similarity": 0.639,
+          "verdict": "supported"
+        }
+      ],
+      "judge": null,
+      "seconds": 27.5
+    },
+    {
+      "id": "v04",
+      "doc": "vector-store-notes",
+      "question": "What does cosine space require of the stored vectors?",
+      "in_scope": true,
+      "gold_pages": [
+        2
+      ],
+      "retrieved": [
+        [
+          "vector-store-notes.pdf",
+          2
+        ],
+        [
+          "prompt-design.pdf",
+          1
+        ],
+        [
+          "vector-store-notes.pdf",
+          1
+        ],
+        [
+          "pdf-internals.pdf",
+          1
+        ]
+      ],
+      "hit_rank": 1,
+      "hit_at_k": true,
+      "hit_at_1": true,
+      "reciprocal_rank": 1.0,
+      "answer": "Cosine space requires normalized vectors [1].",
+      "keyword_ok": true,
+      "refusal_ok": null,
+      "cites": true,
+      "cited_blocks": [
+        [
+          "vector-store-notes.pdf",
+          2
+        ]
+      ],
+      "citation_points_to_gold": true,
+      "claim_support": 1.0,
+      "claims": [
+        {
+          "sentence": "Cosine space requires normalized vectors .",
+          "cited_blocks": [
+            1
+          ],
+          "best_block": 1,
+          "cited_overlap": 1.0,
+          "best_overlap": 1.0,
+          "cited_similarity": 0.394,
+          "best_similarity": 0.394,
+          "verdict": "supported"
+        }
+      ],
+      "judge": null,
+      "seconds": 22.32
+    },
+    {
+      "id": "c01",
+      "doc": "chunking-strategies",
+      "question": "How much of an answer is lost across a cut when there is no overlap?",
+      "in_scope": true,
+      "gold_pages": [
+        2
+      ],
+      "retrieved": [
+        [
+          "chunking-strategies.pdf",
+          2
+        ],
+        [
+          "chunking-strategies.pdf",
+          1
+        ],
+        [
+          "prompt-design.pdf",
+          1
+        ],
+        [
+          "embedding-models.pdf",
+          2
+        ]
+      ],
+      "hit_rank": 1,
+      "hit_at_k": true,
+      "hit_at_1": true,
+      "reciprocal_rank": 1.0,
+      "answer": "When there is no overlap, roughly 12 percent of answers in a paragraph-level evaluation sit across a cut and become unreachable. [1]",
+      "keyword_ok": true,
+      "refusal_ok": null,
+      "cites": true,
+      "cited_blocks": [
+        [
+          "chunking-strategies.pdf",
+          2
+        ]
+      ],
+      "citation_points_to_gold": true,
+      "claim_support": 1.0,
+      "claims": [
+        {
+          "sentence": "When there is no overlap, roughly 12 percent of answers in a paragraph-level evaluation sit across a cut and become unreachable.",
+          "cited_blocks": [
+            1
+          ],
+          "best_block": 1,
+          "cited_overlap": 0.846,
+          "best_overlap": 0.846,
+          "cited_similarity": 0.691,
+          "best_similarity": 0.691,
+          "verdict": "supported"
+        }
+      ],
+      "judge": null,
+      "seconds": 27.08
+    },
+    {
+      "id": "c02",
+      "doc": "chunking-strategies",
+      "question": "How many characters of overlap does this project use?",
+      "in_scope": true,
+      "gold_pages": [
+        2
+      ],
+      "retrieved": [
+        [
+          "chunking-strategies.pdf",
+          2
+        ],
+        [
+          "prompt-design.pdf",
+          2
+        ],
+        [
+          "chunking-strategies.pdf",
+          1
+        ],
+        [
+          "embedding-models.pdf",
+          2
+        ]
+      ],
+      "hit_rank": 1,
+      "hit_at_k": true,
+      "hit_at_1": true,
+      "reciprocal_rank": 1.0,
+      "answer": "This project uses 150 characters of overlap [1].",
+      "keyword_ok": true,
+      "refusal_ok": null,
+      "cites": true,
+      "cited_blocks": [
+        [
+          "chunking-strategies.pdf",
+          2
+        ]
+      ],
+      "citation_points_to_gold": true,
+      "claim_support": 1.0,
+      "claims": [
+        {
+          "sentence": "This project uses 150 characters of overlap .",
+          "cited_blocks": [
+            1
+          ],
+          "best_block": 1,
+          "cited_overlap": 1.0,
+          "best_overlap": 1.0,
+          "cited_similarity": 0.67,
+          "best_similarity": 0.67,
+          "verdict": "supported"
+        }
+      ],
+      "judge": null,
+      "seconds": 22.72
+    },
+    {
+      "id": "c03",
+      "doc": "chunking-strategies",
+      "question": "At what chunk length is a tail merged into the previous chunk?",
+      "in_scope": true,
+      "gold_pages": [
+        2
+      ],
+      "retrieved": [
+        [
+          "chunking-strategies.pdf",
+          2
+        ],
+        [
+          "chunking-strategies.pdf",
+          1
+        ],
+        [
+          "embedding-models.pdf",
+          2
+        ],
+        [
+          "vector-store-notes.pdf",
+          3
+        ]
+      ],
+      "hit_rank": 1,
+      "hit_at_k": true,
+      "hit_at_1": true,
+      "reciprocal_rank": 1.0,
+      "answer": "A very short chunk is worse than no chunk: a 40-character fragment carries almost no retrievable meaning. Merging tails shorter than 80 characters into the previous chunk removes most of the junk. [2][3]",
+      "keyword_ok": true,
+      "refusal_ok": null,
+      "cites": true,
+      "cited_blocks": [
+        [
+          "chunking-strategies.pdf",
+          1
+        ],
+        [
+          "embedding-models.pdf",
+          2
+        ]
+      ],
+      "citation_points_to_gold": false,
+      "claim_support": 0.0,
+      "claims": [
+        {
+          "sentence": "A very short chunk is worse than no chunk: a 40-character fragment carries almost no retrievable meaning.",
+          "cited_blocks": [],
+          "best_block": null,
+          "cited_overlap": 0.0,
+          "best_overlap": 0.0,
+          "cited_similarity": 0.0,
+          "best_similarity": 0.0,
+          "verdict": "uncited"
+        },
+        {
+          "sentence": "Merging tails shorter than 80 characters into the previous chunk removes most of the junk.",
+          "cited_blocks": [
+            2,
+            3
+          ],
+          "best_block": 1,
+          "cited_overlap": 0.333,
+          "best_overlap": 1.0,
+          "cited_similarity": 0.265,
+          "best_similarity": 0.516,
+          "verdict": "misattributed"
+        }
+      ],
+      "judge": null,
+      "seconds": 23.27
+    },
+    {
+      "id": "c04",
+      "doc": "chunking-strategies",
+      "question": "What do table questions lose when a PDF table is extracted?",
+      "in_scope": true,
+      "gold_pages": [
+        3
+      ],
+      "retrieved": [
+        [
+          "pdf-internals.pdf",
+          2
+        ],
+        [
+          "chunking-strategies.pdf",
+          3
+        ],
+        [
+          "pdf-internals.pdf",
+          1
+        ],
+        [
+          "pdf-internals.pdf",
+          3
+        ]
+      ],
+      "hit_rank": 2,
+      "hit_at_k": true,
+      "hit_at_1": false,
+      "reciprocal_rank": 0.5,
+      "answer": "Table questions often retrieve the right page but lose the columns [2].",
+      "keyword_ok": true,
+      "refusal_ok": null,
+      "cites": true,
+      "cited_blocks": [
+        [
+          "chunking-strategies.pdf",
+          3
+        ]
+      ],
+      "citation_points_to_gold": true,
+      "claim_support": 1.0,
+      "claims": [
+        {
+          "sentence": "Table questions often retrieve the right page but lose the columns .",
+          "cited_blocks": [
+            2
+          ],
+          "best_block": 2,
+          "cited_overlap": 1.0,
+          "best_overlap": 1.0,
+          "cited_similarity": 0.386,
+          "best_similarity": 0.386,
+          "verdict": "supported"
+        }
+      ],
+      "judge": null,
+      "seconds": 21.71
+    },
+    {
+      "id": "r01",
+      "doc": "retrieval-eval",
+      "question": "What MRR score does a correct answer at position 3 receive?",
+      "in_scope": true,
+      "gold_pages": [
+        1
+      ],
+      "retrieved": [
+        [
+          "retrieval-eval.pdf",
+          1
+        ],
+        [
+          "prompt-design.pdf",
+          1
+        ],
+        [
+          "embedding-models.pdf",
+          2
+        ],
+        [
+          "pdf-internals.pdf",
+          1
+        ]
+      ],
+      "hit_rank": 1,
+      "hit_at_k": true,
+      "hit_at_1": true,
+      "reciprocal_rank": 1.0,
+      "answer": "A correct answer at position 3 scores 0.33 [2].",
+      "keyword_ok": true,
+      "refusal_ok": null,
+      "cites": true,
+      "cited_blocks": [
+        [
+          "prompt-design.pdf",
+          1
+        ]
+      ],
+      "citation_points_to_gold": false,
+      "claim_support": 0.0,
+      "claims": [
+        {
+          "sentence": "A correct answer at position 3 scores 0.33 .",
+          "cited_blocks": [
+            2
+          ],
+          "best_block": 1,
+          "cited_overlap": 0.5,
+          "best_overlap": 1.0,
+          "cited_similarity": 0.268,
+          "best_similarity": 0.325,
+          "verdict": "weak"
+        }
+      ],
+      "judge": null,
+      "seconds": 22.78
+    },
+    {
+      "id": "r02",
+      "doc": "retrieval-eval",
+      "question": "How many questions over a corpus of thirty chunks are advisable?",
+      "in_scope": true,
+      "gold_pages": [
+        2
+      ],
+      "retrieved": [
+        [
+          "retrieval-eval.pdf",
+          2
+        ],
+        [
+          "retrieval-eval.pdf",
+          3
+        ],
+        [
+          "chunking-strategies.pdf",
+          2
+        ],
+        [
+          "vector-store-notes.pdf",
+          1
+        ]
+      ],
+      "hit_rank": 1,
+      "hit_at_k": true,
+      "hit_at_1": true,
+      "reciprocal_rank": 1.0,
+      "answer": "Thirty to forty questions over a corpus of thirty chunks is enough to see a difference between configurations. [1]",
+      "keyword_ok": true,
+      "refusal_ok": null,
+      "cites": true,
+      "cited_blocks": [
+        [
+          "retrieval-eval.pdf",
+          2
+        ]
+      ],
+      "citation_points_to_gold": true,
+      "claim_support": 1.0,
+      "claims": [
+        {
+          "sentence": "Thirty to forty questions over a corpus of thirty chunks is enough to see a difference between configurations.",
+          "cited_blocks": [
+            1
+          ],
+          "best_block": 1,
+          "cited_overlap": 1.0,
+          "best_overlap": 1.0,
+          "cited_similarity": 0.53,
+          "best_similarity": 0.53,
+          "verdict": "supported"
+        }
+      ],
+      "judge": null,
+      "seconds": 21.62
+    },
+    {
+      "id": "r03",
+      "doc": "retrieval-eval",
+      "question": "What happens to hit@3 when the corpus holds only four chunks?",
+      "in_scope": true,
+      "gold_pages": [
+        3
+      ],
+      "retrieved": [
+        [
+          "retrieval-eval.pdf",
+          3
+        ],
+        [
+          "retrieval-eval.pdf",
+          2
+        ],
+        [
+          "chunking-strategies.pdf",
+          1
+        ],
+        [
+          "retrieval-eval.pdf",
+          1
+        ]
+      ],
+      "hit_rank": 1,
+      "hit_at_k": true,
+      "hit_at_1": true,
+      "reciprocal_rank": 1.0,
+      "answer": "[1] Saturated metrics are the first trap: with four chunks in the corpus, hit@3 is 1.0 for almost any configuration. [1]",
+      "keyword_ok": true,
+      "refusal_ok": null,
+      "cites": true,
+      "cited_blocks": [
+        [
+          "retrieval-eval.pdf",
+          3
+        ],
+        [
+          "retrieval-eval.pdf",
+          3
+        ]
+      ],
+      "citation_points_to_gold": true,
+      "claim_support": 1.0,
+      "claims": [
+        {
+          "sentence": "Saturated metrics are the first trap: with four chunks in the corpus, hit@3 is 1.0 for almost any configuration.",
+          "cited_blocks": [
+            1,
+            1
+          ],
+          "best_block": 1,
+          "cited_overlap": 1.0,
+          "best_overlap": 1.0,
+          "cited_similarity": 0.622,
+          "best_similarity": 0.622,
+          "verdict": "supported"
+        }
+      ],
+      "judge": null,
+      "seconds": 27.24
+    },
+    {
+      "id": "r04",
+      "doc": "retrieval-eval",
+      "question": "Which metric hides how far down the gold item appeared?",
+      "in_scope": true,
+      "gold_pages": [
+        1
+      ],
+      "retrieved": [
+        [
+          "retrieval-eval.pdf",
+          1
+        ],
+        [
+          "pdf-internals.pdf",
+          1
+        ],
+        [
+          "embedding-models.pdf",
+          2
+        ],
+        [
+          "chunking-strategies.pdf",
+          1
+        ]
+      ],
+      "hit_rank": 1,
+      "hit_at_k": true,
+      "hit_at_1": true,
+      "reciprocal_rank": 1.0,
+      "answer": "The metric that hides how far down the gold item appeared is hit@k. [1]",
+      "keyword_ok": true,
+      "refusal_ok": null,
+      "cites": true,
+      "cited_blocks": [
+        [
+          "retrieval-eval.pdf",
+          1
+        ]
+      ],
+      "citation_points_to_gold": true,
+      "claim_support": 1.0,
+      "claims": [
+        {
+          "sentence": "The metric that hides how far down the gold item appeared is hit@k.",
+          "cited_blocks": [
+            1
+          ],
+          "best_block": 1,
+          "cited_overlap": 1.0,
+          "best_overlap": 1.0,
+          "cited_similarity": 0.456,
+          "best_similarity": 0.456,
+          "verdict": "supported"
+        }
+      ],
+      "judge": null,
+      "seconds": 25.13
+    },
+    {
+      "id": "p01",
+      "doc": "prompt-design",
+      "question": "What temperature is recommended for factual answering?",
+      "in_scope": true,
+      "gold_pages": [
+        1
+      ],
+      "retrieved": [
+        [
+          "prompt-design.pdf",
+          1
+        ],
+        [
+          "vector-store-notes.pdf",
+          2
+        ],
+        [
+          "pdf-internals.pdf",
+          1
+        ],
+        [
+          "retrieval-eval.pdf",
+          1
+        ]
+      ],
+      "hit_rank": 1,
+      "hit_at_k": true,
+      "hit_at_1": true,
+      "reciprocal_rank": 1.0,
+      "answer": "A value of 0.2 keeps phrasing stable between runs; 0.7 belongs to creative writing, not to citations. [1]",
+      "keyword_ok": true,
+      "refusal_ok": null,
+      "cites": true,
+      "cited_blocks": [
+        [
+          "prompt-design.pdf",
+          1
+        ]
+      ],
+      "citation_points_to_gold": true,
+      "claim_support": 1.0,
+      "claims": [
+        {
+          "sentence": "A value of 0.2 keeps phrasing stable between runs; 0.7 belongs to creative writing, not to citations.",
+          "cited_blocks": [
+            1
+          ],
+          "best_block": 1,
+          "cited_overlap": 1.0,
+          "best_overlap": 1.0,
+          "cited_similarity": 0.378,
+          "best_similarity": 0.378,
+          "verdict": "supported"
+        }
+      ],
+      "judge": null,
+      "seconds": 25.32
+    },
+    {
+      "id": "p02",
+      "doc": "prompt-design",
+      "question": "Roughly how many tokens is four blocks of 800 characters?",
+      "in_scope": true,
+      "gold_pages": [
+        2
+      ],
+      "retrieved": [
+        [
+          "prompt-design.pdf",
+          2
+        ],
+        [
+          "chunking-strategies.pdf",
+          2
+        ],
+        [
+          "embedding-models.pdf",
+          2
+        ],
+        [
+          "pdf-internals.pdf",
+          1
+        ]
+      ],
+      "hit_rank": 1,
+      "hit_at_k": true,
+      "hit_at_1": true,
+      "reciprocal_rank": 1.0,
+      "answer": "Four blocks of 800 characters come to roughly 3200 characters, around 700 tokens. [1]",
+      "keyword_ok": true,
+      "refusal_ok": null,
+      "cites": true,
+      "cited_blocks": [
+        [
+          "prompt-design.pdf",
+          2
+        ]
+      ],
+      "citation_points_to_gold": true,
+      "claim_support": 1.0,
+      "claims": [
+        {
+          "sentence": "Four blocks of 800 characters come to roughly 3200 characters, around 700 tokens.",
+          "cited_blocks": [
+            1
+          ],
+          "best_block": 1,
+          "cited_overlap": 1.0,
+          "best_overlap": 1.0,
+          "cited_similarity": 0.281,
+          "best_similarity": 0.281,
+          "verdict": "supported"
+        }
+      ],
+      "judge": null,
+      "seconds": 24.74
+    },
+    {
+      "id": "p03",
+      "doc": "prompt-design",
+      "question": "Which effect makes facts in the middle of a long prompt less accurate?",
+      "in_scope": true,
+      "gold_pages": [
+        3
+      ],
+      "retrieved": [
+        [
+          "prompt-design.pdf",
+          3
+        ],
+        [
+          "pdf-internals.pdf",
+          2
+        ],
+        [
+          "embedding-models.pdf",
+          2
+        ],
+        [
+          "prompt-design.pdf",
+          1
+        ]
+      ],
+      "hit_rank": 1,
+      "hit_at_k": true,
+      "hit_at_1": true,
+      "reciprocal_rank": 1.0,
+      "answer": "The effect that makes facts in the middle of a long prompt less accurate is called source: prompt-design.pdf, page 3 Context dilution [1].",
+      "keyword_ok": true,
+      "refusal_ok": null,
+      "cites": true,
+      "cited_blocks": [
+        [
+          "prompt-design.pdf",
+          3
+        ]
+      ],
+      "citation_points_to_gold": true,
+      "claim_support": 1.0,
+      "claims": [
+        {
+          "sentence": "The effect that makes facts in the middle of a long prompt less accurate is called source: prompt-design.pdf, page 3 Context dilution .",
+          "cited_blocks": [
+            1
+          ],
+          "best_block": 1,
+          "cited_overlap": 0.467,
+          "best_overlap": 0.467,
+          "cited_similarity": 0.619,
+          "best_similarity": 0.619,
+          "verdict": "supported"
+        }
+      ],
+      "judge": null,
+      "seconds": 25.52
+    },
+    {
+      "id": "p04",
+      "doc": "prompt-design",
+      "question": "What does claim-by-claim verification catch that rate-based metrics cannot?",
+      "in_scope": true,
+      "gold_pages": [
+        3
+      ],
+      "retrieved": [
+        [
+          "prompt-design.pdf",
+          3
+        ],
+        [
+          "pdf-internals.pdf",
+          2
+        ],
+        [
+          "embedding-models.pdf",
+          2
+        ],
+        [
+          "retrieval-eval.pdf",
+          1
+        ]
+      ],
+      "hit_rank": 1,
+      "hit_at_k": true,
+      "hit_at_1": true,
+      "reciprocal_rank": 1.0,
+      "answer": "Claim-by-claim verification catches models sometimes citing block 2 while quoting block 1, which rate-based citation metrics cannot detect [1].",
+      "keyword_ok": false,
+      "refusal_ok": null,
+      "cites": true,
+      "cited_blocks": [
+        [
+          "prompt-design.pdf",
+          3
+        ]
+      ],
+      "citation_points_to_gold": true,
+      "claim_support": 1.0,
+      "claims": [
+        {
+          "sentence": "Claim-by-claim verification catches models sometimes citing block 2 while quoting block 1, which rate-based citation metrics cannot detect .",
+          "cited_blocks": [
+            1
+          ],
+          "best_block": 1,
+          "cited_overlap": 0.786,
+          "best_overlap": 0.786,
+          "cited_similarity": 0.526,
+          "best_similarity": 0.526,
+          "verdict": "supported"
+        }
+      ],
+      "judge": null,
+      "seconds": 23.45
+    },
+    {
+      "id": "d01",
+      "doc": "pdf-internals",
+      "question": "How is text stored inside a PDF?",
+      "in_scope": true,
+      "gold_pages": [
+        1
+      ],
+      "retrieved": [
+        [
+          "pdf-internals.pdf",
+          1
+        ],
+        [
+          "pdf-internals.pdf",
+          3
+        ],
+        [
+          "pdf-internals.pdf",
+          2
+        ],
+        [
+          "vector-store-notes.pdf",
+          1
+        ]
+      ],
+      "hit_rank": 1,
+      "hit_at_k": true,
+      "hit_at_1": true,
+      "reciprocal_rank": 1.0,
+      "answer": "Text in a PDF is stored as character codes plus the font needed to draw them [1].",
+      "keyword_ok": true,
+      "refusal_ok": null,
+      "cites": true,
+      "cited_blocks": [
+        [
+          "pdf-internals.pdf",
+          1
+        ]
+      ],
+      "citation_points_to_gold": true,
+      "claim_support": 1.0,
+      "claims": [
+        {
+          "sentence": "Text in a PDF is stored as character codes plus the font needed to draw them .",
+          "cited_blocks": [
+            1
+          ],
+          "best_block": 1,
+          "cited_overlap": 1.0,
+          "best_overlap": 1.0,
+          "cited_similarity": 0.765,
+          "best_similarity": 0.765,
+          "verdict": "supported"
+        }
+      ],
+      "judge": null,
+      "seconds": 23.51
+    },
+    {
+      "id": "d02",
+      "doc": "pdf-internals",
+      "question": "Which filter is used for an embedded JPEG image?",
+      "in_scope": true,
+      "gold_pages": [
+        3
+      ],
+      "retrieved": [
+        [
+          "pdf-internals.pdf",
+          3
+        ],
+        [
+          "vector-store-notes.pdf",
+          3
+        ],
+        [
+          "embedding-models.pdf",
+          3
+        ],
+        [
+          "prompt-design.pdf",
+          1
+        ]
+      ],
+      "hit_rank": 1,
+      "hit_at_k": true,
+      "hit_at_1": true,
+      "reciprocal_rank": 1.0,
+      "answer": "A 480 by 240 JPEG is embedded as it is, with the DCTDecode filter. [1]",
+      "keyword_ok": true,
+      "refusal_ok": null,
+      "cites": true,
+      "cited_blocks": [
+        [
+          "pdf-internals.pdf",
+          3
+        ]
+      ],
+      "citation_points_to_gold": true,
+      "claim_support": 1.0,
+      "claims": [
+        {
+          "sentence": "A 480 by 240 JPEG is embedded as it is, with the DCTDecode filter.",
+          "cited_blocks": [
+            1
+          ],
+          "best_block": 1,
+          "cited_overlap": 1.0,
+          "best_overlap": 1.0,
+          "cited_similarity": 0.421,
+          "best_similarity": 0.421,
+          "verdict": "supported"
+        }
+      ],
+      "judge": null,
+      "seconds": 24.69
+    },
+    {
+      "id": "d03",
+      "doc": "pdf-internals",
+      "question": "What is the pixel size of the embedded JPEG image?",
+      "in_scope": true,
+      "gold_pages": [
+        3
+      ],
+      "retrieved": [
+        [
+          "pdf-internals.pdf",
+          3
+        ],
+        [
+          "embedding-models.pdf",
+          2
+        ],
+        [
+          "prompt-design.pdf",
+          1
+        ],
+        [
+          "chunking-strategies.pdf",
+          1
+        ]
+      ],
+      "hit_rank": 1,
+      "hit_at_k": true,
+      "hit_at_1": true,
+      "reciprocal_rank": 1.0,
+      "answer": "The pixel size of the embedded JPEG image is 480 by 240 pixels [1].",
+      "keyword_ok": true,
+      "refusal_ok": null,
+      "cites": true,
+      "cited_blocks": [
+        [
+          "pdf-internals.pdf",
+          3
+        ]
+      ],
+      "citation_points_to_gold": true,
+      "claim_support": 1.0,
+      "claims": [
+        {
+          "sentence": "The pixel size of the embedded JPEG image is 480 by 240 pixels .",
+          "cited_blocks": [
+            1
+          ],
+          "best_block": 1,
+          "cited_overlap": 0.625,
+          "best_overlap": 0.625,
+          "cited_similarity": 0.345,
+          "best_similarity": 0.345,
+          "verdict": "supported"
+        }
+      ],
+      "judge": null,
+      "seconds": 19.62
+    },
+    {
+      "id": "d04",
+      "doc": "pdf-internals",
+      "question": "What is a link in a PDF technically?",
+      "in_scope": true,
+      "gold_pages": [
+        3
+      ],
+      "retrieved": [
+        [
+          "pdf-internals.pdf",
+          3
+        ],
+        [
+          "pdf-internals.pdf",
+          1
+        ],
+        [
+          "pdf-internals.pdf",
+          2
+        ],
+        [
+          "prompt-design.pdf",
+          1
+        ]
+      ],
+      "hit_rank": 1,
+      "hit_at_k": true,
+      "hit_at_1": true,
+      "reciprocal_rank": 1.0,
+      "answer": "A link in a PDF is technically an annotation: a clickable rectangle on the page with an action, sometimes a URI and sometimes a jump to another page. [1]",
+      "keyword_ok": true,
+      "refusal_ok": null,
+      "cites": true,
+      "cited_blocks": [
+        [
+          "pdf-internals.pdf",
+          3
+        ]
+      ],
+      "citation_points_to_gold": true,
+      "claim_support": 1.0,
+      "claims": [
+        {
+          "sentence": "A link in a PDF is technically an annotation: a clickable rectangle on the page with an action, sometimes a URI and sometimes a jump to another page.",
+          "cited_blocks": [
+            1
+          ],
+          "best_block": 1,
+          "cited_overlap": 0.929,
+          "best_overlap": 0.929,
+          "cited_similarity": 0.684,
+          "best_similarity": 0.684,
+          "verdict": "supported"
+        }
+      ],
+      "judge": null,
+      "seconds": 20.54
+    },
+    {
+      "id": "o01",
+      "doc": null,
+      "question": "What is the capital of Mongolia?",
+      "in_scope": false,
+      "gold_pages": [],
+      "retrieved": [
+        [
+          "embedding-models.pdf",
+          1
+        ],
+        [
+          "chunking-strategies.pdf",
+          2
+        ],
+        [
+          "embedding-models.pdf",
+          2
+        ],
+        [
+          "prompt-design.pdf",
+          1
+        ]
+      ],
+      "hit_rank": null,
+      "hit_at_k": null,
+      "hit_at_1": null,
+      "reciprocal_rank": null,
+      "answer": "I do not know [1].",
+      "keyword_ok": null,
+      "refusal_ok": true,
+      "cites": true,
+      "cited_blocks": [
+        [
+          "embedding-models.pdf",
+          1
+        ]
+      ],
+      "citation_points_to_gold": null,
+      "claim_support": null,
+      "claims": [],
+      "judge": null,
+      "seconds": 24.37
+    },
+    {
+      "id": "o02",
+      "doc": null,
+      "question": "Who won the 2018 FIFA World Cup?",
+      "in_scope": false,
+      "gold_pages": [],
+      "retrieved": [
+        [
+          "embedding-models.pdf",
+          1
+        ],
+        [
+          "chunking-strategies.pdf",
+          1
+        ],
+        [
+          "embedding-models.pdf",
+          2
+        ],
+        [
+          "prompt-design.pdf",
+          1
+        ]
+      ],
+      "hit_rank": null,
+      "hit_at_k": null,
+      "hit_at_1": null,
+      "reciprocal_rank": null,
+      "answer": "I do not know based on the document. [1]",
+      "keyword_ok": null,
+      "refusal_ok": true,
+      "cites": true,
+      "cited_blocks": [
+        [
+          "embedding-models.pdf",
+          1
+        ]
+      ],
+      "citation_points_to_gold": null,
+      "claim_support": 0.0,
+      "claims": [
+        {
+          "sentence": "I do not know based on the document.",
+          "cited_blocks": [
+            1
+          ],
+          "best_block": 4,
+          "cited_overlap": 0.0,
+          "best_overlap": 0.0,
+          "cited_similarity": 0.121,
+          "best_similarity": 0.193,
+          "verdict": "misattributed"
+        }
+      ],
+      "judge": null,
+      "seconds": 18.35
+    },
+    {
+      "id": "o03",
+      "doc": null,
+      "question": "How much does DashScope charge per million tokens?",
+      "in_scope": false,
+      "gold_pages": [],
+      "retrieved": [
+        [
+          "prompt-design.pdf",
+          2
+        ],
+        [
+          "embedding-models.pdf",
+          2
+        ],
+        [
+          "vector-store-notes.pdf",
+          3
+        ],
+        [
+          "chunking-strategies.pdf",
+          1
+        ]
+      ],
+      "hit_rank": null,
+      "hit_at_k": null,
+      "hit_at_1": null,
+      "reciprocal_rank": null,
+      "answer": "[1] all-MiniLM-L6-v2 has 22 million parameters [1].",
+      "keyword_ok": null,
+      "refusal_ok": false,
+      "cites": true,
+      "cited_blocks": [
+        [
+          "prompt-design.pdf",
+          2
+        ],
+        [
+          "prompt-design.pdf",
+          2
+        ]
+      ],
+      "citation_points_to_gold": null,
+      "claim_support": 0.0,
+      "claims": [
+        {
+          "sentence": "all-MiniLM-L6-v2 has 22 million parameters .",
+          "cited_blocks": [
+            1,
+            1
+          ],
+          "best_block": 2,
+          "cited_overlap": 0.0,
+          "best_overlap": 0.333,
+          "cited_similarity": 0.155,
+          "best_similarity": 0.451,
+          "verdict": "misattributed"
+        }
+      ],
+      "judge": null,
+      "seconds": 25.5
+    },
+    {
+      "id": "o04",
+      "doc": null,
+      "question": "What does the corpus say about the Rust borrow checker?",
+      "in_scope": false,
+      "gold_pages": [],
+      "retrieved": [
+        [
+          "retrieval-eval.pdf",
+          3
+        ],
+        [
+          "vector-store-notes.pdf",
+          1
+        ],
+        [
+          "pdf-internals.pdf",
+          1
+        ],
+        [
+          "retrieval-eval.pdf",
+          2
+        ]
+      ],
+      "hit_rank": null,
+      "hit_at_k": null,
+      "hit_at_1": null,
+      "reciprocal_rank": null,
+      "answer": "[1] The given context does not provide any information about the Rust borrow checker or any corpus related to it. [1]",
+      "keyword_ok": null,
+      "refusal_ok": true,
+      "cites": true,
+      "cited_blocks": [
+        [
+          "retrieval-eval.pdf",
+          3
+        ],
+        [
+          "retrieval-eval.pdf",
+          3
+        ]
+      ],
+      "citation_points_to_gold": null,
+      "claim_support": 1.0,
+      "claims": [
+        {
+          "sentence": "The given context does not provide any information about the Rust borrow checker or any corpus related to it.",
+          "cited_blocks": [
+            1,
+            1
+          ],
+          "best_block": 1,
+          "cited_overlap": 0.333,
+          "best_overlap": 0.333,
+          "cited_similarity": 0.215,
+          "best_similarity": 0.215,
+          "verdict": "supported"
+        }
+      ],
+      "judge": null,
+      "seconds": 23.93
+    }
+  ]
+}

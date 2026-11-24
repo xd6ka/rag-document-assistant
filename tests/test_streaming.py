@@ -55,8 +55,12 @@ def test_stream_sends_the_numbered_context(monkeypatch):
     list(generation.stream_answer("Question?", contexts()))
 
     user_message = fake.calls[0]["messages"][-1]["content"]
-    assert "[1] source: a.pdf, page 1" in user_message
-    assert "[2] source: a.pdf, page 2" in user_message
+    # numbering is what the citation instruction refers to; the file/page mapping
+    # travels in the Sources list so it cannot be read as part of a sentence
+    assert "[1] all-MiniLM-L6-v2 has 22 million parameters." in user_message
+    assert "Sources:" in user_message
+    assert "[1] a.pdf, page 1" in user_message
+    assert "[2] a.pdf, page 2" in user_message
 
 
 def test_stream_does_not_retry_and_duplicate_the_answer(monkeypatch):

@@ -168,3 +168,11 @@ BOILERPLATE_PAGE_SHARE = float(os.getenv("BOILERPLATE_PAGE_SHARE", "0.4"))
 ENTAIL_ENABLED = os.getenv("ENTAIL_ENABLED", "0").lower() in {"1", "true", "yes", "on"}
 ENTAIL_MODEL = os.getenv("ENTAIL_MODEL", "cross-encoder/nli-MiniLM2-L6-H768")
 ENTAIL_THRESHOLD = float(os.getenv("ENTAIL_THRESHOLD", "0.35"))
+
+# --- prompt budget ----------------------------------------------------------
+# Characters per context block sent to the model; 0 means send the block whole.
+# On CPU the answer takes ~24 s and almost all of it is prompt prefill, so this is
+# the one number that moves latency. Trimming keeps the sentences whose content
+# words the question uses rather than cutting the block at an offset — see
+# src/generation.py:trim_block and the measured trade-off in the README.
+CONTEXT_BUDGET = int(os.getenv("CONTEXT_BUDGET", "400"))

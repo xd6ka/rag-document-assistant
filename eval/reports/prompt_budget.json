@@ -1,0 +1,132 @@
+{
+  "provider": "ollama · qwen2.5:3b",
+  "k": 4,
+  "retrieve_k": 16,
+  "cross_encoder": true,
+  "questions": [
+    "e01",
+    "e02",
+    "e03"
+  ],
+  "budgets": {
+    "0": {
+      "mean_prompt_chars": 2756.3,
+      "mean_first_token_s": 29.522,
+      "mean_total_s": 31.277,
+      "keyword_rate": 1.0,
+      "rows": [
+        {
+          "first_token_s": 30.888,
+          "total_s": 32.331,
+          "answer": "all-MiniLM-L6-v2 has 22 million parameters [1].",
+          "answer_chars": 47,
+          "id": "e01",
+          "prompt_chars": 2749,
+          "block_chars": 2424,
+          "keyword_ok": true
+        },
+        {
+          "first_token_s": 31.428,
+          "total_s": 33.536,
+          "answer": "bge-small-en-v1.5 reaches 62.2 on the MTEB retrieval average [1].",
+          "answer_chars": 65,
+          "id": "e02",
+          "prompt_chars": 2766,
+          "block_chars": 2433,
+          "keyword_ok": true
+        },
+        {
+          "first_token_s": 26.25,
+          "total_s": 27.964,
+          "answer": "The e5 family expects an asymmetric prefix and requires the literal query prefix 'query:' [1].",
+          "answer_chars": 94,
+          "id": "e03",
+          "prompt_chars": 2754,
+          "block_chars": 2414,
+          "keyword_ok": true
+        }
+      ]
+    },
+    "400": {
+      "mean_prompt_chars": 1793.7,
+      "mean_first_token_s": 18.348,
+      "mean_total_s": 19.87,
+      "keyword_rate": 1.0,
+      "rows": [
+        {
+          "first_token_s": 19.149,
+          "total_s": 20.59,
+          "answer": "all-MiniLM-L6-v2 has 22 million parameters [1].",
+          "answer_chars": 47,
+          "id": "e01",
+          "prompt_chars": 1755,
+          "block_chars": 2424,
+          "keyword_ok": true
+        },
+        {
+          "first_token_s": 18.653,
+          "total_s": 20.697,
+          "answer": "bge-small-en-v1.5 reaches 62.2 on the MTEB retrieval average [1].",
+          "answer_chars": 65,
+          "id": "e02",
+          "prompt_chars": 1755,
+          "block_chars": 2433,
+          "keyword_ok": true
+        },
+        {
+          "first_token_s": 17.243,
+          "total_s": 18.322,
+          "answer": "The e5 family expects an asymmetric prefix for queries [1].",
+          "answer_chars": 59,
+          "id": "e03",
+          "prompt_chars": 1871,
+          "block_chars": 2414,
+          "keyword_ok": true
+        }
+      ],
+      "prompt_chars_vs_full": 0.349,
+      "first_token_saved": 11.174
+    },
+    "250": {
+      "mean_prompt_chars": 1178.3,
+      "mean_first_token_s": 12.923,
+      "mean_total_s": 14.887,
+      "keyword_rate": 1.0,
+      "rows": [
+        {
+          "first_token_s": 13.951,
+          "total_s": 15.394,
+          "answer": "all-MiniLM-L6-v2 has 22 million parameters [1].",
+          "answer_chars": 47,
+          "id": "e01",
+          "prompt_chars": 1168,
+          "block_chars": 2424,
+          "keyword_ok": true
+        },
+        {
+          "first_token_s": 13.415,
+          "total_s": 15.135,
+          "answer": "[1] bge-small-en-v1.5 reaches 62.2 [1]",
+          "answer_chars": 38,
+          "id": "e02",
+          "prompt_chars": 1184,
+          "block_chars": 2433,
+          "keyword_ok": true
+        },
+        {
+          "first_token_s": 11.403,
+          "total_s": 14.133,
+          "answer": "The e5 family expects an asymmetric prefix: documents are embedded as they are, while queries must be prefixed with the literal string 'query: '. [1]",
+          "answer_chars": 149,
+          "id": "e03",
+          "prompt_chars": 1183,
+          "block_chars": 2414,
+          "keyword_ok": true
+        }
+      ],
+      "prompt_chars_vs_full": 0.573,
+      "first_token_saved": 16.599
+    }
+  },
+  "generated_at": "2026-11-24T11:30:13+00:00"
+}

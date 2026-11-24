@@ -12,6 +12,8 @@ from typing import Optional, Sequence
 from openai import OpenAI
 
 from . import config
+from .citations import content_words, lexical_support
+from .entailment import split_premise
 from .store import RetrievedChunk
 
 SYSTEM_PROMPT = (
@@ -59,15 +61,61 @@ def get_client() -> OpenAI:
     return _client
 
 
-def build_prompt(question: str, contexts: Sequence[RetrievedChunk]) -> str:
+def trim_block(text: str, question: str, budget: int) -> str:
+    """Keep the sentences of a block that are about the question, within ``budget``.
+
+    The prompt is the latency lever on CPU — prefill dominates, and prefill is
+    proportional to characters — but truncating a block at an arbitrary offset
+    cuts the answer out of the middle of the paragraph. Sentences are ranked by how
+    many of their content words the question uses, the best ones are kept until the
+    budget is spent, and the result is re-ordered as it appeared so the block still
+    reads like prose. Scoring is lexical on purpose: it runs on every query and a
+    cross-encoder pass over four blocks would cost more than it saves.
+    """
+    if budget <= 0 or len(text) <= budget:
+        return text
+    sentences = split_premise(text)
+    if len(sentences) < 2 or not content_words(question):
+        return text[:budget]
+
+    ranked = sorted(
+        range(len(sentences)),
+        key=lambda index: (-lexical_support(sentences[index], question), index),
+    )
+    keep: list[int] = []
+    used = 0
+    for index in ranked:
+        length = len(sentences[index]) + 1
+        if used + length <= budget:
+            keep.append(index)
+            used += length
+    if not keep:
+        keep = [ranked[0]]
+    selected = " ".join(sentences[index] for index in sorted(keep))
+    return selected
+
+
+def build_prompt(
+    question: str,
+    contexts: Sequence[RetrievedChunk],
+    *,
+    budget: Optional[int] = None,
+) -> str:
+    limit = config.CONTEXT_BUDGET if budget is None else budget
     blocks = []
     for number, chunk in enumerate(contexts, start=1):
-        blocks.append(
-            f"[{number}] source: {chunk.source}, page {chunk.page}\n{chunk.text}"
-        )
+        text = trim_block(chunk.text, question, limit)
+        blocks.append(f"[{number}] {text}")
     context = "\n\n".join(blocks)
+    # The file name and page live in a list *after* the text, not in front of it.
+    # A header glued to the first sentence is read as part of that sentence by a 3B
+    # model: "…is called source: prompt-design.pdf, page 3 Context dilution [1]".
+    # Citations only need the bracketed number, and the UI reads the page from the
+    # chunk metadata, so the mapping belongs at the end.
+    sources = "\n".join(f"[{number}] {chunk.source}, page {chunk.page}" for number, chunk in enumerate(contexts, start=1))
     return (
         f"Context:\n{context}\n\n"
+        f"Sources:\n{sources}\n\n"
         f"Question: {question}\n\n"
         "Answer using only the context above. End every sentence with the block number, e.g. [1]."
     )

@@ -4,7 +4,7 @@
 ![Streamlit](https://img.shields.io/badge/UI-Streamlit-FF4B4B?logo=streamlit&logoColor=white)
 ![ChromaDB](https://img.shields.io/badge/Vector%20store-ChromaDB-1F2937)
 ![LLM](https://img.shields.io/badge/LLM-Qwen%20(DashScope)-6B46C1)
-![Tests](https://img.shields.io/badge/tests-71%20passed-brightgreen)
+![Tests](https://img.shields.io/badge/tests-78%20passed-brightgreen)
 ![License](https://img.shields.io/badge/License-MIT-green)
 
 A local-first Retrieval-Augmented Generation assistant for PDF documents: upload PDFs, ask questions in plain language, and get answers grounded in the documents' own text — with the page each answer came from.
@@ -26,10 +26,11 @@ Chunking and embeddings run **entirely on the local machine** (`all-MiniLM-L6-v2
 - **Persistent vector store** — ChromaDB on disk; the index survives restarts.
 - **Grounded prompt** — the model is instructed to answer only from context and to refuse otherwise.
 - **Streaming answers** — tokens appear as the model writes them, and the line under each answer reports `first token X s · complete in Y s` instead of leaving a 25-second empty box.
+- **A prompt budget, measured** — each block is trimmed to the 400 characters most related to the question (sentences ranked by overlap with the question, original order kept, untouched when it already fits). Same keyword accuracy as an untrimmed prompt, ~38 % shorter prompt, first token 29.5 s → **18.3 s**; 250 chars is measurably too aggressive and is documented as such rather than shipped.
 - **Measured, not guessed** — a 6-document synthetic corpus, 29 labelled questions, a 9-configuration retrieval ablation, a gold-label validator that fails the run when a rubric drifts, a **claim-level citation check** in which every cited sentence is compared with the block it names, a **5-configuration cross-lingual run** that asks the same facts in Russian and Chinese, an OCR run against a fully rasterised corpus, and a **second corpus of ten real PDFs** (2 155 pages, arXiv papers, a patent, a central-bank annual report, an IPCC chapter, a NIST standard, a government report, a bill) that shows what the synthetic fixtures could not.
 - **Numbers with an interval, not a single reading** — `eval/run_variance.py` repeats the answer step three times on frozen retrieval and reports the spread plus pooled 95 % Wilson intervals.
 - **A sentence-level entailment check, off by default** — each cited block is split into sentences (plus two-sentence windows, so pronouns keep their antecedent) and scored against the claim by a local NLI model; it reproduced the 25-claim manual audit exactly on the synthetic corpus and flags 6 of 29 real-corpus claims for human review. `ENTAIL_ENABLED=0`, because three of those six flags turn out to be paraphrase on real prose.
-- **71 unit tests** — chunker behaviour, provider resolution, refusal detection, ranking order, citation mapping, claim parsing, stage switches, per-model caching, the OCR fallback's trigger and failure path, token-stream order, boilerplate stripping, entailment sentence splitting and windows, eval labels.
+- **78 unit tests** — chunker behaviour, provider resolution, refusal detection (active and passive forms), ranking order, citation mapping, claim parsing, stage switches, per-model caching, the OCR fallback's trigger and failure path, token-stream order, boilerplate stripping, entailment sentence splitting and windows, prompt trimming and the `Sources:` layout, eval labels.
 
 ## Architecture
 
@@ -66,8 +67,8 @@ flowchart LR
 2. **Chunking** — each page is split into ~800-character windows, cut on newline/space/period so words stay intact, with 150 characters of overlap; short tails are merged into the previous chunk.
 3. **Embedding** — every chunk is encoded locally with normalized 384-d vectors.
 4. **Storage** — one ChromaDB collection in cosine space, ids `"{source}:{page}:{index}"`. Re-indexing deletes the document's previous chunks first, so an edited PDF cannot leave stale tails.
-5. **Retrieval** — the question is embedded with the same model, 8 candidates are pulled, a cross-encoder scores each query–passage pair jointly (it is the only stage that sees the question and the passage together), then MMR (λ = 0.7) narrows them to 4. Both stages are switches; `RERANK_ENABLED=0` falls back to plain MMR order. Both checkpoints are configurable (`EMBEDDING_MODEL`, `RERANK_MODEL`) and cached per name, so swapping languages is an environment change rather than a code change.
-6. **Generation** — blocks are numbered `[1]…[4]` with source and page inside each block; the model answers only from them and cites the blocks it used. Tokens are streamed to the UI as they are produced, and the answer line reports the first-token time, because on CPU the wait is 20 s of prompt processing before the first word.
+5. **Retrieval** — the question is embedded with the same model, 16 candidates are pulled, a cross-encoder scores each query–passage pair jointly (it is the only stage that sees the question and the passage together), then MMR (λ = 0.7) narrows them to 4. Both stages are switches; `RERANK_ENABLED=0` falls back to plain MMR order. Both checkpoints are configurable (`EMBEDDING_MODEL`, `RERANK_MODEL`) and cached per name, so swapping languages is an environment change rather than a code change.
+6. **Generation** — blocks are numbered `[1]…[4]`, each trimmed to the sentences most related to the question (400 characters by default), and the file/page mapping is listed once under `Sources:` after the blocks — not glued in front of them, because a 3B model reads a leading header as part of the first sentence. The model answers only from them and cites the block numbers it used. Tokens are streamed to the UI as they are produced, and the answer line reports the first-token time, because on CPU the wait is prompt processing before the first word.
 
 ## Evaluation
 
@@ -178,28 +179,29 @@ What OCR does **not** fix: layout. Tables and multi-column pages come out in det
 
 ### Answer-level results (local 3B model, no API account)
 
-
-
 Generated with `LLM_PROVIDER=ollama`, `qwen2.5:3b`, temperature 0.2, no hosted calls at all, retrieval running the full cross-encoder pipeline. 29 answers, `api_errors: 0`.
 
-| Metric | Before CE | With CE | What it measures |
-|---|---|---|---|
-| answer accuracy (lexical key match) | 0.92 (23/25) | **0.96** (24/25) | the answer contains the fact's key token |
-| answer accuracy (manual audit) | 0.96 (24/25) | **1.00** (25/25) | each answer read against the gold page |
-| citation rate | 1.0 (25/25) | **1.0** (25/25) | every answer carries at least one `[n]` |
-| **citation gold rate** | — | **0.80** (20/25) | the cited `[n]` maps to the gold page |
-| **claim support rate** | — | **0.80** (20/25) | the cited block is the best match for the *sentence* that cites it |
-| refusal rate | 1.0 (4/4) | **0.75** (3/4) | out-of-scope questions are declined, not answered |
+The third column is the **shipped default**: cross-encoder plus a 400-character budget per block, which is the prompt change measured in the next-but-one section (`eval/reports/latest.json`). The first two columns are the earlier budget-free runs and are kept so the effect of each step stays visible.
 
-Five things worth reading before trusting these numbers:
+| Metric | Before CE | With CE | **CE + 400-char budget (current default)** | What it measures |
+|---|---|---|---|---|
+| answer accuracy (lexical key match) | 0.92 (23/25) | 0.96 (24/25) | **1.00** (25/25) | the answer contains the fact's key token |
+| answer accuracy (manual audit) | 0.96 (24/25) | 1.00 (25/25) | **1.00** (25/25) | each answer read against the gold page |
+| citation rate | 1.0 (25/25) | 1.0 (25/25) | **1.0** (25/25) | every answer carries at least one `[n]` |
+| **citation gold rate** | — | 0.80 (20/25) | **0.92** (23/25) | the cited `[n]` maps to the gold page |
+| **claim support rate** | — | 0.80 (20/25) | **0.92** (23/25) | the cited block is the best match for the *sentence* that cites it |
+| refusal rate | 1.0 (4/4) | 0.75 (3/4) | **1.00** (4/4) | out-of-scope questions are declined, not answered |
 
-1. **Retrieval is no longer the weak link; citation attribution is.** `citation_gold_rate` maps `[n]` back to the page of the block that was actually shown, and `claim_support_rate` goes one level further: the answer is split into sentences, and each sentence that cites a block is compared with that block — lexically and by embedding — against the other three blocks. 20 of 25 answers pass both. In all five failures the gold page was **block `[1]`, ranked first**, and the model cited `[2]` or `[3]` — `e05` (`[2]`), `v02` (`[3]`), `c03` (`[3]`), `p04` (`[2]`), `d04` (`[2]`). The answer text is right in all five. This is textbook citation drift, the exact failure the corpus page `prompt-design.pdf` describes — and the presence-only `citation_rate` scores it 1.0.
-2. **The claim check was calibrated against the manual audit, not trusted on faith.** The 29 stored answers were graded by hand first (five known drifts), then by the code: the automatic check flags exactly those five and none of the twenty correct answers, so the per-claim verdicts agree with the human labels 25/25. It is still an *attribution* check, not entailment — a sentence can cite the right block and then say something the block does not support. The two thresholds (a 0.06 embedding margin, a 0.35 lexical-overlap floor) are stated in `src/citations.py` and can be re-tuned; `eval/claim_audit.py` re-grades stored answers without regenerating them, and per-sentence verdicts are in `eval/reports/claims.json`.
-3. **The cross-encoder fixed the one answer that used to be wrong.** `p04` asks what claim-by-claim verification catches that rate-based metrics cannot; before CE the gold page never reached the prompt and the model answered "contamination". Now the page is block `[1]`, the answer names citation drift, and lexical accuracy rises 0.92 → 0.96. The remaining defect there is the citation bracket (`[2]`), not the content.
-4. **Lexical accuracy undercounts by one; the manual audit does not.** I read all 25 in-scope answers against the gold pages: **25/25 are substantively correct**, and `d04` ("what is a link in a PDF") is the only one the string match misses — it paraphrases "annotation" as "clickable rectangle with an action". So lexical 0.96 and manual 1.00 describe the same run, and the drift in point 1 is a citation problem, not an answer problem.
-5. **Refusal is not stable across runs, and the report shows it.** A longer earlier run refused all four out-of-scope questions; the run in this report refused three. `o03` ("DashScope price per million tokens") came back as "all-MiniLM-L6-v2 has 22 million parameters" — a nearby fact pulled into an answer that should have been a refusal. The five citation drifts, by contrast, reproduced identically across both runs. One run per configuration is not enough to separate these: the README reports 0.75 rather than the better number from the previous run, because the current artefact is the one being published.
+Six things worth reading before trusting these numbers:
+
+1. **Retrieval is no longer the weak link; citation attribution is.** `citation_gold_rate` maps `[n]` back to the page of the block that was actually shown, and `claim_support_rate` goes one level further: the answer is split into sentences, and each sentence that cites a block is compared with that block — lexically and by embedding — against the other three blocks. Under the shipped default 23 of 25 pass both. The two failures are the same shape as the five from the budget-free run: the gold page was **block `[1]`, ranked first**, and the model wrote `[2]` — `e05` (768 dimensions) and `r01` (MRR 0.33). The answer text is right in both. This is textbook citation drift, the exact failure the corpus page `prompt-design.pdf` describes — and the presence-only `citation_rate` scores it 1.0.
+2. **The claim check was calibrated against the manual audit, not trusted on faith.** The 29 stored answers were graded by hand first, then by the code: on the budget-free run the automatic check flagged exactly the five known drifts and none of the twenty correct answers, so the per-claim verdicts agreed with the human labels 25/25. It is still an *attribution* check, not entailment — a sentence can cite the right block and then say something the block does not support (the entailment section below is the attempt at that, and it ships switched off for a reason). The two thresholds (a 0.06 embedding margin, a 0.35 lexical-overlap floor) are stated in `src/citations.py` and can be re-tuned; `eval/claim_audit.py` re-grades stored answers without regenerating them, and per-sentence verdicts are in `eval/reports/claims.json`.
+3. **The cross-encoder fixed the one answer that used to be wrong.** `p04` asks what claim-by-claim verification catches that rate-based metrics cannot; before CE the gold page never reached the prompt and the model answered "contamination". Now the page is block `[1]`, the answer names citation drift, and lexical accuracy rose 0.92 → 0.96. The remaining defect there was the citation bracket, not the content.
+4. **One 3B-specific defect was caused by the prompt layout, and fixed by it.** With the file name in front of each block, `p03` answered "…is called source: prompt-design.pdf, page 3 Context dilution" — the model read the header as part of the sentence. A blank line between header and text did not help; moving the mapping into a `Sources:` list *after* the blocks did, and the same run now answers "…is called Context dilution [1]". The lesson: a header glued to text is text as far as a small model is concerned.
+5. **Refusal is the number that moved for a boring reason.** The 0.75 in the middle column was a *detector* bug, not model behaviour: `o03` could not be indexed as a refusal because `REFUSAL_PATTERN` only knew the active form ("cannot find"), while the model produced the passive "cannot be found in the provided context". The pattern now covers `cannot|can't be (found|answered|determined)` and `not (found|present) in the`, with a test in `tests/test_refusal.py`, and the same stored run rescores to 1.00. This is worth stating plainly: a metric can improve without a single change to the model, and the only way to tell the difference is to read the answers.
 6. **The LLM judge was tried and rejected.** The same 3B model scored 7 grounded answers as 1/5, and a controlled case scored `2` through the OpenAI-compatible shim versus `4` through Ollama's native API. An uncalibrated instrument is worse than no instrument, so the committed report carries `judge_mean_faithfulness: null` and the experiment is kept as evidence in `eval/reports/judge_experiment.json`. Per-answer verdicts are in `eval/reports/answer_audit.md`.
-7. **What reproduced, and what did not.** The drift set reproduced exactly (`e05`, `v02`, `c03`, `p04`, `d04` on both runs) and lexical accuracy moved only through `p04`; refusal moved 4/4 → 3/4 with no code change. That is the honest shape of a single-run number: retrieval is stable, citation behaviour is stable, and the 3B model's self-restraint is not.
+7. **What reproduced, and what did not.** Under the budget-free configuration the five drift answers reproduced exactly on both runs, while refusal moved 4/4 → 3/4 with no code change. The current default was run once and audited by hand (25/25 correct content, two drift brackets — `e05`, `r01`); three repeats of it are in the variance section, which is there to keep single-run numbers from being read as facts.
+
 
 ### Streaming — measured time to first token
 
@@ -216,9 +218,26 @@ What this says, including the part that is inconvenient:
 
 1. **Streaming does not make the model faster.** 25.3 s streamed against 25.3 s blocking — the same wall clock, and two of three answers were byte-identical.
 2. **It only hides about 1.6 s.** The first token arrives at 23.7 s of a 25.3 s answer. On CPU the wait is prompt prefill (~900 tokens of numbered context), not token generation (~20 tokens of answer). Streaming therefore fixes the *impression* of a freeze; it does not fix the latency, and the README should not pretend otherwise.
-3. **The real lever is the prompt, not the transport.** Fewer blocks (`Chunks sent to the model` in the sidebar), smaller chunks, or a faster backend. A hosted model answers in 1–3 s on the same code path.
+3. **The real lever is the prompt, not the transport.** Fewer blocks (`Chunks sent to the model` in the sidebar), smaller chunks, or a faster backend. The next section measures the first of those; a hosted model answers in 1–3 s on the same code path.
 4. **Cache makes a fake 8× speedup easy to publish.** Ollama caches the longest common prefix: measured naively, the blocking call after a streamed one returns in 1.3–1.7 s because the whole context is already processed. The script puts a marker in the *first* context block so both modes are cold; a marker at the end of the question changes nothing and yields a number that measures the cache.
 5. **Latency is one-run data, and the spread shows why that matters.** The answer-level audit above measured **46.7 s** per question (retrieval + generation, 60.6 s max) for the same pipeline and model, this run **25.3 s** — a 1.8× difference between two sessions on one laptop with no code change. Retrieval alone, cross-encoder included, is 0.3–0.4 s per question. Retrieval ranks are stable across runs; wall-clock times are not, which is what the variance section below measures instead of guessing.
+
+### Prompt budget — cutting the prefill instead of the model
+
+The streaming section says the wait is prompt prefill: ~900 tokens of numbered context processed before one answer token is emitted. So the cheapest latency gain is not a faster model, it is a shorter prompt. `python eval/measure_prompt.py --budgets 0,400,250` keeps retrieval frozen for three questions and only changes how many characters of each block reach the model. `src/generation.trim_block` drops the sentences least related to the question first, keeps the surviving sentences in their original order, and leaves a block untouched when it already fits.
+
+| Budget (chars per block) | Prompt chars | First token | Full answer | keyword accuracy |
+|---|---|---|---|---|
+| 0 (no trimming) | 2756 | 29.5 s | 31.3 s | 1.0 |
+| **400 (shipped default)** | 1794 | **18.3 s** | 19.9 s | 1.0 |
+| 250 | 1178 | 12.9 s | 14.9 s | 1.0 |
+
+Four readings:
+
+1. **It is close to linear in prompt length, at ~10.7 ms per character.** The three points above are 2756/1794/1178 characters and 29.5/18.3/12.9 s to first token — a 57 % prompt cut buys a 56 % wait cut, on this laptop, in this session. That slope is the single most useful number in this README for anyone running the same model on CPU: it converts "make the prompt shorter" from advice into arithmetic.
+2. **The 250-char budget is where quality breaks, and it breaks in a specific place.** Same 25 questions, `CONTEXT_BUDGET` set per run: 250 chars keeps 0.96 citation-gold but drops lexical accuracy to **0.80** and refusal to **0.50** — the sentences holding the numbers get trimmed away, and an answer without the fact still looks fluent. 400 keeps lexical accuracy intact and *raises* citation gold and claim support, so it is the shipped default; the same quality table, with the budget-free run as the baseline, is `eval/reports/latest_budget0.json`, `latest_budget250*.json`, `eval/reports/latest.json`.
+3. **Caching will happily fabricate a speedup for you.** Ollama reuses the longest common prefix of a prompt, so a "cold" measurement that shares its opening blocks with a warmup run returns in 0.2–2.2 s. This cost two wrong tables before I moved the warmup to a question that is not in the measured set, contexts included. If a latency number looks 8× better than its neighbours, the first hypothesis is the cache, not the code.
+4. **What this does not fix.** Prefill still dominates: 18 s of a 20 s answer under the default. Trimming buys time inside the current model, and the honest summary is "four times less waiting than the worst case here, still not interactive on CPU". A hosted model, or a smaller context (`Chunks sent to the model = 2`), is the next lever, and both are one config value away.
 
 ### A real corpus — ten PDFs nobody wrote for this project
 
@@ -295,32 +314,32 @@ Three readings:
 
 ### Variance — how much do the numbers move between identical runs?
 
-Every answer-level number above was measured once. `python eval/run_variance.py --runs 3` repeats the answer step three times on the same 25 synthetic questions with retrieval **frozen** (the same four blocks for every run), so any spread is the sampler, not the index.
+Every answer-level number above was measured once. `python eval/run_variance.py --runs 3` repeats the answer step three times on the same 25 synthetic questions with retrieval **frozen** (the same four blocks for every run), so any spread is the sampler, not the index. The table below is the shipped default — cross-encoder plus the 400-character budget — and `eval/reports/variance.json`; the budget-free archive is `variance_budget0.json`.
 
 | Run | keyword accuracy | citation rate | citation gold rate | claim support | mean answer chars | 25 answers |
 |---|---|---|---|---|---|---|
-| 1 | 0.920 | 1.000 | 0.800 | 0.800 | 97.8 | 588.0 s |
-| 2 | 0.920 | 1.000 | 0.800 | 0.800 | 94.1 | 581.7 s |
-| 3 | **0.960** | 1.000 | 0.800 | 0.800 | 95.0 | 586.9 s |
-| mean ± sd | 0.933 ± 0.023 | 1.000 ± 0 | 0.800 ± 0 | 0.800 ± 0 | 95.6 ± 1.9 | 23.5 s/question |
+| 1 | 1.000 | 1.000 | 0.920 | 0.920 | 91.2 | 572.7 s |
+| 2 | 1.000 | 1.000 | 0.920 | 0.920 | 91.0 | 564.0 s |
+| 3 | 1.000 | 1.000 | 0.920 | 0.920 | 93.3 | 577.7 s |
+| mean ± sd | 1.000 ± 0 | 1.000 ± 0 | 0.920 ± 0 | 0.920 ± 0 | 91.8 ± 1.3 | 22.9 s/question |
 
 Pooled over the 75 answers (three runs × 25), with 95 % Wilson intervals — Wilson rather than the normal approximation because these rates sit close to the boundaries:
 
 | Metric | Pooled | 95 % interval |
 |---|---|---|
-| keyword accuracy | 0.933 (70/75) | 0.853 – 0.971 |
+| keyword accuracy | 1.000 (75/75) | 0.951 – 1.000 |
 | citation rate | 1.000 (75/75) | 0.951 – 1.000 |
-| citation gold rate | 0.800 (60/75) | 0.696 – 0.875 |
+| citation gold rate | 0.920 (69/75) | 0.836 – 0.963 |
 
 Five readings:
 
 1. **Retrieval was frozen, so the spread here is generation only.** `retrieval_stable: true` in the report means the same four blocks were handed to the model in all three runs; retrieval numbers move when the index or the configuration moves, and they did not wobble at all across these repeats.
-2. **Three of the four answer metrics did not move once.** Citation rate 1.000, citation gold rate 0.800 and claim support 0.800 in every run — and the same five drift questions every time. That reproducibility is what makes `citation_gold_rate` publishable: a metric whose failures reshuffle between runs would be measuring the sampler, not the pipeline.
-3. **The one that moved is a labelling artefact, not a knowledge failure.** Keyword accuracy flips 0.920 → 0.960 because of `d04`: runs 1–2 answer "a clickable rectangle with an action", run 3 answers "technically an annotation: a clickable rectangle…". Same fact, correct both times — the keyword `annotation` simply appears in one phrasing. A ±0.02 standard deviation caused by one paraphrase is the label's tolerance, and it is worth knowing that the label, not the model, owns that variance.
-4. **The interval is the honest headline.** On 25 questions, "0.80" means 0.70–0.88 and "1.00" means 0.95–1.00. Any answer-level number from this project should be quoted with its interval, or at least as a direction.
-5. **Latency is stable inside a session and not between sessions.** Three repeats of the same 25 questions took 588.0 / 581.7 / 586.9 s — 23.5 s each, under 1 % spread. The 1.8× gap quoted in the streaming section (46.7 s vs 25.3 s) is therefore between sessions — machine state and prompt length — not sampler noise, and wall-clock times should never be compared across sessions without saying so.
+2. **Nothing moved.** All four answer metrics are identical in all three runs, no question changed verdict between runs, and the same two drift answers (`e05`, `r01`) appear every time. That reproducibility is what makes `citation_gold_rate` publishable: a metric whose failures reshuffle between runs would be measuring the sampler, not the pipeline. The budget-free configuration was less stable — its three runs read 0.920 / 0.920 / 0.960, with `p02` flipping between runs — which is one more reason the shorter prompt is the shipped one, although the format change and the budget change happened in the same week.
+3. **The two failures are the same failure every run.** `e05` ("what dimensionality does bge-base-en-v1.5 produce") answers `768 [2]` while the gold page is block `[1]`; `r01` ("what MRR does a correct answer at position 3 get") answers `0.33 [2]` with the gold at `[1]`. Both are content-correct and bracket-wrong, and three repeats buy nothing: this is a model behaviour, not noise.
+4. **The interval is the honest headline.** On 25 questions, "0.92" means 0.84–0.96 and "1.00" means 0.95–1.00. Any answer-level number from this project should be quoted with its interval, or at least as a direction.
+5. **Latency is stable inside a session, and one earlier number was not real.** Three repeats of the same 25 questions took 572.7 / 564.0 / 577.7 s — 22.9 s each, under 1.2 % spread. An earlier three-run batch was thrown away because run 2 reported 3207 s: the machine slept mid-run, and a wall clock that includes a suspend is not a latency measurement. The 1.8× gap quoted in the streaming section (46.7 s vs 25.3 s) is between sessions — machine state and prompt length — not sampler noise.
 
-What this does **not** cover: the real corpus (29 in-scope questions, one run), any change of retrieval configuration, and the temperature-0.2 sampler's effect on wording beyond the one flaky question observed.
+What this does **not** cover: the real corpus (29 in-scope questions, one run), any change of retrieval configuration, and the temperature-0.2 sampler's effect on wording beyond the questions observed here.
 
 Each run indexes into a throwaway store, so results never depend on your working collection. Reports land in `eval/reports/`.
 
@@ -334,6 +353,7 @@ python eval/claim_audit.py                  # per-sentence citation verdicts for
 python eval/run_multilingual.py             # 5-configuration cross-lingual retrieval
 python eval/run_ocr.py                      # rasterise the corpus, measure what OCR recovers
 python eval/measure_stream.py               # time to first token vs total, streamed vs blocking
+python eval/measure_prompt.py --budgets 0,400,250   # same retrieval, three prompt budgets, timed
 python eval/fetch_real_corpus.py            # download the 10 real PDFs once (sha256-checked, not committed)
 python eval/run_real.py                     # retrieval + answers on the real corpus
 python eval/sweep_real_depth.py             # RETRIEVE_K 8/16/32 x cross-encoder on/off (ten documents)
@@ -495,17 +515,18 @@ rag-document-assistant/
 │   ├── run_multilingual.py # 5-configuration cross-lingual retrieval comparison
 │   ├── run_ocr.py       # rasterise the corpus and measure what OCR recovers
 │   ├── measure_stream.py # time to first token vs total, streamed vs blocking
+│   ├── measure_prompt.py # three prompt budgets on frozen retrieval: chars, first token, total, accuracy
 │   ├── claim_audit.py   # per-sentence citation verdicts against the stored answers
 │   ├── entail_calibrate.py  # NLI threshold sweep against the 25 hand-audited claims
 │   ├── entail_real.py   # out-of-sample entailment flags on the real corpus
 │   ├── fetch_real_corpus.py # download the 10 real PDFs, verified by sha256 (not committed)
 │   ├── real_corpus_manifest.json # what was downloaded, from where, and why
-│   ├── qa_set_real.jsonl # 19 questions on the real documents
+│   ├── qa_set_real.jsonl # 30 questions on the real documents (29 answerable + 1 probe)
 │   ├── run_real.py      # retrieval + answers + boilerplate report on the real corpus
 │   ├── run_variance.py  # repeat the answer step on frozen retrieval, report spread + Wilson intervals
 │   ├── sweep_real_depth.py # RETRIEVE_K 8/16/32 x cross-encoder on/off on the real corpus
 │   ├── run_real_filter.py # document-scoped vs unscoped retrieval, same questions
-│   └── reports/         # latest.json, ablation.json, multilingual.json, ocr.json, streaming.json, real_corpus.json, real_depth*.json, real_filter.json, variance.json, claims.json, answer_audit.md, judge_experiment.json
+│   └── reports/         # latest.json, ablation.json, multilingual.json, ocr.json, streaming.json, prompt_budget.json, latest_budget0.json, latest_budget250*.json, latest_budget400*.json, real_corpus.json, real_depth*.json, real_filter.json, variance.json, variance_budget0.json, claims.json, answer_audit.md, judge_experiment.json, entailment.json, entail_real.json
 ├── tests/
 │   ├── test_chunking.py    # 8 cases
 │   ├── test_config.py      # 5 cases (provider resolution, legacy-env traps)
@@ -517,6 +538,7 @@ rag-document-assistant/
 │   ├── test_model_selection.py # 2 cases (per-model caches actually swap models)
 │   ├── test_ocr.py         # 6 cases (OCR trigger, replacement rule, failure path)
 │   ├── test_streaming.py   # 3 cases (token order, prompt content, no double generation)
+│   ├── test_prompt_budget.py # 6 cases (budget 0 keeps a block whole, irrelevant sentences dropped, order kept, Sources list layout)
 │   ├── test_clean.py       # 6 cases (repeated edge lines, digit normalisation, thresholds)
 │   └── test_eval_labels.py # 5 cases
 ├── data/                # source PDFs (git-ignored)
@@ -534,6 +556,8 @@ rag-document-assistant/
 - **An embedder and a reranker are a pair, not two separate features.** The embedder decides which candidates exist, the reranker only orders them; measured cross-lingually, swapping the reranker alone changed `hit@4` by exactly zero. So the two are swapped and reported together, and each model is cached **by name** (a dict in `embeddings.py`, `lru_cache(maxsize=4)` in `rerank.py`) — a single-slot cache would quietly serve the previous checkpoint and every number after that would belong to the wrong model.
 - **Labels are validated, not trusted.** Every eval run re-reads the gold pages and refuses to score if a label no longer matches the document.
 - **Metrics are audited before they are published.** A metric that scores clearly correct answers as failures gets fixed or removed, not reported. That is why the judge is null and the refusal detector has a negation fallback.
+- **Latency work happens on the prompt, and it is measured against a frozen index.** Trimming is the only lever that costs nothing and needs no new model, so `eval/measure_prompt.py` changes one variable at a time and a budget only ships if a full 25-question run keeps its accuracy. 250 chars is the counter-example that stayed in the README instead of being quietly deleted.
+- **File/page metadata goes behind the text, not in front of it.** A prompt like `[1] source: x.pdf, page 3\n\n<text>` is read by a 3B model as one sentence; the mapping moved to a `Sources:` list after the blocks, which fixed the only remaining answer-level defect caused by the prompt itself.
 - **Local embeddings.** Indexing stays free and offline; the 18-page corpus indexes in seconds on CPU.
 - **Provider-agnostic generation.** The same pipeline runs on a hosted API or a local model; the vendor is a config value, and the offline path needs no account or card.
 
@@ -543,14 +567,15 @@ rag-document-assistant/
 - **29 in-scope questions cannot pin a rate down.** Even after three repeated runs the Wilson interval on a 25-question set is about ±15 points; the variance section reports the spread instead of hiding it, but a portfolio number should be read as a direction, not a measurement.
 - **Entailment is measured, and it is conservative.** The NLI check reproduces the 25-claim hand audit (1.00) — but those claims are near-verbatim restatements, and on real-prose answers three of six flags are paraphrase rather than fabrication. It is therefore a review queue with `ENTAIL_ENABLED=0`, not a pass/fail gate, and the README says so with the six flags printed. The calibration is also **in-sample**: the 0.35 threshold was chosen on the same 25 pairs it is scored on, so the 1.00 describes that set, not the world. A checkpoint trained on technical prose, or a cross-encoder reading the claim against the whole block, would be the next thing to try.
 - **The faithfulness judge needs a stronger model.** A 3B judge is uncalibrated and was rejected; the metric returns only when judging runs on a hosted model.
-- **Local generation is slow.** ~47 s per answer on CPU. Good enough to prove the pipeline works offline, not good enough to demo interactively.
+- **Local generation is slow, even with the prompt trimmed.** 18.3 s to first token and 19.9 s to a full answer on CPU under the shipped default, against 29.5 s untrimmed. Fast enough to prove the pipeline works offline, not fast enough to feel interactive; the remaining lever is a hosted model, not more trimming — 250 chars is already past the quality cliff.
+- **The budget trims sentences, and a trimmed sentence can be the one you wanted.** 400 characters holds the shipped default's quality on this 25-question set, but the failure at 250 (lexical accuracy 0.80, refusal 0.50) shows the cliff is close and its position depends on how the sentence happens to overlap with the question wording. It is a heuristic with a measured operating point, not a safety guarantee.
 - **Cross-lingual retrieval is measured, but only in one direction.** Twenty-four translated questions hit an English corpus; a corpus written in Russian or Chinese (with its own tokenisation and paragraph lengths) is untested, and the shipped defaults are still English models. The gap between 0.958 and the English 1.000 is one question, so the multilingual row is "competitive", not "equal".
 - **First query pays for the reranker.** The model (~90 MB) downloads on first use and loads in ~4 s; afterwards it is steady at ~0.3 s/query on CPU.
 - **OCR is text recovery, not layout recovery.** A scanned page is reduced to a line order, so tables lose their columns and two-column pages can interleave. The bundled PP-OCR model covers Latin and Chinese; Cyrillic comes back as transliterated Latin (~5 % word recall), and another recogniser is a separate model swap. Handwriting and skewed scans are untested.
-- **Streaming hides the last 1.6 s, not the 23 s before it.** Time to first token is 23.7 s on CPU because prompt prefill dominates; the lever is a shorter prompt or a faster backend, not the transport.
+- **Streaming hides the last 1.6 s, not the 23 s before it.** Time to first token was 23.7 s before the prompt budget and 18.3 s after, because prompt prefill dominates in both cases; the lever is a shorter prompt or a faster backend, not the transport.
 - **Single collection.** Document filtering works, but there is no notion of workspaces or per-user isolation.
 
-Planned order: latency work on the prompt (fewer/shorter blocks, cheaper prefill), then a stronger NLI checkpoint to tighten the entailment review queue. (Everything from the original roadmap is done and measured: cross-lingual retrieval — `eval/reports/multilingual.json`; claim-level citation checking — `src/citations.py`, calibrated against the manual audit; the OCR fallback — `src/ocr.py`, `eval/reports/ocr.json`; streaming — `eval/reports/streaming.json`, which removes the freeze and not the latency; a real corpus with variance estimates — `eval/reports/real_corpus.json`, `real_depth*.json`, `variance.json`; document-scoped filtering — `eval/reports/real_filter.json`; the widened real corpus of ten documents with 30 labelled questions — `eval/qa_set_real.jsonl`, `real_corpus.json`; and sentence-level entailment — `src/entailment.py`, `eval/reports/entailment.json`, `entail_real.json`.)
+Planned order: a stronger NLI checkpoint to tighten the entailment review queue, then a hosted generation backend for latency. The prompt work is now done and measured — a 400-character budget per block with a `Sources:` list behind the blocks (`src/generation.py`, `eval/measure_prompt.py`, `eval/reports/prompt_budget.json`). (Everything from the original roadmap is done and measured: cross-lingual retrieval — `eval/reports/multilingual.json`; claim-level citation checking — `src/citations.py`, calibrated against the manual audit; the OCR fallback — `src/ocr.py`, `eval/reports/ocr.json`; streaming — `eval/reports/streaming.json`, which removes the freeze and not the latency; a real corpus with variance estimates — `eval/reports/real_corpus.json`, `real_depth*.json`, `variance.json`; document-scoped filtering — `eval/reports/real_filter.json`; the widened real corpus of ten documents with 30 labelled questions — `eval/qa_set_real.jsonl`, `real_corpus.json`; and sentence-level entailment — `src/entailment.py`, `eval/reports/entailment.json`, `entail_real.json`.)
 
 ## 中文简介
 
@@ -561,8 +586,9 @@ Planned order: latency work on the prompt (fewer/shorter blocks, cheaper prefill
 - **评测**：自建 6 文档 / 18 页合成语料 + 29 道人工题目；9 组配置对比中，cross-encoder 把检索从 hit@k 0.96 / hit@1 0.88 / MRR 0.913 提到 **1.00 / 0.96 / 0.980**（每题约 0.3 秒），并且补上了唯一漏检 `p04`；不加时 800/150 优于 500 字符，MMR 代价为 0.007 MRR
 - **跨语言检索**：同一批 12 个事实改写成俄语、中文共 24 题，英文语料不变，跑 5 组配置——只换重排器 `hit@4` 完全不动（0.667 → 0.667，漏检还是 8 个），只换 bi-encoder 才涨到 **0.917**（漏检 2 个）；用英文重排器给多语言候选打分反而更差（0.792，漏检 5 个）；两边都换多语言模型为 **0.958 / 0.875 / 0.917**（漏检 1 个，且是 MMR 把已经排到第 4 的 `p04-ru` 挤出窗口，不是模型的问题）。代价是 `bge-reranker-base` 278M 参数、约 1.1 GB、1.55 秒/题（英文重排器 0.25 秒）
 - **扫描件 OCR**：把整本语料逐页栅格化成「只有图片」的 PDF（脚本会先断言这 18 页确实没有文字层），同一批 25 题对比三种索引：数字版 **1.000 / 0.960 / 0.980**；栅格版不开 OCR **0.000 / 0.000 / 0.000（0 个 chunk，25 题全错过）**；栅格版开 OCR **0.960 / 0.920 / 0.940**，只丢一题（`p02`，原因是 OCR 漏检一整行，正好是那行数字）。页面词覆盖率均值 **96.1%**、最差页 74.8%；每页约 4.2 秒，18 页索引 76 秒。300 dpi 对比 200 dpi：均值 95.2% 但最差页只有 57.7%、`hit@1` 0.880，而引擎会把输入缩放到固定尺寸，所以 300 dpi 并没有更慢。语言边界如实写清：拉丁与中文可用，西里尔字母实测只有 5% 词覆盖率
-- **流式输出**：`stream_answer` 逐 token 推送，答案下方显示「首 token … 秒 · 完成 … 秒」。三题实测：首个 token 平均 **23.7 秒**、整段 **25.3 秒**，阻塞模式同样 25.3 秒——CPU 上瓶颈是约 900 token 的 prompt 预填充，不是解码，所以流式消掉的是「看起来卡死」的观感，并没有真正变快；真正的杠杆是把窗口调小或换更快的后端。同一个环境两次运行还差 1.8 倍（46.7 秒 vs 25.3 秒），单次延迟数字不可当结论
-- **答案层指标**：本地 `qwen2.5:3b` 生成 29 条答案，引用率 1.0、拒答率 0.75（一次 4/4、一次 3/4，属于小模型自律性的波动）、关键词命中 0.96；人工复核 25/25 正确。**引用归因**：`citation_gold_rate` 0.80、`claim_support_rate` 0.80 —— 逐句比对「引用的块是否就是证据所在的块」，自动判定与人工标注在 25 条上完全一致（5 个漂移、0 个误报，两次运行漂移集合相同）。LLM 评委（judge）因 3B 模型打分不可靠被弃用，实验记录保留在 `eval/reports/judge_experiment.json`
+- **流式输出**：`stream_answer` 逐 token 推送，答案下方显示「首 token … 秒 · 完成 … 秒」。三题实测：首个 token 平均 **23.7 秒**、整段 **25.3 秒**，阻塞模式同样 25.3 秒——CPU 上瓶颈是约 900 token 的 prompt 预填充，不是解码，所以流式消掉的是「看起来卡死」的观感，并没有真正变快。同一个环境两次运行还差 1.8 倍（46.7 秒 vs 25.3 秒），单次延迟数字不可当结论
+- **prompt 预算（默认 400 字符/块）**：既然瓶颈是预填充，最便宜的办法就是把 prompt 变短。`trim_block` 按与问题的词重叠给块内句子排序，超预算才裁、保留原顺序、块本身就够短就不动。三题固定检索实测：不裁剪 **2756 字符 / 首 token 29.5 秒 / 整段 31.3 秒**；400 **1794 字符 / 18.3 秒 / 19.9 秒**；250 **1178 字符 / 12.9 秒 / 14.9 秒**——约 **10.7 毫秒/字符**，几乎线性。质量侧同 25 题：250 把关键词命中打到 **0.80**、拒答率 0.50（装着数字的那句被裁掉了），400 则关键词不变、引用归因反而从 0.80 升到 **0.92**，所以 400 定为默认。另一个坑写在 README 里：Ollama 会复用最长公共前缀，warmup 和第一个测量行共享前缀能凭空测出 0.2 秒的「加速」，这一轮被骗了两次
+- **答案层指标（当前默认：CE + 400 字符预算）**：本地 `qwen2.5:3b` 生成 29 条答案，关键词命中 **1.00**、引用率 1.0、拒答率 **1.00**、引用归因 **0.92**、claim_support **0.92**；人工逐条复核 25 道可答题，**25/25 内容正确**，剩余两处缺陷只是括号指错（`e05`、`r01`，标准页都是第 1 块，模型写了 `[2]`）。**引用归因**的自动判定在旧口径（不裁剪）25 条上与人工标注完全一致（5 个漂移、0 个误报，两次运行漂移集合相同）。拒答率从不裁剪口径的 0.75 变成 1.00，原因是 `REFUSAL_PATTERN` 原先只认「cannot find」这种主动式，模型写的被动式「cannot be found in the provided context」被判成回答——这是检测器的 bug，不是模型变好了，报告用 `--rescore` 重算并在 README 里写明。LLM 评委（judge）因 3B 模型打分不可靠被弃用，实验记录保留在 `eval/reports/judge_experiment.json`
 - **真实语料**：另外下载 10 份真实 PDF（Transformer / RAG / BERT / Dropout 论文、美国专利 9,600,411 B2、美联储 2023 年报、IPCC AR6 第 3 章、NIST SP 800-63B、9/11 调查报告、HR 3684 法案），共 2155 页、每份只用前 60 页（399 页 / 2063 chunk），30 题人工标注（29 道可答 + 1 道不可答）。结果：hit@k **0.862**、hit@1 **0.759**、MRR 0.799、关键词命中 0.793；引用归因 **0.724**、claim_support 1.0。四个漏检分两类：`a_r4`（论文首页作者单位）与 `b_r1`（「5.3 节」这种指代）是老问题；`b_r2` 在 6 文档时是命中、加到 10 文档后掉出前 4——题目和标准页都没变，变的是它周围的候选池；`d_r1`（问论文标题）是「描述文档本身」而不是「查文档里的事实」。深度实验现在跑在 10 文档口径上（29 题、2063 chunk）：把 `RETRIEVE_K` 从 8 提到 16 再到 32，第一阶段召回的截断值 8/16/32/64 是 **0.828 / 0.862 / 0.931 / 0.966**，但 hit@k 在 16 见顶（0.862）之后**下降到 0.828**，hit@1 三种配置都是 0.759——多给的深度是前十六个候选的近重复，进了 MMR 的四格窗口反而把 `r_r1`、`p_r3`（向量排名第 1、第 3）挤出去；不带重排器时更明显（8 是 0.759、32 掉到 0.690）。漏检也按排名分了类：`a_r4`(18)、`b_r2`(19)、`b_r1`(64) 根本没进候选池（`b_r2` 从 6 文档的命中变成 10 文档的漏检，就是因为它现在排第 19），`n_r1`(7)、`i_r2`(9) 进了池子但被重排+MMR 挤出，`d_r1` 连前 64 都没进（`rank: null`）——问论文标题是在问文档本身。页眉剥离在 NIST（60 页里 56 页同页眉）和专利（31 页里 16 页页眉 `US 9,600,411 B2`）两份上都生效；OCR 首次在真实文档上触发：专利 31 页里 8 页走 OCR、IPCC 有 1 页文字层解析失败也走 OCR——而专利首页把 `The MathWorks, Inc.` 抽成 `ths latworks Inc.`，说明文字层「有但抽错」时 OCR 补不上
 - **方差**：`eval/run_variance.py` 在检索冻结的前提下把答题步骤重复 3 遍，报告每次的指标、三遍的标准差，以及 pooling 后的 95% Wilson 区间——单次跑出来的 0.80 到底能信多少，用区间写清楚，而不是只留一个数
 - **文档过滤**：侧边栏限定到单个 PDF 时检索是否真的变好，在真实语料上按「过滤到标准答案所在文档」这种已知答案的上界情形测：10 文档口径下第一阶段召回 0.862 → **0.931**、hit@4 0.862 → 0.931、hit@1 0.759 → 0.793、MRR 0.799 → 0.851，漏检从 4 个减到 2 个，每题耗时从 1.01 秒降到 0.69 秒。恢复的是 `a_r4`（论文首页作者单位）和 `b_r2`（附录题目）——它们都是被别的文档挤掉的；`b_r1`（「5.3 节」指代）和 `d_r1`（问论文标题）就算只留这一份文档也照样漏，说明这两类问题不是语料规模造成的（6 文档那轮曾得出「过滤完全不改召回」的结论，是因为那时候选池还没这么挤）

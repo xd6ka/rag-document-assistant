@@ -56,13 +56,16 @@ REFUSAL_MARKERS = (
 
 # Marker lists miss legitimate phrasings ("does not provide information in the
 # given context" scored as a failure once), so a negation pattern backs them up.
+# "cannot be found in the provided context" was the second such miss: the pattern
+# only knew "cannot find", not the passive form, and a correct refusal was counted
+# as an answer during the prompt-budget sweep.
 REFUSAL_PATTERN = re.compile(
     r"(?:does|do|did)\s+not\s+(?:contain|provide|mention|include|cover|address)"
-    r"|cannot\s+(?:find|answer|determine|tell)"
-    r"|can't\s+(?:find|answer|determine|tell)"
+    r"|cannot\s+(?:find|answer|determine|tell|be\s+(?:found|answered|determined))"
+    r"|can't\s+(?:find|answer|determine|tell|be\s+(?:found|answered|determined))"
     r"|unable\s+to"
     r"|no\s+(?:information|mention|reference)"
-    r"|not\s+(?:in|stated\s+in)\s+the\s+(?:context|document|text)",
+    r"|not\s+(?:in|stated\s+in|found\s+in|present\s+in)\s+the\s+(?:context|document|text)",
     re.IGNORECASE,
 )
 

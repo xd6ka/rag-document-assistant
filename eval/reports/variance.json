@@ -3,12 +3,12 @@
     {
       "run": 1,
       "n": 25,
-      "keyword_accuracy": 0.92,
+      "keyword_accuracy": 1.0,
       "citation_rate": 1.0,
-      "citation_gold_rate": 0.8,
-      "claim_support_rate": 0.8,
-      "mean_answer_chars": 97.8,
-      "total_seconds": 588.0,
+      "citation_gold_rate": 0.92,
+      "claim_support_rate": 0.92,
+      "mean_answer_chars": 91.2,
+      "total_seconds": 572.7,
       "rows": [
         {
           "id": "e01",
@@ -32,8 +32,8 @@
         },
         {
           "id": "e03",
-          "answer": "The e5 family expects an asymmetric prefix and requires the literal query prefix 'query:' [1].",
-          "chars": 94,
+          "answer": "The e5 family expects an asymmetric prefix: documents are embedded as they are, while queries must be prefixed with the literal string 'query: '. [1]",
+          "chars": 149,
           "keyword_ok": true,
           "cites": true,
           "citation_points_to_gold": true,
@@ -42,8 +42,8 @@
         },
         {
           "id": "e04",
-          "answer": "The MiniLM weights need about 90 megabytes of weights [1].",
-          "chars": 58,
+          "answer": "MiniLM needs about 90 megabytes of weights [1].",
+          "chars": 47,
           "keyword_ok": true,
           "cites": true,
           "citation_points_to_gold": true,
@@ -62,8 +62,8 @@
         },
         {
           "id": "v01",
-          "answer": "The default number of HNSW neighbours per node in ChromaDB is 16 [1].",
-          "chars": 69,
+          "answer": "The default number of HNSW neighbours per node in ChromaDB is M=16 [1].",
+          "chars": 71,
           "keyword_ok": true,
           "cites": true,
           "citation_points_to_gold": true,
@@ -72,18 +72,18 @@
         },
         {
           "id": "v02",
-          "answer": "pgvector keeps vectors next to relational data [3].",
+          "answer": "pgvector keeps vectors next to relational data [1].",
           "chars": 51,
           "keyword_ok": true,
           "cites": true,
-          "citation_points_to_gold": false,
-          "claim_support": 0.0,
+          "citation_points_to_gold": true,
+          "claim_support": 1.0,
           "api_error": false
         },
         {
           "id": "v03",
-          "answer": "A command-line script and a running app should avoid indexing at the same time because Persistence is one file lock away from trouble: two writers on the same directory are not supported, so a command-line script and a running app should not index at the same time. [1]",
-          "chars": 269,
+          "answer": "A command-line script and a running app should not index at the same time because Persistence is one file lock away from trouble: two writers on the same directory are not supported, so a command-line script and a running app should not index at the same time. [1]",
+          "chars": 264,
           "keyword_ok": true,
           "cites": true,
           "citation_points_to_gold": true,
@@ -122,18 +122,18 @@
         },
         {
           "id": "c03",
-          "answer": "A 40-character fragment carries almost no retrievable meaning. Merging tails shorter than 80 characters into the previous chunk removes most of the junk. [3]",
-          "chars": 157,
+          "answer": "A tail shorter than 80 characters is merged into the previous chunk. [1]",
+          "chars": 72,
           "keyword_ok": true,
           "cites": true,
-          "citation_points_to_gold": false,
-          "claim_support": 0.0,
+          "citation_points_to_gold": true,
+          "claim_support": 1.0,
           "api_error": false
         },
         {
           "id": "c04",
-          "answer": "A table is text positioned in a grid, and naive extraction interleaves rows and columns, so table questions often retrieve the right page and lose the columns. [2]",
-          "chars": 163,
+          "answer": "Table questions often retrieve the right page and lose the columns. [2]",
+          "chars": 71,
           "keyword_ok": true,
           "cites": true,
           "citation_points_to_gold": true,
@@ -192,8 +192,8 @@
         },
         {
           "id": "p02",
-          "answer": "Four blocks of 800 characters come to roughly 3200 characters, around 700 tokens. [1]",
-          "chars": 85,
+          "answer": "Four blocks of 800 characters come to roughly 3200 characters, around 700 tokens. [1].",
+          "chars": 86,
           "keyword_ok": true,
           "cites": true,
           "citation_points_to_gold": true,
@@ -202,8 +202,8 @@
         },
         {
           "id": "p03",
-          "answer": "The effect that makes facts in the middle of a long prompt less accurate is context dilution [1].",
-          "chars": 97,
+          "answer": "The effect that makes facts in the middle of a long prompt less accurate is called Context dilution [1].",
+          "chars": 104,
           "keyword_ok": true,
           "cites": true,
           "citation_points_to_gold": true,
@@ -212,12 +212,12 @@
         },
         {
           "id": "p04",
-          "answer": "Claim-by-claim verification can catch models sometimes citing block 2 while quoting block 1, which rate-based citation metrics cannot detect [2].",
-          "chars": 145,
-          "keyword_ok": false,
+          "answer": "Claim-by-claim verification catches citation drift; rate-based citation metrics cannot catch this [1].",
+          "chars": 102,
+          "keyword_ok": true,
           "cites": true,
-          "citation_points_to_gold": false,
-          "claim_support": 0.0,
+          "citation_points_to_gold": true,
+          "claim_support": 1.0,
           "api_error": false
         },
         {
@@ -242,8 +242,8 @@
         },
         {
           "id": "d03",
-          "answer": "The pixel size of the embedded JPEG image is 480 by 240 pixels [1].",
-          "chars": 67,
+          "answer": "The pixel size of the embedded JPEG image is 480 by 240 [1].",
+          "chars": 60,
           "keyword_ok": true,
           "cites": true,
           "citation_points_to_gold": true,
@@ -252,9 +252,9 @@
         },
         {
           "id": "d04",
-          "answer": "A link in a PDF is a clickable rectangle on the page with an action, sometimes a URI and sometimes a jump to another page. [1]",
-          "chars": 126,
-          "keyword_ok": false,
+          "answer": "A link in a PDF is an annotation: a clickable rectangle on the page with an action, sometimes a URI and sometimes a jump to another page. [1]",
+          "chars": 141,
+          "keyword_ok": true,
           "cites": true,
           "citation_points_to_gold": true,
           "claim_support": 1.0,
@@ -265,12 +265,12 @@
     {
       "run": 2,
       "n": 25,
-      "keyword_accuracy": 0.92,
+      "keyword_accuracy": 1.0,
       "citation_rate": 1.0,
-      "citation_gold_rate": 0.8,
-      "claim_support_rate": 0.8,
-      "mean_answer_chars": 94.1,
-      "total_seconds": 581.7,
+      "citation_gold_rate": 0.92,
+      "claim_support_rate": 0.92,
+      "mean_answer_chars": 91,
+      "total_seconds": 564.0,
       "rows": [
         {
           "id": "e01",
@@ -294,8 +294,8 @@
         },
         {
           "id": "e03",
-          "answer": "The e5 family expects an asymmetric prefix and requires the literal query prefix 'query:' [1].",
-          "chars": 94,
+          "answer": "The e5 family expects an asymmetric prefix: documents are embedded as they are, while queries must be prefixed with the literal string 'query:' [1].",
+          "chars": 148,
           "keyword_ok": true,
           "cites": true,
           "citation_points_to_gold": true,
@@ -304,8 +304,8 @@
         },
         {
           "id": "e04",
-          "answer": "The MiniLM weights need about 90 megabytes of weights [1].",
-          "chars": 58,
+          "answer": "MiniLM needs about 90 megabytes of weights [1].",
+          "chars": 47,
           "keyword_ok": true,
           "cites": true,
           "citation_points_to_gold": true,
@@ -324,8 +324,8 @@
         },
         {
           "id": "v01",
-          "answer": "The default number of HNSW neighbours per node in ChromaDB is 16 [1].",
-          "chars": 69,
+          "answer": "The default number of HNSW neighbours per node in ChromaDB is M=16 [1].",
+          "chars": 71,
           "keyword_ok": true,
           "cites": true,
           "citation_points_to_gold": true,
@@ -334,17 +334,17 @@
         },
         {
           "id": "v02",
-          "answer": "pgvector keeps vectors next to relational data [3].",
+          "answer": "pgvector keeps vectors next to relational data [1].",
           "chars": 51,
           "keyword_ok": true,
           "cites": true,
-          "citation_points_to_gold": false,
-          "claim_support": 0.0,
+          "citation_points_to_gold": true,
+          "claim_support": 1.0,
           "api_error": false
         },
         {
           "id": "v03",
-          "answer": "A command-line script and a running app should avoid indexing at the same time because persistence is one file lock away from trouble: two writers on the same directory are not supported, so a command-line script and a running app should not index at the same time. [1]",
+          "answer": "A command-line script and a running app should avoid indexing at the same time because Persistence is one file lock away from trouble: two writers on the same directory are not supported, so a command-line script and a running app should not index at the same time. [1]",
           "chars": 269,
           "keyword_ok": true,
           "cites": true,
@@ -384,12 +384,274 @@
         },
         {
           "id": "c03",
-          "answer": "A 40-character fragment carries almost no retrievable meaning. Merging tails shorter than 80 characters into the previous chunk removes most of the junk. [3]",
-          "chars": 157,
+          "answer": "A tail shorter than 80 characters is merged into the previous chunk [1].",
+          "chars": 72,
+          "keyword_ok": true,
+          "cites": true,
+          "citation_points_to_gold": true,
+          "claim_support": 1.0,
+          "api_error": false
+        },
+        {
+          "id": "c04",
+          "answer": "Table questions often retrieve the right page and lose the columns. [2]",
+          "chars": 71,
+          "keyword_ok": true,
+          "cites": true,
+          "citation_points_to_gold": true,
+          "claim_support": 1.0,
+          "api_error": false
+        },
+        {
+          "id": "r01",
+          "answer": "A correct answer at position 3 scores 0.33 [2].",
+          "chars": 47,
           "keyword_ok": true,
           "cites": true,
           "citation_points_to_gold": false,
           "claim_support": 0.0,
+          "api_error": false
+        },
+        {
+          "id": "r02",
+          "answer": "Thirty to forty questions over a corpus of thirty chunks is enough to see a difference between configurations. [1]",
+          "chars": 114,
+          "keyword_ok": true,
+          "cites": true,
+          "citation_points_to_gold": true,
+          "claim_support": 1.0,
+          "api_error": false
+        },
+        {
+          "id": "r03",
+          "answer": "When the corpus holds only four chunks, hit@3 is 1.0 for almost any configuration [1].",
+          "chars": 86,
+          "keyword_ok": true,
+          "cites": true,
+          "citation_points_to_gold": true,
+          "claim_support": 1.0,
+          "api_error": false
+        },
+        {
+          "id": "r04",
+          "answer": "hit@k counts a question as solved if any gold item is in the top k. It is the most quoted and least informative metric, because it hides how far down the answer was. [1]",
+          "chars": 169,
+          "keyword_ok": true,
+          "cites": true,
+          "citation_points_to_gold": true,
+          "claim_support": 1.0,
+          "api_error": false
+        },
+        {
+          "id": "p01",
+          "answer": "A value of 0.2 keeps phrasing stable between runs; 0.7 belongs to creative writing, not to citations. [1]",
+          "chars": 105,
+          "keyword_ok": true,
+          "cites": true,
+          "citation_points_to_gold": true,
+          "claim_support": 1.0,
+          "api_error": false
+        },
+        {
+          "id": "p02",
+          "answer": "Four blocks of 800 characters come to roughly 3200 characters, around 700 tokens. [1].",
+          "chars": 86,
+          "keyword_ok": true,
+          "cites": true,
+          "citation_points_to_gold": true,
+          "claim_support": 1.0,
+          "api_error": false
+        },
+        {
+          "id": "p03",
+          "answer": "Context dilution does make facts in the middle of a long prompt less accurate [1].",
+          "chars": 82,
+          "keyword_ok": true,
+          "cites": true,
+          "citation_points_to_gold": true,
+          "claim_support": 1.0,
+          "api_error": false
+        },
+        {
+          "id": "p04",
+          "answer": "Claim-by-claim verification catches citation drift; rate-based citation metrics cannot catch this [1].",
+          "chars": 102,
+          "keyword_ok": true,
+          "cites": true,
+          "citation_points_to_gold": true,
+          "claim_support": 1.0,
+          "api_error": false
+        },
+        {
+          "id": "d01",
+          "answer": "Text in a PDF is stored as character codes plus the font needed to draw them [1].",
+          "chars": 81,
+          "keyword_ok": true,
+          "cites": true,
+          "citation_points_to_gold": true,
+          "claim_support": 1.0,
+          "api_error": false
+        },
+        {
+          "id": "d02",
+          "answer": "A 480 by 240 JPEG is embedded as it is, with the DCTDecode filter. [1]",
+          "chars": 70,
+          "keyword_ok": true,
+          "cites": true,
+          "citation_points_to_gold": true,
+          "claim_support": 1.0,
+          "api_error": false
+        },
+        {
+          "id": "d03",
+          "answer": "The pixel size of the embedded JPEG image is 480 by 240 [1].",
+          "chars": 60,
+          "keyword_ok": true,
+          "cites": true,
+          "citation_points_to_gold": true,
+          "claim_support": 1.0,
+          "api_error": false
+        },
+        {
+          "id": "d04",
+          "answer": "A link in a PDF is technically an annotation: a clickable rectangle on the page with an action, sometimes a URI and sometimes a jump to another page. [1]",
+          "chars": 153,
+          "keyword_ok": true,
+          "cites": true,
+          "citation_points_to_gold": true,
+          "claim_support": 1.0,
+          "api_error": false
+        }
+      ]
+    },
+    {
+      "run": 3,
+      "n": 25,
+      "keyword_accuracy": 1.0,
+      "citation_rate": 1.0,
+      "citation_gold_rate": 0.92,
+      "claim_support_rate": 0.92,
+      "mean_answer_chars": 93.3,
+      "total_seconds": 577.7,
+      "rows": [
+        {
+          "id": "e01",
+          "answer": "all-MiniLM-L6-v2 has 22 million parameters [1].",
+          "chars": 47,
+          "keyword_ok": true,
+          "cites": true,
+          "citation_points_to_gold": true,
+          "claim_support": 1.0,
+          "api_error": false
+        },
+        {
+          "id": "e02",
+          "answer": "bge-small-en-v1.5 reaches 62.2 on the MTEB retrieval average [1].",
+          "chars": 65,
+          "keyword_ok": true,
+          "cites": true,
+          "citation_points_to_gold": true,
+          "claim_support": 1.0,
+          "api_error": false
+        },
+        {
+          "id": "e03",
+          "answer": "The e5 family expects an asymmetric prefix: documents are embedded as they are, while queries must be prefixed with the literal string 'query:' [1].",
+          "chars": 148,
+          "keyword_ok": true,
+          "cites": true,
+          "citation_points_to_gold": true,
+          "claim_support": 1.0,
+          "api_error": false
+        },
+        {
+          "id": "e04",
+          "answer": "MiniLM needs about 90 megabytes of weights [1].",
+          "chars": 47,
+          "keyword_ok": true,
+          "cites": true,
+          "citation_points_to_gold": true,
+          "claim_support": 1.0,
+          "api_error": false
+        },
+        {
+          "id": "e05",
+          "answer": "bge-base-en-v1.5 produces 768-dimensional vectors [2].",
+          "chars": 54,
+          "keyword_ok": true,
+          "cites": true,
+          "citation_points_to_gold": false,
+          "claim_support": 0.0,
+          "api_error": false
+        },
+        {
+          "id": "v01",
+          "answer": "The default number of HNSW neighbours per node in ChromaDB is M=16 [1].",
+          "chars": 71,
+          "keyword_ok": true,
+          "cites": true,
+          "citation_points_to_gold": true,
+          "claim_support": 1.0,
+          "api_error": false
+        },
+        {
+          "id": "v02",
+          "answer": "pgvector keeps vectors next to relational data [1].",
+          "chars": 51,
+          "keyword_ok": true,
+          "cites": true,
+          "citation_points_to_gold": true,
+          "claim_support": 1.0,
+          "api_error": false
+        },
+        {
+          "id": "v03",
+          "answer": "A command-line script and a running app should avoid indexing at the same time because Persistence is one file lock away from trouble: two writers on the same directory are not supported [1].",
+          "chars": 191,
+          "keyword_ok": true,
+          "cites": true,
+          "citation_points_to_gold": true,
+          "claim_support": 1.0,
+          "api_error": false
+        },
+        {
+          "id": "v04",
+          "answer": "Cosine space requires normalized vectors [1].",
+          "chars": 45,
+          "keyword_ok": true,
+          "cites": true,
+          "citation_points_to_gold": true,
+          "claim_support": 1.0,
+          "api_error": false
+        },
+        {
+          "id": "c01",
+          "answer": "When there is no overlap, roughly 12 percent of answers in a paragraph-level evaluation sit across a cut and become unreachable. [1]",
+          "chars": 132,
+          "keyword_ok": true,
+          "cites": true,
+          "citation_points_to_gold": true,
+          "claim_support": 1.0,
+          "api_error": false
+        },
+        {
+          "id": "c02",
+          "answer": "This project uses 150 characters of overlap [1].",
+          "chars": 48,
+          "keyword_ok": true,
+          "cites": true,
+          "citation_points_to_gold": true,
+          "claim_support": 1.0,
+          "api_error": false
+        },
+        {
+          "id": "c03",
+          "answer": "A tail shorter than 80 characters is merged into the previous chunk. [1]",
+          "chars": 72,
+          "keyword_ok": true,
+          "cites": true,
+          "citation_points_to_gold": true,
+          "claim_support": 1.0,
           "api_error": false
         },
         {
@@ -454,239 +716,7 @@
         },
         {
           "id": "p02",
-          "answer": "Four blocks of 800 characters come to roughly 3200 characters, around 700 tokens. [1]",
-          "chars": 85,
-          "keyword_ok": true,
-          "cites": true,
-          "citation_points_to_gold": true,
-          "claim_support": 1.0,
-          "api_error": false
-        },
-        {
-          "id": "p03",
-          "answer": "The effect that makes facts in the middle of a long prompt less accurate is Context dilution [1].",
-          "chars": 97,
-          "keyword_ok": true,
-          "cites": true,
-          "citation_points_to_gold": true,
-          "claim_support": 1.0,
-          "api_error": false
-        },
-        {
-          "id": "p04",
-          "answer": "Claim-by-claim verification can catch models sometimes citing block 2 while quoting block 1, which rate-based citation metrics cannot detect. [2]",
-          "chars": 145,
-          "keyword_ok": false,
-          "cites": true,
-          "citation_points_to_gold": false,
-          "claim_support": 0.0,
-          "api_error": false
-        },
-        {
-          "id": "d01",
-          "answer": "Text in a PDF is stored as character codes plus the font needed to draw them [1].",
-          "chars": 81,
-          "keyword_ok": true,
-          "cites": true,
-          "citation_points_to_gold": true,
-          "claim_support": 1.0,
-          "api_error": false
-        },
-        {
-          "id": "d02",
-          "answer": "A 480 by 240 JPEG is embedded as it is, with the DCTDecode filter. [1]",
-          "chars": 70,
-          "keyword_ok": true,
-          "cites": true,
-          "citation_points_to_gold": true,
-          "claim_support": 1.0,
-          "api_error": false
-        },
-        {
-          "id": "d03",
-          "answer": "The pixel size of the embedded JPEG image is 480 by 240 pixels [1].",
-          "chars": 67,
-          "keyword_ok": true,
-          "cites": true,
-          "citation_points_to_gold": true,
-          "claim_support": 1.0,
-          "api_error": false
-        },
-        {
-          "id": "d04",
-          "answer": "A link in a PDF is a clickable rectangle on the page with an action, sometimes a URI and sometimes a jump to another page. [1]",
-          "chars": 126,
-          "keyword_ok": false,
-          "cites": true,
-          "citation_points_to_gold": true,
-          "claim_support": 1.0,
-          "api_error": false
-        }
-      ]
-    },
-    {
-      "run": 3,
-      "n": 25,
-      "keyword_accuracy": 0.96,
-      "citation_rate": 1.0,
-      "citation_gold_rate": 0.8,
-      "claim_support_rate": 0.8,
-      "mean_answer_chars": 95,
-      "total_seconds": 586.9,
-      "rows": [
-        {
-          "id": "e01",
-          "answer": "all-MiniLM-L6-v2 has 22 million parameters [1].",
-          "chars": 47,
-          "keyword_ok": true,
-          "cites": true,
-          "citation_points_to_gold": true,
-          "claim_support": 1.0,
-          "api_error": false
-        },
-        {
-          "id": "e02",
-          "answer": "bge-small-en-v1.5 reaches 62.2 on the MTEB retrieval average [1].",
-          "chars": 65,
-          "keyword_ok": true,
-          "cites": true,
-          "citation_points_to_gold": true,
-          "claim_support": 1.0,
-          "api_error": false
-        },
-        {
-          "id": "e03",
-          "answer": "The e5 family expects an asymmetric prefix and requires the literal query prefix 'query:' [1].",
-          "chars": 94,
-          "keyword_ok": true,
-          "cites": true,
-          "citation_points_to_gold": true,
-          "claim_support": 1.0,
-          "api_error": false
-        },
-        {
-          "id": "e04",
-          "answer": "The MiniLM weights need about 90 megabytes of weights [1].",
-          "chars": 58,
-          "keyword_ok": true,
-          "cites": true,
-          "citation_points_to_gold": true,
-          "claim_support": 1.0,
-          "api_error": false
-        },
-        {
-          "id": "e05",
-          "answer": "bge-base-en-v1.5 produces 768-dimensional vectors [2].",
-          "chars": 54,
-          "keyword_ok": true,
-          "cites": true,
-          "citation_points_to_gold": false,
-          "claim_support": 0.0,
-          "api_error": false
-        },
-        {
-          "id": "v01",
-          "answer": "The default number of HNSW neighbours per node in ChromaDB is 16 [1].",
-          "chars": 69,
-          "keyword_ok": true,
-          "cites": true,
-          "citation_points_to_gold": true,
-          "claim_support": 1.0,
-          "api_error": false
-        },
-        {
-          "id": "v02",
-          "answer": "pgvector keeps vectors next to relational data [3].",
-          "chars": 51,
-          "keyword_ok": true,
-          "cites": true,
-          "citation_points_to_gold": false,
-          "claim_support": 0.0,
-          "api_error": false
-        },
-        {
-          "id": "v03",
-          "answer": "A command-line script and a running app should avoid indexing at the same time because persistence is one file lock away from trouble: two writers on the same directory are not supported, so a command-line script and a running app should not index at the same time. [1]",
-          "chars": 269,
-          "keyword_ok": true,
-          "cites": true,
-          "citation_points_to_gold": true,
-          "claim_support": 1.0,
-          "api_error": false
-        },
-        {
-          "id": "v04",
-          "answer": "Cosine space requires normalized vectors [1].",
-          "chars": 45,
-          "keyword_ok": true,
-          "cites": true,
-          "citation_points_to_gold": true,
-          "claim_support": 1.0,
-          "api_error": false
-        },
-        {
-          "id": "c01",
-          "answer": "When there is no overlap, roughly 12 percent of answers in a paragraph-level evaluation sit across a cut and become unreachable. [1]",
-          "chars": 132,
-          "keyword_ok": true,
-          "cites": true,
-          "citation_points_to_gold": true,
-          "claim_support": 1.0,
-          "api_error": false
-        },
-        {
-          "id": "c02",
-          "answer": "This project uses 150 characters of overlap [1].",
-          "chars": 48,
-          "keyword_ok": true,
-          "cites": true,
-          "citation_points_to_gold": true,
-          "claim_support": 1.0,
-          "api_error": false
-        },
-        {
-          "id": "c03",
-          "answer": "A 40-character fragment carries almost no retrievable meaning. Merging tails shorter than 80 characters into the previous chunk removes most of the junk. [3]",
-          "chars": 157,
-          "keyword_ok": true,
-          "cites": true,
-          "citation_points_to_gold": false,
-          "claim_support": 0.0,
-          "api_error": false
-        },
-        {
-          "id": "c04",
-          "answer": "Table questions often retrieve the right page but lose columns [2].",
-          "chars": 67,
-          "keyword_ok": true,
-          "cites": true,
-          "citation_points_to_gold": true,
-          "claim_support": 1.0,
-          "api_error": false
-        },
-        {
-          "id": "r01",
-          "answer": "A correct answer at position 3 scores 0.33 [2].",
-          "chars": 47,
-          "keyword_ok": true,
-          "cites": true,
-          "citation_points_to_gold": false,
-          "claim_support": 0.0,
-          "api_error": false
-        },
-        {
-          "id": "r02",
-          "answer": "Thirty to forty questions over a corpus of thirty chunks is enough to see a difference between configurations. [1]",
-          "chars": 114,
-          "keyword_ok": true,
-          "cites": true,
-          "citation_points_to_gold": true,
-          "claim_support": 1.0,
-          "api_error": false
-        },
-        {
-          "id": "r03",
-          "answer": "When the corpus holds only four chunks, hit@3 is 1.0 for almost any configuration [1].",
+          "answer": "Four blocks of 800 characters come to roughly 3200 characters, around 700 tokens. [1].",
           "chars": 86,
           "keyword_ok": true,
           "cites": true,
@@ -695,39 +725,9 @@
           "api_error": false
         },
         {
-          "id": "r04",
-          "answer": "hit@k counts a question as solved if any gold item is in the top k. It is the most quoted and least informative metric, because it hides how far down the answer was. [1]",
-          "chars": 169,
-          "keyword_ok": true,
-          "cites": true,
-          "citation_points_to_gold": true,
-          "claim_support": 1.0,
-          "api_error": false
-        },
-        {
-          "id": "p01",
-          "answer": "A value of 0.2 keeps phrasing stable between runs; 0.7 belongs to creative writing, not to citations. [1]",
-          "chars": 105,
-          "keyword_ok": true,
-          "cites": true,
-          "citation_points_to_gold": true,
-          "claim_support": 1.0,
-          "api_error": false
-        },
-        {
-          "id": "p02",
-          "answer": "Four blocks of 800 characters come to roughly 3200 characters, around 700 tokens. [1]",
-          "chars": 85,
-          "keyword_ok": true,
-          "cites": true,
-          "citation_points_to_gold": true,
-          "claim_support": 1.0,
-          "api_error": false
-        },
-        {
           "id": "p03",
-          "answer": "The effect that makes facts in the middle of a long prompt less accurate is Context dilution [1].",
-          "chars": 97,
+          "answer": "The effect that makes facts in the middle of a long prompt less accurate is called Context dilution [1].",
+          "chars": 104,
           "keyword_ok": true,
           "cites": true,
           "citation_points_to_gold": true,
@@ -736,12 +736,12 @@
         },
         {
           "id": "p04",
-          "answer": "Claim-by-claim verification can catch models sometimes citing block 2 while quoting block 1, which rate-based citation metrics cannot detect. [2]",
-          "chars": 145,
-          "keyword_ok": false,
+          "answer": "Claim-by-claim verification catches citation drift, which is when a model cites block 2 while quoting block 1. Rate-based citation metrics do not detect this issue; they cannot catch models that cite incorrectly. [1]",
+          "chars": 216,
+          "keyword_ok": true,
           "cites": true,
-          "citation_points_to_gold": false,
-          "claim_support": 0.0,
+          "citation_points_to_gold": true,
+          "claim_support": 1.0,
           "api_error": false
         },
         {
@@ -766,8 +766,8 @@
         },
         {
           "id": "d03",
-          "answer": "The pixel size of the embedded JPEG image is 480 by 240 pixels [1].",
-          "chars": 67,
+          "answer": "The pixel size of the embedded JPEG image is 480 by 240 [1].",
+          "chars": 60,
           "keyword_ok": true,
           "cites": true,
           "citation_points_to_gold": true,
@@ -790,14 +790,14 @@
   "across_runs": {
     "keyword_accuracy": {
       "values": [
-        0.92,
-        0.92,
-        0.96
+        1.0,
+        1.0,
+        1.0
       ],
-      "mean": 0.933,
-      "sd": 0.023,
-      "min": 0.92,
-      "max": 0.96
+      "mean": 1.0,
+      "sd": 0.0,
+      "min": 1.0,
+      "max": 1.0
     },
     "citation_rate": {
       "values": [
@@ -812,45 +812,45 @@
     },
     "citation_gold_rate": {
       "values": [
-        0.8,
-        0.8,
-        0.8
+        0.92,
+        0.92,
+        0.92
       ],
-      "mean": 0.8,
+      "mean": 0.92,
       "sd": 0.0,
-      "min": 0.8,
-      "max": 0.8
+      "min": 0.92,
+      "max": 0.92
     },
     "claim_support_rate": {
       "values": [
-        0.8,
-        0.8,
-        0.8
+        0.92,
+        0.92,
+        0.92
       ],
-      "mean": 0.8,
+      "mean": 0.92,
       "sd": 0.0,
-      "min": 0.8,
-      "max": 0.8
+      "min": 0.92,
+      "max": 0.92
     },
     "mean_answer_chars": {
       "values": [
-        97.8,
-        94.1,
-        95
+        91.2,
+        91,
+        93.3
       ],
-      "mean": 95.633,
-      "sd": 1.93,
-      "min": 94.1,
-      "max": 97.8
+      "mean": 91.833,
+      "sd": 1.274,
+      "min": 91,
+      "max": 93.3
     }
   },
   "pooled": {
     "keyword_ok": {
-      "rate": 0.933,
+      "rate": 1.0,
       "n": 75,
       "wilson_95": [
-        0.853,
-        0.971
+        0.951,
+        1.0
       ]
     },
     "cites": {
@@ -862,17 +862,15 @@
       ]
     },
     "citation_points_to_gold": {
-      "rate": 0.8,
+      "rate": 0.92,
       "n": 75,
       "wilson_95": [
-        0.696,
-        0.875
+        0.836,
+        0.963
       ]
     }
   },
-  "flaky_questions": [
-    "d04"
-  ],
+  "flaky_questions": [],
   "retrieval_stable": true,
   "retrieval_signature": {
     "e01": [
@@ -1441,5 +1439,5 @@
     "llm_model": "qwen2.5:3b",
     "strip_boilerplate": true
   },
-  "generated_at": "2026-11-24T11:08:05"
+  "generated_at": "2026-11-24T22:18:01"
 }

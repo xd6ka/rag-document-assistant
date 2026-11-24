@@ -27,6 +27,15 @@ def test_russian_refusal_is_recognised():
     assert is_refusal("В документе нет информации об этом, не знаю.") is True
 
 
+def test_passive_cannot_be_found_is_a_refusal():
+    # produced verbatim by qwen2.5:3b during the prompt-budget sweep, and counted as
+    # an answer because the pattern only knew "cannot find"
+    answer = 'The answer to the question "What is the capital of Mongolia?" cannot be found in the provided context. [1]'
+    assert is_refusal(answer) is True
+    assert is_refusal("The capital cannot be determined from the provided text.") is True
+    assert is_refusal("This fact is not found in the document. [1]") is True
+
+
 def test_a_real_answer_is_not_a_refusal():
     answer = "all-MiniLM-L6-v2 has 22 million parameters [1]."
     assert is_refusal(answer) is False
