@@ -1,0 +1,655 @@
+{
+  "generated_at": "2026-11-24T10:19:13+00:00",
+  "model": "cross-encoder/nli-MiniLM2-L6-H768",
+  "threshold": 0.35,
+  "summary": {
+    "answers": 27,
+    "claims": 29,
+    "skipped_meta_claims": 1,
+    "nli_supported": 23,
+    "nli_flagged": 6,
+    "agrees_with_lexical": 23,
+    "replayed_rows": 27,
+    "threshold": 0.35
+  },
+  "rows": [
+    {
+      "id": "a_r1",
+      "doc": "attention",
+      "replayed": true,
+      "skipped_meta": 0,
+      "claims": [
+        {
+          "sentence": "The encoder is composed of a stack of N = 6 identical layers.",
+          "cited_blocks": [
+            1
+          ],
+          "lexical_verdict": "supported",
+          "lexical_overlap": 1.0,
+          "entail_score": 0.9857,
+          "entail_supported": true,
+          "block_page": [
+            3
+          ],
+          "block_snippet": "Figure 1: The Transformer - model architecture. The Transformer follows this overall architecture using stacked self-attention and point-wise, fully connected layers for both the encoder and decoder, shown in the left an ..."
+        }
+      ]
+    },
+    {
+      "id": "a_r2",
+      "doc": "attention",
+      "replayed": true,
+      "skipped_meta": 0,
+      "claims": [
+        {
+          "sentence": "The big transformer model achieves a BLEU score of 41.8 on the WMT 2014 English-to-French translation task after training for 3.5 days on eight GPUs.",
+          "cited_blocks": [
+            3,
+            3
+          ],
+          "lexical_verdict": "supported",
+          "lexical_overlap": 0.875,
+          "entail_score": 0.7327,
+          "entail_supported": true,
+          "block_page": [
+            1,
+            1
+          ],
+          "block_snippet": "n translation task, improving over the existing best results, including ensembles, by over 2 BLEU. On the WMT 2014 English-to-French translation task, our model establishes a new single-model state-of-the-art BLEU score  ..."
+        }
+      ]
+    },
+    {
+      "id": "a_r3",
+      "doc": "attention",
+      "replayed": true,
+      "skipped_meta": 0,
+      "claims": [
+        {
+          "sentence": "Eight attention heads run in parallel, and each head is 64 wide .",
+          "cited_blocks": [
+            1,
+            2
+          ],
+          "lexical_verdict": "supported",
+          "lexical_overlap": 0.625,
+          "entail_score": 0.0257,
+          "entail_supported": false,
+          "block_page": [
+            5,
+            4
+          ],
+          "block_snippet": "output values. These are concatenated and once again projected, resulting in the final values, as depicted in Figure 2. Multi-head attention allows the model to jointly attend to information from different representation ..."
+        }
+      ]
+    },
+    {
+      "id": "b_r1",
+      "doc": "bert",
+      "replayed": true,
+      "skipped_meta": 0,
+      "claims": []
+    },
+    {
+      "id": "b_r2",
+      "doc": "bert",
+      "replayed": true,
+      "skipped_meta": 0,
+      "claims": [
+        {
+          "sentence": "The Appendix C collects the additional ablation studies on training steps.",
+          "cited_blocks": [
+            1
+          ],
+          "lexical_verdict": "supported",
+          "lexical_overlap": 0.857,
+          "entail_score": 0.9637,
+          "entail_supported": true,
+          "block_page": [
+            12
+          ],
+          "block_snippet": "y-like visual explanations by watching movies and reading books. In Proceedings of the IEEE international conference on computer vision , pages 19–27. Appendix for “BERT: Pre-training of Deep Bidirectional Transformers f ..."
+        }
+      ]
+    },
+    {
+      "id": "b_r3",
+      "doc": "bert",
+      "replayed": true,
+      "skipped_meta": 0,
+      "claims": [
+        {
+          "sentence": "Besides masked language modelling, next sentence prediction task is also used to jointly pre-train text-pair representations.",
+          "cited_blocks": [
+            1
+          ],
+          "lexical_verdict": "supported",
+          "lexical_overlap": 0.714,
+          "entail_score": 0.9945,
+          "entail_supported": true,
+          "block_page": [
+            2
+          ],
+          "block_snippet": "word based only on its context. Unlike left-to- right language model pre-training, the MLM ob- jective enables the representation to fuse the left and the right context, which allows us to pre- train a deep bidirectional ..."
+        }
+      ]
+    },
+    {
+      "id": "r_r1",
+      "doc": "rag",
+      "replayed": true,
+      "skipped_meta": 0,
+      "claims": [
+        {
+          "sentence": "The RAG-Token model marginalizes over documents when decoding.",
+          "cited_blocks": [
+            3
+          ],
+          "lexical_verdict": "supported",
+          "lexical_overlap": 0.429,
+          "entail_score": 0.1153,
+          "entail_supported": false,
+          "block_page": [
+            4
+          ],
+          "block_snippet": "minimize the negative marginal log-likelihood of each target,∑j− logp(yj|xj) using stochastic gradient descent with Adam [28]. Updating the document encoder BERTd during training is costly as it requires the document ind ..."
+        }
+      ]
+    },
+    {
+      "id": "r_r2",
+      "doc": "rag",
+      "replayed": true,
+      "skipped_meta": 0,
+      "claims": [
+        {
+          "sentence": "RAG-Sequence reaches a score of 28.9 EM on Natural Questions .",
+          "cited_blocks": [
+            1
+          ],
+          "lexical_verdict": "supported",
+          "lexical_overlap": 0.8,
+          "entail_score": 0.9379,
+          "entail_supported": true,
+          "block_page": [
+            19
+          ],
+          "block_snippet": "achieves a score of 28.9 EM on Natural Questions [52], substantially below the 44.5 that RAG-Sequence achieves, indicating that hybrid parametric/non- parametric models require far fewer trainable parameters for strong o ..."
+        }
+      ]
+    },
+    {
+      "id": "n_r1",
+      "doc": "nist-800-63b",
+      "replayed": true,
+      "skipped_meta": 0,
+      "claims": [
+        {
+          "sentence": "Digital authentication is the process of determining the validity of one or more authenticators used to claim a digital identity.",
+          "cited_blocks": [
+            1
+          ],
+          "lexical_verdict": "supported",
+          "lexical_overlap": 1.0,
+          "entail_score": 0.9741,
+          "entail_supported": true,
+          "block_page": [
+            13
+          ],
+          "block_snippet": "This publication is available free of charge from: https://doi.org/10.6028/NIST.SP.800-63b 2 Introduction This section is informative. Digital identity is the unique representation of a subject engaged in an online trans ..."
+        }
+      ]
+    },
+    {
+      "id": "n_r2",
+      "doc": "nist-800-63b",
+      "replayed": true,
+      "skipped_meta": 0,
+      "claims": [
+        {
+          "sentence": "Use of the PSTN for out-of-band verification is RESTRICTED as described in this section and in Section 5.2.10.",
+          "cited_blocks": [
+            1
+          ],
+          "lexical_verdict": "supported",
+          "lexical_overlap": 1.0,
+          "entail_score": 0.9745,
+          "entail_supported": true,
+          "block_page": [
+            30
+          ],
+          "block_snippet": "This publication is available free of charge from: https://doi.org/10.6028/NIST.SP.800-63b 5.1.3.3 Authentication using the Public Switched Telephone Network Use of the PSTN for out-of-band verification is RESTRICTED as  ..."
+        }
+      ]
+    },
+    {
+      "id": "n_r3",
+      "doc": "nist-800-63b",
+      "replayed": true,
+      "skipped_meta": 0,
+      "claims": [
+        {
+          "sentence": "For example, the claimant may receive the secret on their mobile device and type it (typically a 6-digit code) into their authentication session.",
+          "cited_blocks": [
+            1
+          ],
+          "lexical_verdict": "supported",
+          "lexical_overlap": 1.0,
+          "entail_score": 0.988,
+          "entail_supported": true,
+          "block_page": [
+            28
+          ],
+          "block_snippet": "This publication is available free of charge from: https://doi.org/10.6028/NIST.SP.800-63b • The claimant transfers a secret received by the out-of-band device via the secondary channel to the verifier using the primary  ..."
+        }
+      ]
+    },
+    {
+      "id": "g_r1",
+      "doc": "gpo-911",
+      "replayed": true,
+      "skipped_meta": 0,
+      "claims": [
+        {
+          "sentence": "The aircraft five miles away from the shelter turned out to be a medevac helicopter .",
+          "cited_blocks": [
+            1
+          ],
+          "lexical_verdict": "supported",
+          "lexical_overlap": 0.667,
+          "entail_score": 0.2991,
+          "entail_supported": false,
+          "block_page": [
+            60
+          ],
+          "block_snippet": "42 THE 9/11 COMMISSION REPORT inbound aircraft.In the apt description of one witness,“It drops below the radar screen and it’s just continually hovering in your imagination; you don’t know where it is or what happens to  ..."
+        }
+      ]
+    },
+    {
+      "id": "g_r2",
+      "doc": "gpo-911",
+      "replayed": true,
+      "skipped_meta": 0,
+      "claims": [
+        {
+          "sentence": "Eighty-one passengers boarded the flight with them (including the five terrorists).22 The plane took off at 7:59.",
+          "cited_blocks": [
+            3
+          ],
+          "lexical_verdict": "supported",
+          "lexical_overlap": 0.636,
+          "entail_score": 0.0051,
+          "entail_supported": false,
+          "block_page": [
+            22
+          ],
+          "block_snippet": "The 19 men were aboard four transcontinental flights. 21 They were plan- ning to hijack these planes and turn them into large guided missiles, loaded with up to 11,400 gallons of jet fuel. By 8:00 A.M. on the morning of  ..."
+        }
+      ]
+    },
+    {
+      "id": "g_r3",
+      "doc": "gpo-911",
+      "replayed": true,
+      "skipped_meta": 0,
+      "claims": [
+        {
+          "sentence": "The Otis fighters established a combat air patrol (CAP) over the city at 9:25 .",
+          "cited_blocks": [
+            1
+          ],
+          "lexical_verdict": "supported",
+          "lexical_overlap": 1.0,
+          "entail_score": 0.2272,
+          "entail_supported": false,
+          "block_page": [
+            42
+          ],
+          "block_snippet": "24 THE 9/11 COMMISSION REPORT this stuff is gonna keep on going, we need to take those fighters, put ’em over Manhattan.That’s best thing, that’s the best play right now. So coordinate with the FAA.T ell ’em if there’s m ..."
+        }
+      ]
+    },
+    {
+      "id": "h_r1",
+      "doc": "bills-hr3684",
+      "replayed": true,
+      "skipped_meta": 0,
+      "claims": [
+        {
+          "sentence": "Road repairs that are eligible when a road sits in a base floodplain include relocating roadways to higher ground or away from slide-prone areas, stabilizing slide areas, and stabilizing slopes.",
+          "cited_blocks": [
+            1
+          ],
+          "lexical_verdict": "supported",
+          "lexical_overlap": 0.619,
+          "entail_score": 0.4113,
+          "entail_supported": true,
+          "block_page": [
+            30
+          ],
+          "block_snippet": "‘‘(B) relocating roadways in a base floodplain to higher ground above projected flood elevation levels or away from slide prone areas; ‘‘(C) stabilizing slide areas; ‘‘(D) stabilizing slopes; ‘‘(E) lengthening or raising ..."
+        }
+      ]
+    },
+    {
+      "id": "h_r2",
+      "doc": "bills-hr3684",
+      "replayed": true,
+      "skipped_meta": 0,
+      "claims": [
+        {
+          "sentence": "For fiscal year 2022, $421,965,000 is allocated to the Federal lands transportation program .",
+          "cited_blocks": [
+            2
+          ],
+          "lexical_verdict": "supported",
+          "lexical_overlap": 0.636,
+          "entail_score": 0.3744,
+          "entail_supported": true,
+          "block_page": [
+            15
+          ],
+          "block_snippet": "h of fiscal years 2022 through 2026. (3) F EDERAL LANDS AND TRIBAL TRANSPORTATION PRO - GRAMS.— (A) T RIBAL TRANSPORTATION PROGRAM .—For the tribal transportation program under section 202 of title 23, United States Code ..."
+        }
+      ]
+    },
+    {
+      "id": "p_r1",
+      "doc": "patent-us9600411",
+      "replayed": true,
+      "skipped_meta": 0,
+      "claims": [
+        {
+          "sentence": "The assignee is ths latworks Inc., Natick, MA .",
+          "cited_blocks": [
+            1
+          ],
+          "lexical_verdict": "supported",
+          "lexical_overlap": 1.0,
+          "entail_score": 0.7045,
+          "entail_supported": true,
+          "block_page": [
+            1
+          ],
+          "block_snippet": "United States Patent USOO9600411 B2 (12) (10) Patent No.: US 9,600,411 B2 Foti (45) Date of Patent: Mar. 21, 2017 (54) SYSTEM AND METHOD FOR 6,381,738 B1 4/2002 Choi et al. DETERMINING AN OBJECTS LIFETIME IN 3: E. 1333 t ..."
+        }
+      ]
+    },
+    {
+      "id": "p_r3",
+      "doc": "patent-us9600411",
+      "replayed": true,
+      "skipped_meta": 0,
+      "claims": [
+        {
+          "sentence": "The edges of the root record graph are configured to point in an opposite direction relative to the references to the objects defined in the object-oriented programming environment .",
+          "cited_blocks": [
+            1,
+            2,
+            3
+          ],
+          "lexical_verdict": "supported",
+          "lexical_overlap": 0.933,
+          "entail_score": 0.9784,
+          "entail_supported": true,
+          "block_page": [
+            31,
+            30,
+            29
+          ],
+          "block_snippet": "ated with root records for the objects, the root record graph including one or more roots; configure the edges of the root record graph to point in an opposite direction relative to references to the objects, the referen ..."
+        }
+      ]
+    },
+    {
+      "id": "f_r1",
+      "doc": "fed-annual-2023",
+      "replayed": true,
+      "skipped_meta": 0,
+      "claims": [
+        {
+          "sentence": "GDP increased by 3.1 percent last year .",
+          "cited_blocks": [
+            1
+          ],
+          "lexical_verdict": "supported",
+          "lexical_overlap": 1.0,
+          "entail_score": 0.949,
+          "entail_supported": true,
+          "block_page": [
+            11
+          ],
+          "block_snippet": "Economic activity. Real GDP increased 3.1 percent last year, notably faster than in 2022 despite tighter financial conditions, including elevated longer-term interest rates. Consumer spending grew at a solid pace, and ho ..."
+        }
+      ]
+    },
+    {
+      "id": "f_r2",
+      "doc": "fed-annual-2023",
+      "replayed": true,
+      "skipped_meta": 0,
+      "claims": [
+        {
+          "sentence": "bank holding companies (BHCs) were in operation .",
+          "cited_blocks": [
+            1
+          ],
+          "lexical_verdict": "supported",
+          "lexical_overlap": 1.0,
+          "entail_score": 0.9296,
+          "entail_supported": true,
+          "block_page": [
+            33
+          ],
+          "block_snippet": "Bank Holding Companies At year-end 2023, a total of 3,794 U.S. bank holding companies (BHCs) were in operation, of which 3,407 were top-tier BHCs. These organizations controlled 3,486 insured commercial banks and held ap ..."
+        },
+        {
+          "sentence": "Of these, 3,407 were top-tier BHCs .",
+          "cited_blocks": [
+            1
+          ],
+          "lexical_verdict": "supported",
+          "lexical_overlap": 1.0,
+          "entail_score": 0.9499,
+          "entail_supported": true,
+          "block_page": [
+            33
+          ],
+          "block_snippet": "Bank Holding Companies At year-end 2023, a total of 3,794 U.S. bank holding companies (BHCs) were in operation, of which 3,407 were top-tier BHCs. These organizations controlled 3,486 insured commercial banks and held ap ..."
+        }
+      ]
+    },
+    {
+      "id": "f_r3",
+      "doc": "fed-annual-2023",
+      "replayed": true,
+      "skipped_meta": 0,
+      "claims": [
+        {
+          "sentence": "The PCE price index came down from its peak of 7.1 percent last year, as measured by the 12-month change in the price index for personal consumption expenditures (PCE) .",
+          "cited_blocks": [
+            1
+          ],
+          "lexical_verdict": "supported",
+          "lexical_overlap": 0.667,
+          "entail_score": 0.8705,
+          "entail_supported": true,
+          "block_page": [
+            10
+          ],
+          "block_snippet": "Recent Economic and Financial Developments Inflation. Consumer price inflation has slowed notably but remains above 2 percent. The price index for personal consumption expenditures (PCE) rose 2.4 percent over the 12 mont ..."
+        },
+        {
+          "sentence": "The 12-month PCE inflation rate ending in January was 2.4 percent .",
+          "cited_blocks": [
+            1
+          ],
+          "lexical_verdict": "supported",
+          "lexical_overlap": 0.857,
+          "entail_score": 0.9692,
+          "entail_supported": true,
+          "block_page": [
+            10
+          ],
+          "block_snippet": "Recent Economic and Financial Developments Inflation. Consumer price inflation has slowed notably but remains above 2 percent. The price index for personal consumption expenditures (PCE) rose 2.4 percent over the 12 mont ..."
+        }
+      ]
+    },
+    {
+      "id": "i_r1",
+      "doc": "ipcc-ar6-ch3",
+      "replayed": true,
+      "skipped_meta": 0,
+      "claims": [
+        {
+          "sentence": "The IPCC Second Assessment Report (SAR, 1995) concluded 'the balance of evidence suggests that there is a discernible human influence on global climate' .",
+          "cited_blocks": [
+            1
+          ],
+          "lexical_verdict": "supported",
+          "lexical_overlap": 1.0,
+          "entail_score": 0.9516,
+          "entail_supported": true,
+          "block_page": [
+            3
+          ],
+          "block_snippet": "Executive Summary The evidence for human influence on recent climate change strengthened from the IPCC Second Assessment Report to the IPCC Fifth Assessment Report, and is now even stronger in this assessment. The IPCC S ..."
+        }
+      ]
+    },
+    {
+      "id": "i_r2",
+      "doc": "ipcc-ar6-ch3",
+      "replayed": true,
+      "skipped_meta": 0,
+      "claims": [
+        {
+          "sentence": "The past five-year period (2016–2020) is described as the warmest five-year period in the instrumental record since at least 1850 .",
+          "cited_blocks": [
+            1,
+            4
+          ],
+          "lexical_verdict": "supported",
+          "lexical_overlap": 0.929,
+          "entail_score": 0.9913,
+          "entail_supported": true,
+          "block_page": [
+            4,
+            17
+          ],
+          "block_snippet": "high confidence). Since 2012, GMST has warmed strongly, with the past five years (2016–2020) being the warmest five-year period in the instrumental record since at least 1850 ( high confidence ). {Cross-Chapter Box 3.1,  ..."
+        }
+      ]
+    },
+    {
+      "id": "d_r1",
+      "doc": "dropout-2012",
+      "replayed": true,
+      "skipped_meta": 1,
+      "claims": []
+    },
+    {
+      "id": "d_r2",
+      "doc": "dropout-2012",
+      "replayed": true,
+      "skipped_meta": 0,
+      "claims": [
+        {
+          "sentence": "For hidden units, 50% dropout rate was used .",
+          "cited_blocks": [
+            1,
+            2
+          ],
+          "lexical_verdict": "supported",
+          "lexical_overlap": 1.0,
+          "entail_score": 0.8536,
+          "entail_supported": true,
+          "block_page": [
+            8,
+            8
+          ],
+          "block_snippet": "A Experiments on MNIST A.1 Details for dropout training The MNIST dataset consists of 28× 28 digit images - 60,000 for training and 10,000 for testing. The objective is to classify the digit images into their correct dig ..."
+        },
+        {
+          "sentence": "For visible units, 20% dropout rate was used .",
+          "cited_blocks": [
+            1,
+            2
+          ],
+          "lexical_verdict": "supported",
+          "lexical_overlap": 1.0,
+          "entail_score": 0.8482,
+          "entail_supported": true,
+          "block_page": [
+            8,
+            8
+          ],
+          "block_snippet": "A Experiments on MNIST A.1 Details for dropout training The MNIST dataset consists of 28× 28 digit images - 60,000 for training and 10,000 for testing. The objective is to classify the digit images into their correct dig ..."
+        }
+      ]
+    },
+    {
+      "id": "d_r3",
+      "doc": "dropout-2012",
+      "replayed": true,
+      "skipped_meta": 0,
+      "claims": [
+        {
+          "sentence": "The CIFAR-10 models were trained on a single NVIDIA GTX 580 GPU .",
+          "cited_blocks": [
+            1,
+            3
+          ],
+          "lexical_verdict": "supported",
+          "lexical_overlap": 0.875,
+          "entail_score": 0.8064,
+          "entail_supported": true,
+          "block_page": [
+            17,
+            17
+          ],
+          "block_snippet": "F.6 Training We train our models using stochastic gradient descent with a batch size of 128 examples and momentum of 0.9. Therefore the update rule for weightw is vi+1 = 0 .9vi +ϵ< ∂E∂wi >i wi+1 = wi +vi+1 wherei is the  ..."
+        },
+        {
+          "sentence": "Training took roughly 90 minutes for CIFAR-10 and four days with dropout and two days without .",
+          "cited_blocks": [
+            3
+          ],
+          "lexical_verdict": "supported",
+          "lexical_overlap": 0.636,
+          "entail_score": 0.0129,
+          "entail_supported": false,
+          "block_page": [
+            17
+          ],
+          "block_snippet": "days with dropout and two days without. F.7 Learning rates We use an equal learning rate for each layer, whose value we determine heuristically as the largest power of ten that produces reductions in the objective functi ..."
+        }
+      ]
+    },
+    {
+      "id": "x_r1",
+      "doc": null,
+      "replayed": true,
+      "skipped_meta": 0,
+      "claims": [
+        {
+          "sentence": "The Overnight Reverse Repurchase Agreement (ON RRP) facility continued to serve its intended purpose of helping to provide a floor under short-term interest rates and supporting effective implementation of monetary policy.",
+          "cited_blocks": [
+            1,
+            3
+          ],
+          "lexical_verdict": "supported",
+          "lexical_overlap": 1.0,
+          "entail_score": 0.9881,
+          "entail_supported": true,
+          "block_page": [
+            32,
+            19
+          ],
+          "block_snippet": "Supervised and Regulated Institutions The Federal Reserve categorizes banking organizations into portfolios by size and entity type, as described in table 4.1. State Member Banks At year-end 2023, a total of 1,411 banks  ..."
+        }
+      ]
+    }
+  ]
+}

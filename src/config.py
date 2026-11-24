@@ -150,3 +150,21 @@ OCR_MIN_CONFIDENCE = float(os.getenv("OCR_MIN_CONFIDENCE", "0.5"))
 # stripped before chunking so every chunk does not start with the same sentence.
 STRIP_BOILERPLATE = os.getenv("STRIP_BOILERPLATE", "1").lower() in {"1", "true", "yes", "on"}
 BOILERPLATE_PAGE_SHARE = float(os.getenv("BOILERPLATE_PAGE_SHARE", "0.4"))
+
+# --- entailment -------------------------------------------------------------
+# Sentence-level NLI answers the question the lexical citation check cannot: does
+# the cited block actually *say* this? Each block is split into sentences and the
+# claim is entailed if any sentence entails it, which avoids handing an 800-char
+# chunk to a model trained on single-sentence pairs.
+#
+# Off by default: a metric ships after it is calibrated against the hand audit
+# (eval/reports/entailment.json), not because an NLI checkpoint exists.
+#
+# The default threshold sits in the middle of the measured gap rather than on its
+# edge: on the 25 audited claims every drifted sentence scores at most 0.144 and the
+# weakest supported one scores 0.541, so anything in 0.15-0.50 gives the same
+# accuracy and only the margin differs. The midpoint keeps both tails at arm's
+# length from a single hard sentence.
+ENTAIL_ENABLED = os.getenv("ENTAIL_ENABLED", "0").lower() in {"1", "true", "yes", "on"}
+ENTAIL_MODEL = os.getenv("ENTAIL_MODEL", "cross-encoder/nli-MiniLM2-L6-H768")
+ENTAIL_THRESHOLD = float(os.getenv("ENTAIL_THRESHOLD", "0.35"))

@@ -4,7 +4,7 @@
 ![Streamlit](https://img.shields.io/badge/UI-Streamlit-FF4B4B?logo=streamlit&logoColor=white)
 ![ChromaDB](https://img.shields.io/badge/Vector%20store-ChromaDB-1F2937)
 ![LLM](https://img.shields.io/badge/LLM-Qwen%20(DashScope)-6B46C1)
-![Tests](https://img.shields.io/badge/tests-59%20passed-brightgreen)
+![Tests](https://img.shields.io/badge/tests-71%20passed-brightgreen)
 ![License](https://img.shields.io/badge/License-MIT-green)
 
 A local-first Retrieval-Augmented Generation assistant for PDF documents: upload PDFs, ask questions in plain language, and get answers grounded in the documents' own text — with the page each answer came from.
@@ -28,7 +28,8 @@ Chunking and embeddings run **entirely on the local machine** (`all-MiniLM-L6-v2
 - **Streaming answers** — tokens appear as the model writes them, and the line under each answer reports `first token X s · complete in Y s` instead of leaving a 25-second empty box.
 - **Measured, not guessed** — a 6-document synthetic corpus, 29 labelled questions, a 9-configuration retrieval ablation, a gold-label validator that fails the run when a rubric drifts, a **claim-level citation check** in which every cited sentence is compared with the block it names, a **5-configuration cross-lingual run** that asks the same facts in Russian and Chinese, an OCR run against a fully rasterised corpus, and a **second corpus of ten real PDFs** (2 155 pages, arXiv papers, a patent, a central-bank annual report, an IPCC chapter, a NIST standard, a government report, a bill) that shows what the synthetic fixtures could not.
 - **Numbers with an interval, not a single reading** — `eval/run_variance.py` repeats the answer step three times on frozen retrieval and reports the spread plus pooled 95 % Wilson intervals.
-- **59 unit tests** — chunker behaviour, provider resolution, refusal detection, ranking order, citation mapping, claim parsing, stage switches, per-model caching, the OCR fallback's trigger and failure path, token-stream order, boilerplate stripping, eval labels.
+- **A sentence-level entailment check, off by default** — each cited block is split into sentences (plus two-sentence windows, so pronouns keep their antecedent) and scored against the claim by a local NLI model; it reproduced the 25-claim manual audit exactly on the synthetic corpus and flags 6 of 29 real-corpus claims for human review. `ENTAIL_ENABLED=0`, because three of those six flags turn out to be paraphrase on real prose.
+- **71 unit tests** — chunker behaviour, provider resolution, refusal detection, ranking order, citation mapping, claim parsing, stage switches, per-model caching, the OCR fallback's trigger and failure path, token-stream order, boilerplate stripping, entailment sentence splitting and windows, eval labels.
 
 ## Architecture
 
@@ -324,7 +325,53 @@ python eval/run_real.py                     # retrieval + answers on the real co
 python eval/sweep_real_depth.py             # RETRIEVE_K 8/16/32 x cross-encoder on/off
 python eval/run_variance.py --runs 3        # repeat the answer step, report spread + Wilson intervals
 python eval/run_real_filter.py              # document-scoped vs unscoped retrieval on the real corpus
+python eval/entail_calibrate.py             # NLI threshold sweep on the 25 hand-audited claims
+python eval/entail_real.py                  # out-of-sample entailment flags on the real corpus
 ```
+
+### Entailment — does the cited block actually *say* it?
+
+`claim_support_rate` answers an attribution question: is the block a sentence cites the best match for that sentence among the four blocks in the prompt. A sentence can pass it, name the right block, and then assert something the block never says — the answer's own invention, wearing a citation as a badge. This section measures that gap with a sentence-level NLI model, and reports what it took to make the number mean anything.
+
+Two details carry the whole result. First, **the premise is split into sentences and the claim is entailed if any of them entails it** (max-pooling): a 800-character chunk handed to a sentence-pair model reads as `neutral` even when the fact is inside it. Second, **every sentence is also scored together with the sentence after it**, because a supporting sentence is often not self-contained — "the defaults are M=16" does not name ChromaDB, and "it hides how far down the answer was" replaces `hit@k` with a pronoun. Sentences that talk about the answer rather than the document ("the title is not mentioned in the provided context") are skipped: no block can entail them, so scoring them only manufactures an accusation.
+
+The first two calibrations failed, and the failure was in the harness, not in the model:
+
+| Attempt | Model | Best accuracy | Drifts rejected | Correct sentences wrongly accused |
+|---|---|---|---|---|
+| premise split on newlines | `cross-encoder/nli-MiniLM2-L6-H768` | 0.64 @ 0.10 | 5/5 | **9/20** |
+| same, stronger checkpoint | `cross-encoder/nli-deberta-v3-small` | 0.52 @ 0.15 | 5/5 | **12/20** |
+
+A bigger model made it worse, which was the clue. The chunk text in this corpus is hard-wrapped at about 60 characters, so splitting on newlines handed the model fragments: `reaches 59.8 and bge-small-en-v1.5 reaches 62.2.` arrived without a subject, and `The models are not equal on the MTEB retrieval average:` had its number cut off by the colon split. The model was answering `neutral` correctly to a broken premise. One probe made it obvious — fed proper sentences, the *same* MiniLM scored 0.973 on a verbatim pair, 0.987 on a paraphrase ("scores 62.2 on MTEB retrieval"), and 0.831 on "rank 3 gets MRR 0.33".
+
+After normalising whitespace, splitting only on `.!?`, and adding the two-sentence windows:
+
+| Calibration | Threshold | Accuracy | Drifts rejected | Correct kept | Weakest supported | Strongest drifted |
+|---|---|---|---|---|---|---|
+| 25 hand-audited claims | **0.35** | **1.00** | 5/5 | 20/20 | 0.541 (`v04`) | 0.144 (`p04`) |
+
+Accuracy is 1.00 for every threshold between 0.15 and 0.50, so the value inside that plateau changes nothing and only the margin does. The shipped default is the **middle of the plateau** (0.35), not its upper edge: picking 0.50 because it has "the highest threshold with full accuracy" leaves the operating point one hard sentence away from the weakest supported claim. `eval/entail_calibrate.py` implements that rule, and `ENTAIL_ENABLED` is still `0` — the check runs when asked, it does not gate the pipeline.
+
+**Out of sample, on the ten-document corpus, the picture changes.** `eval/entail_real.py` replays retrieval for the 27 stored answers (all 27 replayed identically), skips meta sentences, and scores 29 claims: **23 supported, 6 flagged**. Reading all six against the block they cite:
+
+| Question | Score | Does the cited block say it? | What happened |
+|---|---|---|---|
+| `a_r3` | 0.026 | **yes** — "In this work we employ h = 8 parallel attention layers, or heads. For each of these we use dk = dv = dmodel/h = 64" | paraphrase with numbers → false accusation |
+| `g_r3` | 0.227 | **yes** — "They arrived at 9:25 and established a combat air patrol (CAP) over the city" | pronoun subject inside the window → false accusation |
+| `g_r1` | 0.299 | partly — source says "the alleged hijacker 5 miles away had been a medevac helicopter", the claim says "the aircraft" | subject swapped; conservative, arguable either way |
+| `g_r2` | 0.005 | partly — the passenger sentence is verbatim, "The plane took off at 7:59" is in the next chunk | hyphenated line break (`includ- ing`) plus a fact outside the block |
+| `r_r1` | 0.115 | **no** — the block has "RAG-Token can be seen as a standard autoregressive seq2seq generator", not "marginalizes over documents" | correct flag |
+| `d_r3` | 0.013 | **no** — the block opens mid-sentence at "days with dropout…", the 90-minute figure is in the previous chunk | correct flag |
+
+So the honest summary is three-part: on the synthetic corpus the check reproduces the hand audit exactly, but its claims are near-verbatim restatements of sentences that sit inside the cited block; on real prose, where answers paraphrase and fold enumerated clauses into one sentence, **three of six accusations are wrong** and two of the six are real. That makes it usable as a **review queue** — it surfaced two "the block does not say this" cases that the lexical check had scored 1.0 — and not usable as an automatic gate. A reviewer dismisses the false ones in seconds because they are paraphrase, not fabrication. Raising the threshold would silence them and also silence `p04`, which is exactly the sentence drift the metric exists to find.
+
+```powershell
+python eval/entail_calibrate.py            # threshold sweep against the 25 hand-audited claims
+python eval/entail_calibrate.py --model <checkpoint>   # same harness, another NLI model
+python eval/entail_real.py                 # out-of-sample: score real-corpus claims, list the flags
+```
+
+Reports: `eval/reports/entailment.json` (calibration, per-pair scores), `eval/reports/entail_real.json` (real-corpus flags with the cited block text).
 
 ## Tech stack
 
@@ -415,6 +462,7 @@ rag-document-assistant/
 │   ├── rerank.py        # per-model cross-encoder cache, min-max normalized scores
 │   ├── retrieval.py     # vector search → cross-encoder → MMR
 │   ├── citations.py     # sentence-level citation attribution checks
+│   ├── entailment.py    # sentence-level NLI: does the cited block actually say this?
 │   ├── generation.py    # prompt assembly, vendor-neutral client, retry/backoff, token streaming
 │   ├── ingest.py        # PDF -> pages (with OCR fallback) -> boilerplate strip -> chunks -> embeddings -> store
 │   ├── ocr.py           # scanned-page fallback: PyMuPDF raster + RapidOCR, lazy engine
@@ -434,6 +482,8 @@ rag-document-assistant/
 │   ├── run_ocr.py       # rasterise the corpus and measure what OCR recovers
 │   ├── measure_stream.py # time to first token vs total, streamed vs blocking
 │   ├── claim_audit.py   # per-sentence citation verdicts against the stored answers
+│   ├── entail_calibrate.py  # NLI threshold sweep against the 25 hand-audited claims
+│   ├── entail_real.py   # out-of-sample entailment flags on the real corpus
 │   ├── fetch_real_corpus.py # download the 10 real PDFs, verified by sha256 (not committed)
 │   ├── real_corpus_manifest.json # what was downloaded, from where, and why
 │   ├── qa_set_real.jsonl # 19 questions on the real documents
@@ -449,6 +499,7 @@ rag-document-assistant/
 │   ├── test_retrieval_stages.py # 6 cases (rerank-score ordering, citation mapping)
 │   ├── test_retrieval_switches.py # 3 cases (stage flags actually skip their stage)
 │   ├── test_citations.py   # 9 cases (sentence parsing, attribution verdicts)
+│   ├── test_entailment.py  # 12 cases (sentence split, windows, label order, meta claims)
 │   ├── test_model_selection.py # 2 cases (per-model caches actually swap models)
 │   ├── test_ocr.py         # 6 cases (OCR trigger, replacement rule, failure path)
 │   ├── test_streaming.py   # 3 cases (token order, prompt content, no double generation)
@@ -476,7 +527,7 @@ rag-document-assistant/
 
 - **The synthetic corpus is a fixture, and the real one is small.** Six documents written to stress retrieval by design are good for comparing configurations and useless as a claim about real-world libraries; the ten real PDFs offset that but stop at 399 indexed pages and 29 questions read by one person.
 - **29 in-scope questions cannot pin a rate down.** Even after three repeated runs the Wilson interval on a 25-question set is about ±15 points; the variance section reports the spread instead of hiding it, but a portfolio number should be read as a direction, not a measurement.
-- **Citation support is measured, entailment is not.** `claim_support_rate` checks that a cited sentence's best-matching block is the block it names. A sentence can pass that and still add a claim the block never made; proving entailment needs a model that can be calibrated, which a local 3B judge is not. On real pages the check also gets easier: long blocks make almost any sentence look supported, which is why it reads 1.0 while `citation_gold_rate` reads 0.724.
+- **Entailment is measured, and it is conservative.** The NLI check reproduces the 25-claim hand audit (1.00) — but those claims are near-verbatim restatements, and on real-prose answers three of six flags are paraphrase rather than fabrication. It is therefore a review queue with `ENTAIL_ENABLED=0`, not a pass/fail gate, and the README says so with the six flags printed. The calibration is also **in-sample**: the 0.35 threshold was chosen on the same 25 pairs it is scored on, so the 1.00 describes that set, not the world. A checkpoint trained on technical prose, or a cross-encoder reading the claim against the whole block, would be the next thing to try.
 - **The faithfulness judge needs a stronger model.** A 3B judge is uncalibrated and was rejected; the metric returns only when judging runs on a hosted model.
 - **Local generation is slow.** ~47 s per answer on CPU. Good enough to prove the pipeline works offline, not good enough to demo interactively.
 - **Cross-lingual retrieval is measured, but only in one direction.** Twenty-four translated questions hit an English corpus; a corpus written in Russian or Chinese (with its own tokenisation and paragraph lengths) is untested, and the shipped defaults are still English models. The gap between 0.958 and the English 1.000 is one question, so the multilingual row is "competitive", not "equal".
@@ -485,7 +536,7 @@ rag-document-assistant/
 - **Streaming hides the last 1.6 s, not the 23 s before it.** Time to first token is 23.7 s on CPU because prompt prefill dominates; the lever is a shorter prompt or a faster backend, not the transport.
 - **Single collection.** Document filtering works, but there is no notion of workspaces or per-user isolation.
 
-Planned order: an entailment checker that a bigger model can be calibrated against, then latency work on the prompt. (Everything from the original roadmap is done and measured: cross-lingual retrieval — `eval/reports/multilingual.json`; claim-level citation checking — `src/citations.py`, calibrated against the manual audit; the OCR fallback — `src/ocr.py`, `eval/reports/ocr.json`; streaming — `eval/reports/streaming.json`, which removes the freeze and not the latency; a real corpus with variance estimates — `eval/reports/real_corpus.json`, `real_depth*.json`, `variance.json`; document-scoped filtering — `eval/reports/real_filter.json`; and the widened real corpus of ten documents with 30 labelled questions — `eval/qa_set_real.jsonl`, `real_corpus.json`.)
+Planned order: latency work on the prompt (fewer/shorter blocks, cheaper prefill), then a stronger NLI checkpoint to tighten the entailment review queue. (Everything from the original roadmap is done and measured: cross-lingual retrieval — `eval/reports/multilingual.json`; claim-level citation checking — `src/citations.py`, calibrated against the manual audit; the OCR fallback — `src/ocr.py`, `eval/reports/ocr.json`; streaming — `eval/reports/streaming.json`, which removes the freeze and not the latency; a real corpus with variance estimates — `eval/reports/real_corpus.json`, `real_depth*.json`, `variance.json`; document-scoped filtering — `eval/reports/real_filter.json`; the widened real corpus of ten documents with 30 labelled questions — `eval/qa_set_real.jsonl`, `real_corpus.json`; and sentence-level entailment — `src/entailment.py`, `eval/reports/entailment.json`, `entail_real.json`.)
 
 ## 中文简介
 
@@ -501,6 +552,7 @@ Planned order: an entailment checker that a bigger model can be calibrated again
 - **真实语料**：另外下载 10 份真实 PDF（Transformer / RAG / BERT / Dropout 论文、美国专利 9,600,411 B2、美联储 2023 年报、IPCC AR6 第 3 章、NIST SP 800-63B、9/11 调查报告、HR 3684 法案），共 2155 页、每份只用前 60 页（399 页 / 2063 chunk），30 题人工标注（29 道可答 + 1 道不可答）。结果：hit@k **0.862**、hit@1 **0.759**、MRR 0.799、关键词命中 0.793；引用归因 **0.724**、claim_support 1.0。四个漏检分两类：`a_r4`（论文首页作者单位）与 `b_r1`（「5.3 节」这种指代）是老问题；`b_r2` 在 6 文档时是命中、加到 10 文档后掉出前 4——题目和标准页都没变，变的是它周围的候选池；`d_r1`（问论文标题）是「描述文档本身」而不是「查文档里的事实」。深度实验（仍在 6 文档阶段）把 `RETRIEVE_K` 从 8 提到 16：第一阶段召回在 8/16/32/64 上是 0.778 / 0.944 / 0.944 / 1.000。页眉剥离在 NIST（60 页里 56 页同页眉）和专利（31 页里 16 页页眉 `US 9,600,411 B2`）两份上都生效；OCR 首次在真实文档上触发：专利 31 页里 8 页走 OCR、IPCC 有 1 页文字层解析失败也走 OCR——而专利首页把 `The MathWorks, Inc.` 抽成 `ths latworks Inc.`，说明文字层「有但抽错」时 OCR 补不上
 - **方差**：`eval/run_variance.py` 在检索冻结的前提下把答题步骤重复 3 遍，报告每次的指标、三遍的标准差，以及 pooling 后的 95% Wilson 区间——单次跑出来的 0.80 到底能信多少，用区间写清楚，而不是只留一个数
 - **文档过滤**：侧边栏限定到单个 PDF 时检索是否真的变好，在真实语料上按「过滤到标准答案所在文档」这种已知答案的上界情形测：10 文档口径下第一阶段召回 0.862 → **0.931**、hit@4 0.862 → 0.931、hit@1 0.759 → 0.793、MRR 0.799 → 0.851，漏检从 4 个减到 2 个，每题耗时从 1.01 秒降到 0.69 秒。恢复的是 `a_r4`（论文首页作者单位）和 `b_r2`（附录题目）——它们都是被别的文档挤掉的；`b_r1`（「5.3 节」指代）和 `d_r1`（问论文标题）就算只留这一份文档也照样漏，说明这两类问题不是语料规模造成的（6 文档那轮曾得出「过滤完全不改召回」的结论，是因为那时候选池还没这么挤）
+- **句子级 entailment（默认关闭）**：引用归因只回答「这句引用的是不是最匹配的块」，不回答「这个块到底说没说这句话」。`src/entailment.py` 把块切成句子（外加相邻两句的窗口，让代词和省略的主语有前指可依），对每个候选句取最大蕴含概率；「本文未提及」这类谈论回答本身而非文档的句子直接跳过。两轮校准先失败（MiniLM 0.64、更强的 deberta 0.52），查下来是我的切分错了：合成语料的 chunk 按 60 字符硬换行，按 `\n` 切出来的全是半句。改成先归一空白、只按 `.!?` 切句之后，同一批 25 条人工标注上 accuracy **1.00**（5/5 拒掉引用漂移、20/20 保住正确句子），分数间隔 0.144 与 0.541，阈值取这段平台区的中位数 0.35。**但换到真实语料就不再漂亮**：29 条 claim 里 23 条通过、6 条被标出，逐条对着原文看，其中 3 条其实是改写（`a_r3`/`g_r3`/`g_r2`）、2 条是真的「引用的块里没有这句话」（`r_r1`/`d_r3`）、1 条主语被换掉（`g_r1`）。所以它是**人工复核队列**，不是自动闸门，`ENTAIL_ENABLED=0`，README 里连 6 条标注清单一起写出，不给自己刷一个好看的数字
 - **运行**：配置 `.env`（参考 `.env.example`）后执行 `streamlit run ui.py`；默认走本地 Ollama，无需 API Key 与付费账号
 
 ## License

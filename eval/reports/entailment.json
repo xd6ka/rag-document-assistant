@@ -1,0 +1,529 @@
+{
+  "generated_at": "2026-11-24T18:01:09",
+  "report": "C:\\Users\\HP\\OneDrive\\Desktop\\my projects\\rag-document-assistant\\eval\\reports\\latest.json",
+  "model": "cross-encoder/nli-MiniLM2-L6-H768",
+  "settings": {
+    "cross_encoder": true,
+    "k": 4,
+    "retrieve_k": 8
+  },
+  "thresholds": [
+    0.1,
+    0.15,
+    0.2,
+    0.25,
+    0.3,
+    0.35,
+    0.4,
+    0.45,
+    0.5,
+    0.55,
+    0.6,
+    0.65,
+    0.7,
+    0.75,
+    0.8,
+    0.85,
+    0.9
+  ],
+  "chosen_threshold": 0.35,
+  "chosen": {
+    "threshold": 0.35,
+    "accuracy": 1.0,
+    "drift_recall": 1.0,
+    "supported_kept": 20,
+    "missed_drifts": 0,
+    "false_accusations": 0,
+    "drifts_rejected": 5,
+    "tp": 20,
+    "fp": 0,
+    "tn": 5,
+    "fn": 0
+  },
+  "sweep": [
+    {
+      "threshold": 0.1,
+      "accuracy": 0.96,
+      "drift_recall": 0.8,
+      "supported_kept": 20,
+      "missed_drifts": 1,
+      "false_accusations": 0,
+      "drifts_rejected": 4,
+      "tp": 20,
+      "fp": 1,
+      "tn": 4,
+      "fn": 0
+    },
+    {
+      "threshold": 0.15,
+      "accuracy": 1.0,
+      "drift_recall": 1.0,
+      "supported_kept": 20,
+      "missed_drifts": 0,
+      "false_accusations": 0,
+      "drifts_rejected": 5,
+      "tp": 20,
+      "fp": 0,
+      "tn": 5,
+      "fn": 0
+    },
+    {
+      "threshold": 0.2,
+      "accuracy": 1.0,
+      "drift_recall": 1.0,
+      "supported_kept": 20,
+      "missed_drifts": 0,
+      "false_accusations": 0,
+      "drifts_rejected": 5,
+      "tp": 20,
+      "fp": 0,
+      "tn": 5,
+      "fn": 0
+    },
+    {
+      "threshold": 0.25,
+      "accuracy": 1.0,
+      "drift_recall": 1.0,
+      "supported_kept": 20,
+      "missed_drifts": 0,
+      "false_accusations": 0,
+      "drifts_rejected": 5,
+      "tp": 20,
+      "fp": 0,
+      "tn": 5,
+      "fn": 0
+    },
+    {
+      "threshold": 0.3,
+      "accuracy": 1.0,
+      "drift_recall": 1.0,
+      "supported_kept": 20,
+      "missed_drifts": 0,
+      "false_accusations": 0,
+      "drifts_rejected": 5,
+      "tp": 20,
+      "fp": 0,
+      "tn": 5,
+      "fn": 0
+    },
+    {
+      "threshold": 0.35,
+      "accuracy": 1.0,
+      "drift_recall": 1.0,
+      "supported_kept": 20,
+      "missed_drifts": 0,
+      "false_accusations": 0,
+      "drifts_rejected": 5,
+      "tp": 20,
+      "fp": 0,
+      "tn": 5,
+      "fn": 0
+    },
+    {
+      "threshold": 0.4,
+      "accuracy": 1.0,
+      "drift_recall": 1.0,
+      "supported_kept": 20,
+      "missed_drifts": 0,
+      "false_accusations": 0,
+      "drifts_rejected": 5,
+      "tp": 20,
+      "fp": 0,
+      "tn": 5,
+      "fn": 0
+    },
+    {
+      "threshold": 0.45,
+      "accuracy": 1.0,
+      "drift_recall": 1.0,
+      "supported_kept": 20,
+      "missed_drifts": 0,
+      "false_accusations": 0,
+      "drifts_rejected": 5,
+      "tp": 20,
+      "fp": 0,
+      "tn": 5,
+      "fn": 0
+    },
+    {
+      "threshold": 0.5,
+      "accuracy": 1.0,
+      "drift_recall": 1.0,
+      "supported_kept": 20,
+      "missed_drifts": 0,
+      "false_accusations": 0,
+      "drifts_rejected": 5,
+      "tp": 20,
+      "fp": 0,
+      "tn": 5,
+      "fn": 0
+    },
+    {
+      "threshold": 0.55,
+      "accuracy": 0.96,
+      "drift_recall": 1.0,
+      "supported_kept": 19,
+      "missed_drifts": 0,
+      "false_accusations": 1,
+      "drifts_rejected": 5,
+      "tp": 19,
+      "fp": 0,
+      "tn": 5,
+      "fn": 1
+    },
+    {
+      "threshold": 0.6,
+      "accuracy": 0.96,
+      "drift_recall": 1.0,
+      "supported_kept": 19,
+      "missed_drifts": 0,
+      "false_accusations": 1,
+      "drifts_rejected": 5,
+      "tp": 19,
+      "fp": 0,
+      "tn": 5,
+      "fn": 1
+    },
+    {
+      "threshold": 0.65,
+      "accuracy": 0.92,
+      "drift_recall": 1.0,
+      "supported_kept": 18,
+      "missed_drifts": 0,
+      "false_accusations": 2,
+      "drifts_rejected": 5,
+      "tp": 18,
+      "fp": 0,
+      "tn": 5,
+      "fn": 2
+    },
+    {
+      "threshold": 0.7,
+      "accuracy": 0.88,
+      "drift_recall": 1.0,
+      "supported_kept": 17,
+      "missed_drifts": 0,
+      "false_accusations": 3,
+      "drifts_rejected": 5,
+      "tp": 17,
+      "fp": 0,
+      "tn": 5,
+      "fn": 3
+    },
+    {
+      "threshold": 0.75,
+      "accuracy": 0.88,
+      "drift_recall": 1.0,
+      "supported_kept": 17,
+      "missed_drifts": 0,
+      "false_accusations": 3,
+      "drifts_rejected": 5,
+      "tp": 17,
+      "fp": 0,
+      "tn": 5,
+      "fn": 3
+    },
+    {
+      "threshold": 0.8,
+      "accuracy": 0.88,
+      "drift_recall": 1.0,
+      "supported_kept": 17,
+      "missed_drifts": 0,
+      "false_accusations": 3,
+      "drifts_rejected": 5,
+      "tp": 17,
+      "fp": 0,
+      "tn": 5,
+      "fn": 3
+    },
+    {
+      "threshold": 0.85,
+      "accuracy": 0.8,
+      "drift_recall": 1.0,
+      "supported_kept": 15,
+      "missed_drifts": 0,
+      "false_accusations": 5,
+      "drifts_rejected": 5,
+      "tp": 15,
+      "fp": 0,
+      "tn": 5,
+      "fn": 5
+    },
+    {
+      "threshold": 0.9,
+      "accuracy": 0.76,
+      "drift_recall": 1.0,
+      "supported_kept": 14,
+      "missed_drifts": 0,
+      "false_accusations": 6,
+      "drifts_rejected": 5,
+      "tp": 14,
+      "fp": 0,
+      "tn": 5,
+      "fn": 6
+    }
+  ],
+  "score_range": {
+    "supported": [
+      0.5414,
+      0.9894
+    ],
+    "drifted": [
+      0.0055,
+      0.144
+    ]
+  },
+  "pairs": [
+    {
+      "id": "e01",
+      "sentence": "all-MiniLM-L6-v2 has 22 million parameters .",
+      "cited_blocks": [
+        1
+      ],
+      "premise_chars": 615,
+      "label": 1.0,
+      "score": 0.9694
+    },
+    {
+      "id": "e02",
+      "sentence": "bge-small-en-v1.5 reaches 62.2 on the MTEB retrieval average .",
+      "cited_blocks": [
+        1
+      ],
+      "premise_chars": 713,
+      "label": 1.0,
+      "score": 0.9385
+    },
+    {
+      "id": "e03",
+      "sentence": "The e5 family expects an asymmetric prefix and requires the literal query prefix 'query:' .",
+      "cited_blocks": [
+        1
+      ],
+      "premise_chars": 554,
+      "label": 1.0,
+      "score": 0.9881
+    },
+    {
+      "id": "e04",
+      "sentence": "MiniLM needs about 90 megabytes of weights .",
+      "cited_blocks": [
+        1
+      ],
+      "premise_chars": 713,
+      "label": 1.0,
+      "score": 0.8906
+    },
+    {
+      "id": "e05",
+      "sentence": "bge-base-en-v1.5 produces 768-dimensional vectors .",
+      "cited_blocks": [
+        2
+      ],
+      "premise_chars": 713,
+      "label": 0.0,
+      "score": 0.024
+    },
+    {
+      "id": "v01",
+      "sentence": "The default number of HNSW neighbours per node in ChromaDB is M=16 .",
+      "cited_blocks": [
+        1
+      ],
+      "premise_chars": 701,
+      "label": 1.0,
+      "score": 0.9894
+    },
+    {
+      "id": "v02",
+      "sentence": "pgvector keeps vectors next to relational data .",
+      "cited_blocks": [
+        3
+      ],
+      "premise_chars": 501,
+      "label": 0.0,
+      "score": 0.0358
+    },
+    {
+      "id": "v03",
+      "sentence": "A command-line script and a running app should avoid indexing at the same time because two writers on the same directory are not supported; this means that a command-line script and a running application cannot index simultaneously to prevent conflicts.",
+      "cited_blocks": [
+        1
+      ],
+      "premise_chars": 501,
+      "label": 1.0,
+      "score": 0.8199
+    },
+    {
+      "id": "v04",
+      "sentence": "Cosine space requires normalized vectors .",
+      "cited_blocks": [
+        1
+      ],
+      "premise_chars": 701,
+      "label": 1.0,
+      "score": 0.5414
+    },
+    {
+      "id": "c01",
+      "sentence": "When there is no overlap, roughly 12 percent of answers in a paragraph-level evaluation sit across a cut and become unreachable.",
+      "cited_blocks": [
+        1
+      ],
+      "premise_chars": 557,
+      "label": 1.0,
+      "score": 0.9875
+    },
+    {
+      "id": "c02",
+      "sentence": "This project uses 150 characters of overlap .",
+      "cited_blocks": [
+        1
+      ],
+      "premise_chars": 557,
+      "label": 1.0,
+      "score": 0.6786
+    },
+    {
+      "id": "c03",
+      "sentence": "Merging tails shorter than 80 characters into the previous chunk removes most of the junk.",
+      "cited_blocks": [
+        3
+      ],
+      "premise_chars": 618,
+      "label": 0.0,
+      "score": 0.0055
+    },
+    {
+      "id": "c04",
+      "sentence": "A table is text positioned in a grid, and naive extraction interleaves rows and columns, so table questions often retrieve the right page and lose the columns.",
+      "cited_blocks": [
+        2
+      ],
+      "premise_chars": 560,
+      "label": 1.0,
+      "score": 0.9808
+    },
+    {
+      "id": "r01",
+      "sentence": "A correct answer at position 3 scores 0.33 .",
+      "cited_blocks": [
+        1
+      ],
+      "premise_chars": 593,
+      "label": 1.0,
+      "score": 0.9481
+    },
+    {
+      "id": "r02",
+      "sentence": "Thirty to forty questions over a corpus of thirty chunks is enough to see a difference between configurations.",
+      "cited_blocks": [
+        1
+      ],
+      "premise_chars": 591,
+      "label": 1.0,
+      "score": 0.9833
+    },
+    {
+      "id": "r03",
+      "sentence": "When the corpus holds only four chunks, hit@3 is 1.0 for almost any configuration .",
+      "cited_blocks": [
+        1
+      ],
+      "premise_chars": 618,
+      "label": 1.0,
+      "score": 0.9697
+    },
+    {
+      "id": "r04",
+      "sentence": "hit@k hides how far down the gold item appeared.",
+      "cited_blocks": [
+        1
+      ],
+      "premise_chars": 593,
+      "label": 1.0,
+      "score": 0.9753
+    },
+    {
+      "id": "p01",
+      "sentence": "A value of 0.2 keeps phrasing stable between runs; 0.7 belongs to creative writing, not to citations.",
+      "cited_blocks": [
+        1
+      ],
+      "premise_chars": 525,
+      "label": 1.0,
+      "score": 0.9884
+    },
+    {
+      "id": "p02",
+      "sentence": "Four blocks of 800 characters come to roughly 3200 characters, around 700 tokens.",
+      "cited_blocks": [
+        1
+      ],
+      "premise_chars": 542,
+      "label": 1.0,
+      "score": 0.9788
+    },
+    {
+      "id": "p03",
+      "sentence": "Context dilution makes facts in the middle of a long prompt less accurate .",
+      "cited_blocks": [
+        1
+      ],
+      "premise_chars": 546,
+      "label": 1.0,
+      "score": 0.8249
+    },
+    {
+      "id": "p04",
+      "sentence": "Claim-by-claim verification can catch citation drift, which is when a model cites block 2 while quoting block 1.",
+      "cited_blocks": [
+        2
+      ],
+      "premise_chars": 713,
+      "label": 0.0,
+      "score": 0.144
+    },
+    {
+      "id": "d01",
+      "sentence": "Text in a PDF is stored as character codes plus the font needed to draw them .",
+      "cited_blocks": [
+        1
+      ],
+      "premise_chars": 544,
+      "label": 1.0,
+      "score": 0.6364
+    },
+    {
+      "id": "d02",
+      "sentence": "A 480 by 240 JPEG is embedded as it is, with the DCTDecode filter.",
+      "cited_blocks": [
+        1
+      ],
+      "premise_chars": 437,
+      "label": 1.0,
+      "score": 0.9808
+    },
+    {
+      "id": "d03",
+      "sentence": "A 480 by 240 JPEG is embedded as it is, with the DCTDecode filter.",
+      "cited_blocks": [
+        1
+      ],
+      "premise_chars": 437,
+      "label": 1.0,
+      "score": 0.9808
+    },
+    {
+      "id": "d04",
+      "sentence": "A link in a PDF is a clickable rectangle on the page with an action, sometimes a URI and sometimes a jump to another page.",
+      "cited_blocks": [
+        2
+      ],
+      "premise_chars": 544,
+      "label": 0.0,
+      "score": 0.0532
+    }
+  ],
+  "labels_from": "eval/reports/answer_audit.md (run 2, hand-read)"
+}
