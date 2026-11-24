@@ -233,3 +233,7 @@ eval/reports/eval_*.json
 eval/reports/_partial.json
 eval/reports/_smoke*.json
 
+# Real-world corpus: third-party PDFs, re-downloaded by eval/fetch_real_corpus.py
+# and verified against eval/real_corpus_manifest.json. The manifest stays in git.
+eval/real_corpus/*.pdf
+

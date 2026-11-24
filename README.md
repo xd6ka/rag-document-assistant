@@ -4,7 +4,7 @@
 ![Streamlit](https://img.shields.io/badge/UI-Streamlit-FF4B4B?logo=streamlit&logoColor=white)
 ![ChromaDB](https://img.shields.io/badge/Vector%20store-ChromaDB-1F2937)
 ![LLM](https://img.shields.io/badge/LLM-Qwen%20(DashScope)-6B46C1)
-![Tests](https://img.shields.io/badge/tests-53%20passed-brightgreen)
+![Tests](https://img.shields.io/badge/tests-59%20passed-brightgreen)
 ![License](https://img.shields.io/badge/License-MIT-green)
 
 A local-first Retrieval-Augmented Generation assistant for PDF documents: upload PDFs, ask questions in plain language, and get answers grounded in the documents' own text — with the page each answer came from.
@@ -20,14 +20,15 @@ Chunking and embeddings run **entirely on the local machine** (`all-MiniLM-L6-v2
 - **Upload from the browser**, several PDFs at once — no CLI needed to index.
 - **Scanned pages are readable** — a page without a text layer is rasterised and read with OCR (PP-OCR on ONNX runtime; no `tesseract.exe`, no model download at first use). Measured on a fully rasterised corpus: `hit@4` 0.00 → **0.96**, with 96 % of each page's words recovered.
 - **Page-level citations** — every answer links to `source · page N · similarity`, with the retrieved excerpts in a collapsible panel.
-- **Overlapping chunking** (800 chars / 150 overlap) cut on word boundaries, never across pages.
-- **Two-stage reranking** — a cross-encoder (`ms-marco-MiniLM-L-6-v2`) re-reads each query–passage pair, then MMR picks for relevance *and* diversity. Both stages toggle independently in the UI.
+- **Overlapping chunking** (800 chars / 150 overlap) cut on word boundaries, never across pages, after **stripping running headers and footers** (lines repeating on more than 40 % of a document's pages, page numbers normalised) — on a NIST standard the header repeats on 56 of 60 pages.
+- **Two-stage reranking** — a cross-encoder (`ms-marco-MiniLM-L-6-v2`) re-reads each query–passage pair, then MMR picks for relevance *and* diversity. Both stages toggle independently in the UI; the candidate pool is 16 by default because stage-1 recall on real PDFs is 0.78 at 8 and 0.94 at 16.
 - **Multi-document workspace** — per-document chunk/page counts, per-document delete, document-scoped filtering, one-click reset.
 - **Persistent vector store** — ChromaDB on disk; the index survives restarts.
 - **Grounded prompt** — the model is instructed to answer only from context and to refuse otherwise.
 - **Streaming answers** — tokens appear as the model writes them, and the line under each answer reports `first token X s · complete in Y s` instead of leaving a 25-second empty box.
-- **Measured, not guessed** — a 6-document corpus, 29 labelled questions, a 9-configuration retrieval ablation, a gold-label validator that fails the run when a rubric drifts, a **claim-level citation check** in which every cited sentence is compared with the block it names, a **5-configuration cross-lingual run** that asks the same facts in Russian and Chinese, and an OCR run against a fully rasterised corpus.
-- **53 unit tests** — chunker behaviour, provider resolution, refusal detection, ranking order, citation mapping, claim parsing, stage switches, per-model caching, the OCR fallback's trigger and failure path, token-stream order, eval labels.
+- **Measured, not guessed** — a 6-document synthetic corpus, 29 labelled questions, a 9-configuration retrieval ablation, a gold-label validator that fails the run when a rubric drifts, a **claim-level citation check** in which every cited sentence is compared with the block it names, a **5-configuration cross-lingual run** that asks the same facts in Russian and Chinese, an OCR run against a fully rasterised corpus, and a **second corpus of six real PDFs** (1 754 pages, arXiv papers, a NIST standard, a government report, a bill) that shows what the synthetic fixtures could not.
+- **Numbers with an interval, not a single reading** — `eval/run_variance.py` repeats the answer step three times on frozen retrieval and reports the spread plus pooled 95 % Wilson intervals.
+- **59 unit tests** — chunker behaviour, provider resolution, refusal detection, ranking order, citation mapping, claim parsing, stage switches, per-model caching, the OCR fallback's trigger and failure path, token-stream order, boilerplate stripping, eval labels.
 
 ## Architecture
 
@@ -39,7 +40,8 @@ flowchart LR
         C -->|no| O[OCR fallback<br/>PyMuPDF 300 dpi<br/>+ RapidOCR]
         O --> D0[page text]
         C -->|yes| D0
-        D0 --> D[Chunking<br/>800 chars / 150 overlap<br/>page-scoped]
+        D0 --> S[strip repeated<br/>headers/footers]
+        S --> D[Chunking<br/>800 chars / 150 overlap<br/>page-scoped]
         D --> E[all-MiniLM-L6-v2<br/>normalized embeddings]
         E --> F[(ChromaDB<br/>cosine space<br/>source + page metadata)]
     end
@@ -76,7 +78,7 @@ flowchart LR
 - several documents discuss the same concepts (chunk size, overlap, top-k, citations) and only the numbers differ;
 - facts are pinned to specific pages, which is what the citation metric needs.
 
-It is a **test fixture, not a benchmark**: the numbers are internally consistent but invented, and the point is comparing configurations against each other.
+It is a **test fixture, not a benchmark**: the numbers are internally consistent but invented, and the point is comparing configurations against each other. A second corpus of six genuine PDFs — 1 754 pages of arXiv papers, a NIST standard, a government report and a bill — is measured separately in [the real-corpus section](#a-real-corpus--six-pdfs-nobody-wrote-for-this-project), and the gap between the two is the most useful number on this page.
 
 ### Questions
 
@@ -215,7 +217,72 @@ What this says, including the part that is inconvenient:
 2. **It only hides about 1.6 s.** The first token arrives at 23.7 s of a 25.3 s answer. On CPU the wait is prompt prefill (~900 tokens of numbered context), not token generation (~20 tokens of answer). Streaming therefore fixes the *impression* of a freeze; it does not fix the latency, and the README should not pretend otherwise.
 3. **The real lever is the prompt, not the transport.** Fewer blocks (`Chunks sent to the model` in the sidebar), smaller chunks, or a faster backend. A hosted model answers in 1–3 s on the same code path.
 4. **Cache makes a fake 8× speedup easy to publish.** Ollama caches the longest common prefix: measured naively, the blocking call after a streamed one returns in 1.3–1.7 s because the whole context is already processed. The script puts a marker in the *first* context block so both modes are cold; a marker at the end of the question changes nothing and yields a number that measures the cache.
-5. **Latency is one-run data, and the spread shows why that matters.** The answer-level audit above measured **46.7 s** per question (retrieval + generation, 60.6 s max) for the same pipeline and model, this run **25.3 s** — a 1.8× difference between two sessions on one laptop with no code change. Retrieval alone, cross-encoder included, is 0.3–0.4 s per question. Retrieval ranks are stable across runs; wall-clock times are not, which is exactly the variance the roadmap still owes.
+5. **Latency is one-run data, and the spread shows why that matters.** The answer-level audit above measured **46.7 s** per question (retrieval + generation, 60.6 s max) for the same pipeline and model, this run **25.3 s** — a 1.8× difference between two sessions on one laptop with no code change. Retrieval alone, cross-encoder included, is 0.3–0.4 s per question. Retrieval ranks are stable across runs; wall-clock times are not, which is what the variance section below measures instead of guessing.
+
+### A real corpus — six PDFs nobody wrote for this project
+
+The synthetic corpus is friendly by construction: one idea per page, prose in a simple layout, no running headers. `eval/real_corpus/` holds six genuine documents instead — downloaded by `eval/fetch_real_corpus.py` (sha256-checked, **not committed**: they belong to their authors) and scored by `eval/run_real.py`:
+
+| Document | Source | Why it is here | Pages used |
+|---|---|---|---|
+| `attention.pdf` | arXiv 1706.03762 | single column, tables and footnotes | 15 / 15 |
+| `rag.pdf` | arXiv 2005.11401 | two column, dense related-work prose | 19 / 19 |
+| `bert.pdf` | arXiv 1810.04805 | two column, many tables and ablations | 16 / 16 |
+| `nist-800-63b.pdf` | NIST SP 800-63B | numbered clauses, running header on 56 of 60 pages | 60 / 80 |
+| `gpo-911.pdf` | GPO 9/11 report | photographic pages, captions, footnotes | 60 / 585 |
+| `bills-hr3684.pdf` | US bill HR 3684 | legislative text, dense cross-references, no prose | 60 / 1039 |
+
+1 754 pages in the files; the first 60 pages of each document are indexed (230 pages, 1 034 chunks). The cap is deliberate — the open question is layout and boilerplate, not scale, and 230 pages already make a 384-d vector search over 1 034 chunks feel different from 18.
+
+`eval/qa_set_real.jsonl` — 19 questions (18 in scope, 1 the corpus cannot answer), every gold page checked by the same `validate_qa_set()` used everywhere else. Shipped defaults (retrieve 16 → cross-encoder → MMR, k = 4, boilerplate stripped, `qwen2.5:3b`):
+
+| Metric | Real corpus | Synthetic corpus |
+|---|---|---|
+| hit@k | **0.889** (16/18) | 1.00 (25/25) |
+| hit@1 | **0.722** (13/18) | 0.96 (24/25) |
+| MRR | **0.796** | 0.980 |
+| answer keyword accuracy | **0.722** (13/18) | 0.96 (24/25) |
+| citation rate (some `[n]`) | **1.0** (18/18) | 1.0 (25/25) |
+| **citation gold rate** | **0.556** (10/18) | 0.80 (20/25) |
+| claim support rate | **0.941** | 0.80 |
+| refusal (out-of-scope) | **1.0** (1/1) | 0.75 (3/4) |
+
+Five readings:
+
+1. **Retrieval loses 11 points, and both misses are "find the place" questions.** `a_r4` asks for a paper affiliation stated on page 1 (the gold page never enters the top 16 — pages 14, 6 and 8 come back instead), and `b_r1` asks about "section 5.3", which is a *pointer* to a place rather than a sentence about a fact. Fact questions do fine on every document — 13 of 18 land at rank 1, and the remaining three in-window ones are `rag` at ranks 2 and 3 plus `bert` at rank 2.
+2. **Citation gold rate is the number that degrades most: 0.80 → 0.556**, while claim support stays at 0.941. Real pages hold several paragraphs that plausibly answer the question, so the failure is right sentence / wrong block: the model cites a neighbouring chunk from the same document. On the synthetic corpus the same failure was rarer because each page holds one idea.
+3. **Depth, not the reranker, is the lever on a bigger corpus.** Stage-1 recall of the gold page at candidate cutoffs 8 / 16 / 32 / 64 is **0.778 / 0.944 / 0.944 / 1.000** — one gold page sits at rank 13, another at rank 50. A cross-encoder can only reorder what it is handed, so `RETRIEVE_K` is now **16** by default, not 8: at retrieve 8 the shipped pipeline scored 0.778 on these questions, at 16 it scores 0.889, and on the synthetic 18-chunk corpus 8 and 16 are identical. Raising it to 32 buys nothing here (0.833–0.889 depending on boilerplate) and costs the reranker two extra forwards per query.
+4. **Boilerplate is real text, and stripping it helps measurably.** The NIST header repeats on 56 of 60 pages (`NIST SP 800-63B DIGITAL IDENTITY GUIDELINES:` plus a free-of-charge URL line) — 1.66 % of the characters, but the first line of a large share of chunks. `src/clean.py` removes edge lines that repeat on more than 40 % of a document's pages, normalising digits so a page-numbered header still matches. Effect at retrieve 16: chunks 1 034 → 1 023, hit@k 0.833 → **0.889**, MRR 0.741 → **0.796**; on a 15-page arXiv paper nothing is stripped, because its header does not repeat often enough to qualify.
+5. **What the real corpus does not say.** Eighteen questions read by one person, six documents, a 60-page cap — enough to find the failure modes above, not enough to quote as "the accuracy of this pipeline". The `gpo-911` scan also produced one 28-character chunk (a caption on an image-heavy page), which is why `MIN_CHUNK_CHARS` matters on real layouts.
+
+### Variance — how much do the numbers move between identical runs?
+
+Every answer-level number above was measured once. `python eval/run_variance.py --runs 3` repeats the answer step three times on the same 25 synthetic questions with retrieval **frozen** (the same four blocks for every run), so any spread is the sampler, not the index.
+
+| Run | keyword accuracy | citation rate | citation gold rate | claim support | mean answer chars | 25 answers |
+|---|---|---|---|---|---|---|
+| 1 | 0.920 | 1.000 | 0.800 | 0.800 | 97.8 | 588.0 s |
+| 2 | 0.920 | 1.000 | 0.800 | 0.800 | 94.1 | 581.7 s |
+| 3 | **0.960** | 1.000 | 0.800 | 0.800 | 95.0 | 586.9 s |
+| mean ± sd | 0.933 ± 0.023 | 1.000 ± 0 | 0.800 ± 0 | 0.800 ± 0 | 95.6 ± 1.9 | 23.5 s/question |
+
+Pooled over the 75 answers (three runs × 25), with 95 % Wilson intervals — Wilson rather than the normal approximation because these rates sit close to the boundaries:
+
+| Metric | Pooled | 95 % interval |
+|---|---|---|
+| keyword accuracy | 0.933 (70/75) | 0.853 – 0.971 |
+| citation rate | 1.000 (75/75) | 0.951 – 1.000 |
+| citation gold rate | 0.800 (60/75) | 0.696 – 0.875 |
+
+Five readings:
+
+1. **Retrieval was frozen, so the spread here is generation only.** `retrieval_stable: true` in the report means the same four blocks were handed to the model in all three runs; retrieval numbers move when the index or the configuration moves, and they did not wobble at all across these repeats.
+2. **Three of the four answer metrics did not move once.** Citation rate 1.000, citation gold rate 0.800 and claim support 0.800 in every run — and the same five drift questions every time. That reproducibility is what makes `citation_gold_rate` publishable: a metric whose failures reshuffle between runs would be measuring the sampler, not the pipeline.
+3. **The one that moved is a labelling artefact, not a knowledge failure.** Keyword accuracy flips 0.920 → 0.960 because of `d04`: runs 1–2 answer "a clickable rectangle with an action", run 3 answers "technically an annotation: a clickable rectangle…". Same fact, correct both times — the keyword `annotation` simply appears in one phrasing. A ±0.02 standard deviation caused by one paraphrase is the label's tolerance, and it is worth knowing that the label, not the model, owns that variance.
+4. **The interval is the honest headline.** On 25 questions, "0.80" means 0.70–0.88 and "1.00" means 0.95–1.00. Any answer-level number from this project should be quoted with its interval, or at least as a direction.
+5. **Latency is stable inside a session and not between sessions.** Three repeats of the same 25 questions took 588.0 / 581.7 / 586.9 s — 23.5 s each, under 1 % spread. The 1.8× gap quoted in the streaming section (46.7 s vs 25.3 s) is therefore between sessions — machine state and prompt length — not sampler noise, and wall-clock times should never be compared across sessions without saying so.
+
+What this does **not** cover: the real corpus (18 questions, one run), any change of retrieval configuration, and the temperature-0.2 sampler's effect on wording beyond the one flaky question observed.
 
 Each run indexes into a throwaway store, so results never depend on your working collection. Reports land in `eval/reports/`.
 
@@ -229,6 +296,10 @@ python eval/claim_audit.py                  # per-sentence citation verdicts for
 python eval/run_multilingual.py             # 5-configuration cross-lingual retrieval
 python eval/run_ocr.py                      # rasterise the corpus, measure what OCR recovers
 python eval/measure_stream.py               # time to first token vs total, streamed vs blocking
+python eval/fetch_real_corpus.py            # download the 6 real PDFs once (sha256-checked, not committed)
+python eval/run_real.py                     # retrieval + answers on the real corpus
+python eval/sweep_real_depth.py             # RETRIEVE_K 8/16/32 x cross-encoder on/off
+python eval/run_variance.py --runs 3        # repeat the answer step, report spread + Wilson intervals
 ```
 
 ## Tech stack
@@ -237,6 +308,7 @@ python eval/measure_stream.py               # time to first token vs total, stre
 |---|---|
 | UI | Streamlit |
 | PDF parsing | pypdf |
+| Boilerplate | `src/clean.py` — repeated edge lines across pages, digits normalised |
 | Embeddings | sentence-transformers `all-MiniLM-L6-v2` (local, CPU) |
 | Vector store | ChromaDB (`PersistentClient`, cosine space) |
 | Reranking | cross-encoder `ms-marco-MiniLM-L-6-v2` + MMR over candidate embeddings (numpy) |
@@ -320,8 +392,9 @@ rag-document-assistant/
 │   ├── retrieval.py     # vector search → cross-encoder → MMR
 │   ├── citations.py     # sentence-level citation attribution checks
 │   ├── generation.py    # prompt assembly, vendor-neutral client, retry/backoff, token streaming
-│   ├── ingest.py        # PDF -> pages (with OCR fallback) -> chunks -> embeddings -> store
-│   └── ocr.py           # scanned-page fallback: PyMuPDF raster + RapidOCR, lazy engine
+│   ├── ingest.py        # PDF -> pages (with OCR fallback) -> boilerplate strip -> chunks -> embeddings -> store
+│   ├── ocr.py           # scanned-page fallback: PyMuPDF raster + RapidOCR, lazy engine
+│   └── clean.py         # running headers/footers: repeated edge-line detection, digits normalised
 ├── ui.py                # Streamlit app (upload, chat, citations, settings)
 ├── query.py             # interactive CLI
 ├── app.py               # CLI ingestion
@@ -337,7 +410,13 @@ rag-document-assistant/
 │   ├── run_ocr.py       # rasterise the corpus and measure what OCR recovers
 │   ├── measure_stream.py # time to first token vs total, streamed vs blocking
 │   ├── claim_audit.py   # per-sentence citation verdicts against the stored answers
-│   └── reports/         # latest.json, ablation.json, multilingual.json, ocr.json, streaming.json, claims.json, answer_audit.md, judge_experiment.json
+│   ├── fetch_real_corpus.py # download the 6 real PDFs, verified by sha256 (not committed)
+│   ├── real_corpus_manifest.json # what was downloaded, from where, and why
+│   ├── qa_set_real.jsonl # 19 questions on the real documents
+│   ├── run_real.py      # retrieval + answers + boilerplate report on the real corpus
+│   ├── run_variance.py  # repeat the answer step on frozen retrieval, report spread + Wilson intervals
+│   ├── sweep_real_depth.py # RETRIEVE_K 8/16/32 x cross-encoder on/off on the real corpus
+│   └── reports/         # latest.json, ablation.json, multilingual.json, ocr.json, streaming.json, real_corpus.json, real_depth*.json, variance.json, claims.json, answer_audit.md, judge_experiment.json
 ├── tests/
 │   ├── test_chunking.py    # 8 cases
 │   ├── test_config.py      # 5 cases (provider resolution, legacy-env traps)
@@ -348,6 +427,7 @@ rag-document-assistant/
 │   ├── test_model_selection.py # 2 cases (per-model caches actually swap models)
 │   ├── test_ocr.py         # 6 cases (OCR trigger, replacement rule, failure path)
 │   ├── test_streaming.py   # 3 cases (token order, prompt content, no double generation)
+│   ├── test_clean.py       # 6 cases (repeated edge lines, digit normalisation, thresholds)
 │   └── test_eval_labels.py # 5 cases
 ├── data/                # source PDFs (git-ignored)
 ├── chroma_db/           # persisted vector store (git-ignored)
@@ -369,9 +449,9 @@ rag-document-assistant/
 
 ## Limitations & roadmap
 
-- **Synthetic corpus.** Six documents written to stress retrieval by design — good for comparing configurations, useless as a claim about real-world libraries.
-- **18 chunks is still small.** Enough for `hit@1` to discriminate, not enough for tight confidence intervals; there are no repeated runs or variance estimates — and one visible example, refusal flipping 4/4 → 3/4 between two runs, shows why one run is not a number to quote with confidence.
-- **Citation support is measured, entailment is not.** `claim_support_rate` checks that a cited sentence's best-matching block is the block it names. A sentence can pass that and still add a claim the block never made; proving entailment needs a model that can be calibrated, which a local 3B judge is not.
+- **The synthetic corpus is a fixture, and the real one is small.** Six documents written to stress retrieval by design are good for comparing configurations and useless as a claim about real-world libraries; the six real PDFs offset that but stop at 230 indexed pages and 18 questions read by one person.
+- **18 questions cannot pin a rate down.** Even after three repeated runs the Wilson interval on a 25-question set is about ±15 points; the variance section reports the spread instead of hiding it, but a portfolio number should be read as a direction, not a measurement.
+- **Citation support is measured, entailment is not.** `claim_support_rate` checks that a cited sentence's best-matching block is the block it names. A sentence can pass that and still add a claim the block never made; proving entailment needs a model that can be calibrated, which a local 3B judge is not. On real pages the check also gets easier: long blocks make almost any sentence look supported, which is why it reads 0.941 while `citation_gold_rate` reads 0.556.
 - **The faithfulness judge needs a stronger model.** A 3B judge is uncalibrated and was rejected; the metric returns only when judging runs on a hosted model.
 - **Local generation is slow.** ~47 s per answer on CPU. Good enough to prove the pipeline works offline, not good enough to demo interactively.
 - **Cross-lingual retrieval is measured, but only in one direction.** Twenty-four translated questions hit an English corpus; a corpus written in Russian or Chinese (with its own tokenisation and paragraph lengths) is untested, and the shipped defaults are still English models. The gap between 0.958 and the English 1.000 is one question, so the multilingual row is "competitive", not "equal".
@@ -380,7 +460,7 @@ rag-document-assistant/
 - **Streaming hides the last 1.6 s, not the 23 s before it.** Time to first token is 23.7 s on CPU because prompt prefill dominates; the lever is a shorter prompt or a faster backend, not the transport.
 - **Single collection.** Document filtering works, but there is no notion of workspaces or per-user isolation.
 
-Planned order: a real-world corpus with variance estimates. (Cross-lingual retrieval is done: bi-encoder and reranker both swapped and measured separately, `eval/reports/multilingual.json`. Claim-level citation checking is done too: `src/citations.py`, calibrated against the manual audit. OCR is done: `src/ocr.py`, measured on a fully rasterised corpus, `eval/reports/ocr.json`. Streaming is done and measured honestly: `src/generation.py:stream_answer`, `eval/reports/streaming.json` — it removes the freeze, not the latency.)
+Planned order: bigger real corpus (more documents, several readers, per-document filtering measured), then an entailment checker that a bigger model can be calibrated against, then latency work on the prompt. (Everything from the original roadmap is done and measured: cross-lingual retrieval — `eval/reports/multilingual.json`; claim-level citation checking — `src/citations.py`, calibrated against the manual audit; the OCR fallback — `src/ocr.py`, `eval/reports/ocr.json`; streaming — `eval/reports/streaming.json`, which removes the freeze and not the latency; and a real corpus with variance estimates — `eval/reports/real_corpus.json`, `real_depth*.json`, `variance.json`.)
 
 ## 中文简介
 
@@ -393,6 +473,8 @@ Planned order: a real-world corpus with variance estimates. (Cross-lingual retri
 - **扫描件 OCR**：把整本语料逐页栅格化成「只有图片」的 PDF（脚本会先断言这 18 页确实没有文字层），同一批 25 题对比三种索引：数字版 **1.000 / 0.960 / 0.980**；栅格版不开 OCR **0.000 / 0.000 / 0.000（0 个 chunk，25 题全错过）**；栅格版开 OCR **0.960 / 0.920 / 0.940**，只丢一题（`p02`，原因是 OCR 漏检一整行，正好是那行数字）。页面词覆盖率均值 **96.1%**、最差页 74.8%；每页约 4.2 秒，18 页索引 76 秒。300 dpi 对比 200 dpi：均值 95.2% 但最差页只有 57.7%、`hit@1` 0.880，而引擎会把输入缩放到固定尺寸，所以 300 dpi 并没有更慢。语言边界如实写清：拉丁与中文可用，西里尔字母实测只有 5% 词覆盖率
 - **流式输出**：`stream_answer` 逐 token 推送，答案下方显示「首 token … 秒 · 完成 … 秒」。三题实测：首个 token 平均 **23.7 秒**、整段 **25.3 秒**，阻塞模式同样 25.3 秒——CPU 上瓶颈是约 900 token 的 prompt 预填充，不是解码，所以流式消掉的是「看起来卡死」的观感，并没有真正变快；真正的杠杆是把窗口调小或换更快的后端。同一个环境两次运行还差 1.8 倍（46.7 秒 vs 25.3 秒），单次延迟数字不可当结论
 - **答案层指标**：本地 `qwen2.5:3b` 生成 29 条答案，引用率 1.0、拒答率 0.75（一次 4/4、一次 3/4，属于小模型自律性的波动）、关键词命中 0.96；人工复核 25/25 正确。**引用归因**：`citation_gold_rate` 0.80、`claim_support_rate` 0.80 —— 逐句比对「引用的块是否就是证据所在的块」，自动判定与人工标注在 25 条上完全一致（5 个漂移、0 个误报，两次运行漂移集合相同）。LLM 评委（judge）因 3B 模型打分不可靠被弃用，实验记录保留在 `eval/reports/judge_experiment.json`
+- **真实语料**：另外下载 6 份真实 PDF（Transformer / RAG / BERT 论文、NIST SP 800-63B、9/11 调查报告、HR 3684 法案），共 1754 页、每份只用前 60 页（230 页 / 1034 chunk），19 题人工标注。结果：hit@k **0.889**、hit@1 **0.722**、MRR 0.796；引用归因掉到 **0.556**（但 claim_support 0.941）——真实页面上有多段都「像答案」，模型引用了邻块，问题从「没找到」变成「找对了段、指错了块」。两个漏检都是「找地点」类问题（论文首页的作者单位、正文「5.3 节」这种指代）。深度实验把 `RETRIEVE_K` 默认值从 8 提到 16：第一阶段召回率在 8/16/32/64 上分别是 0.778 / 0.944 / 0.944 / 1.000（有一页排在第 50 名），而合成语料上 8 和 16 完全一样。页眉页脚剥离（`src/clean.py`，NIST 那份 60 页里有 56 页带同一行页眉）让 chunk 从 1034 降到 1023、retrieve 16 时 hit@k 从 0.833 升到 0.889
+- **方差**：`eval/run_variance.py` 在检索冻结的前提下把答题步骤重复 3 遍，报告每次的指标、三遍的标准差，以及 pooling 后的 95% Wilson 区间——单次跑出来的 0.80 到底能信多少，用区间写清楚，而不是只留一个数
 - **运行**：配置 `.env`（参考 `.env.example`）后执行 `streamlit run ui.py`；默认走本地 Ollama，无需 API Key 与付费账号
 
 ## License

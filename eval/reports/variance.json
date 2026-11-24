@@ -1,0 +1,1445 @@
+{
+  "runs": [
+    {
+      "run": 1,
+      "n": 25,
+      "keyword_accuracy": 0.92,
+      "citation_rate": 1.0,
+      "citation_gold_rate": 0.8,
+      "claim_support_rate": 0.8,
+      "mean_answer_chars": 97.8,
+      "total_seconds": 588.0,
+      "rows": [
+        {
+          "id": "e01",
+          "answer": "all-MiniLM-L6-v2 has 22 million parameters [1].",
+          "chars": 47,
+          "keyword_ok": true,
+          "cites": true,
+          "citation_points_to_gold": true,
+          "claim_support": 1.0,
+          "api_error": false
+        },
+        {
+          "id": "e02",
+          "answer": "bge-small-en-v1.5 reaches 62.2 on the MTEB retrieval average [1].",
+          "chars": 65,
+          "keyword_ok": true,
+          "cites": true,
+          "citation_points_to_gold": true,
+          "claim_support": 1.0,
+          "api_error": false
+        },
+        {
+          "id": "e03",
+          "answer": "The e5 family expects an asymmetric prefix and requires the literal query prefix 'query:' [1].",
+          "chars": 94,
+          "keyword_ok": true,
+          "cites": true,
+          "citation_points_to_gold": true,
+          "claim_support": 1.0,
+          "api_error": false
+        },
+        {
+          "id": "e04",
+          "answer": "The MiniLM weights need about 90 megabytes of weights [1].",
+          "chars": 58,
+          "keyword_ok": true,
+          "cites": true,
+          "citation_points_to_gold": true,
+          "claim_support": 1.0,
+          "api_error": false
+        },
+        {
+          "id": "e05",
+          "answer": "bge-base-en-v1.5 produces 768-dimensional vectors [2].",
+          "chars": 54,
+          "keyword_ok": true,
+          "cites": true,
+          "citation_points_to_gold": false,
+          "claim_support": 0.0,
+          "api_error": false
+        },
+        {
+          "id": "v01",
+          "answer": "The default number of HNSW neighbours per node in ChromaDB is 16 [1].",
+          "chars": 69,
+          "keyword_ok": true,
+          "cites": true,
+          "citation_points_to_gold": true,
+          "claim_support": 1.0,
+          "api_error": false
+        },
+        {
+          "id": "v02",
+          "answer": "pgvector keeps vectors next to relational data [3].",
+          "chars": 51,
+          "keyword_ok": true,
+          "cites": true,
+          "citation_points_to_gold": false,
+          "claim_support": 0.0,
+          "api_error": false
+        },
+        {
+          "id": "v03",
+          "answer": "A command-line script and a running app should avoid indexing at the same time because Persistence is one file lock away from trouble: two writers on the same directory are not supported, so a command-line script and a running app should not index at the same time. [1]",
+          "chars": 269,
+          "keyword_ok": true,
+          "cites": true,
+          "citation_points_to_gold": true,
+          "claim_support": 1.0,
+          "api_error": false
+        },
+        {
+          "id": "v04",
+          "answer": "Cosine space requires normalized vectors [1].",
+          "chars": 45,
+          "keyword_ok": true,
+          "cites": true,
+          "citation_points_to_gold": true,
+          "claim_support": 1.0,
+          "api_error": false
+        },
+        {
+          "id": "c01",
+          "answer": "When there is no overlap, roughly 12 percent of answers in a paragraph-level evaluation sit across a cut and become unreachable. [1]",
+          "chars": 132,
+          "keyword_ok": true,
+          "cites": true,
+          "citation_points_to_gold": true,
+          "claim_support": 1.0,
+          "api_error": false
+        },
+        {
+          "id": "c02",
+          "answer": "This project uses 150 characters of overlap [1].",
+          "chars": 48,
+          "keyword_ok": true,
+          "cites": true,
+          "citation_points_to_gold": true,
+          "claim_support": 1.0,
+          "api_error": false
+        },
+        {
+          "id": "c03",
+          "answer": "A 40-character fragment carries almost no retrievable meaning. Merging tails shorter than 80 characters into the previous chunk removes most of the junk. [3]",
+          "chars": 157,
+          "keyword_ok": true,
+          "cites": true,
+          "citation_points_to_gold": false,
+          "claim_support": 0.0,
+          "api_error": false
+        },
+        {
+          "id": "c04",
+          "answer": "A table is text positioned in a grid, and naive extraction interleaves rows and columns, so table questions often retrieve the right page and lose the columns. [2]",
+          "chars": 163,
+          "keyword_ok": true,
+          "cites": true,
+          "citation_points_to_gold": true,
+          "claim_support": 1.0,
+          "api_error": false
+        },
+        {
+          "id": "r01",
+          "answer": "A correct answer at position 3 scores 0.33 [2].",
+          "chars": 47,
+          "keyword_ok": true,
+          "cites": true,
+          "citation_points_to_gold": false,
+          "claim_support": 0.0,
+          "api_error": false
+        },
+        {
+          "id": "r02",
+          "answer": "Thirty to forty questions over a corpus of thirty chunks is enough to see a difference between configurations. [1]",
+          "chars": 114,
+          "keyword_ok": true,
+          "cites": true,
+          "citation_points_to_gold": true,
+          "claim_support": 1.0,
+          "api_error": false
+        },
+        {
+          "id": "r03",
+          "answer": "When the corpus holds only four chunks, hit@3 is 1.0 for almost any configuration [1].",
+          "chars": 86,
+          "keyword_ok": true,
+          "cites": true,
+          "citation_points_to_gold": true,
+          "claim_support": 1.0,
+          "api_error": false
+        },
+        {
+          "id": "r04",
+          "answer": "hit@k counts a question as solved if any gold item is in the top k. It is the most quoted and least informative metric, because it hides how far down the answer was. [1]",
+          "chars": 169,
+          "keyword_ok": true,
+          "cites": true,
+          "citation_points_to_gold": true,
+          "claim_support": 1.0,
+          "api_error": false
+        },
+        {
+          "id": "p01",
+          "answer": "A value of 0.2 keeps phrasing stable between runs; 0.7 belongs to creative writing, not to citations. [1]",
+          "chars": 105,
+          "keyword_ok": true,
+          "cites": true,
+          "citation_points_to_gold": true,
+          "claim_support": 1.0,
+          "api_error": false
+        },
+        {
+          "id": "p02",
+          "answer": "Four blocks of 800 characters come to roughly 3200 characters, around 700 tokens. [1]",
+          "chars": 85,
+          "keyword_ok": true,
+          "cites": true,
+          "citation_points_to_gold": true,
+          "claim_support": 1.0,
+          "api_error": false
+        },
+        {
+          "id": "p03",
+          "answer": "The effect that makes facts in the middle of a long prompt less accurate is context dilution [1].",
+          "chars": 97,
+          "keyword_ok": true,
+          "cites": true,
+          "citation_points_to_gold": true,
+          "claim_support": 1.0,
+          "api_error": false
+        },
+        {
+          "id": "p04",
+          "answer": "Claim-by-claim verification can catch models sometimes citing block 2 while quoting block 1, which rate-based citation metrics cannot detect [2].",
+          "chars": 145,
+          "keyword_ok": false,
+          "cites": true,
+          "citation_points_to_gold": false,
+          "claim_support": 0.0,
+          "api_error": false
+        },
+        {
+          "id": "d01",
+          "answer": "Text in a PDF is stored as character codes plus the font needed to draw them [1].",
+          "chars": 81,
+          "keyword_ok": true,
+          "cites": true,
+          "citation_points_to_gold": true,
+          "claim_support": 1.0,
+          "api_error": false
+        },
+        {
+          "id": "d02",
+          "answer": "A 480 by 240 JPEG is embedded as it is, with the DCTDecode filter. [1]",
+          "chars": 70,
+          "keyword_ok": true,
+          "cites": true,
+          "citation_points_to_gold": true,
+          "claim_support": 1.0,
+          "api_error": false
+        },
+        {
+          "id": "d03",
+          "answer": "The pixel size of the embedded JPEG image is 480 by 240 pixels [1].",
+          "chars": 67,
+          "keyword_ok": true,
+          "cites": true,
+          "citation_points_to_gold": true,
+          "claim_support": 1.0,
+          "api_error": false
+        },
+        {
+          "id": "d04",
+          "answer": "A link in a PDF is a clickable rectangle on the page with an action, sometimes a URI and sometimes a jump to another page. [1]",
+          "chars": 126,
+          "keyword_ok": false,
+          "cites": true,
+          "citation_points_to_gold": true,
+          "claim_support": 1.0,
+          "api_error": false
+        }
+      ]
+    },
+    {
+      "run": 2,
+      "n": 25,
+      "keyword_accuracy": 0.92,
+      "citation_rate": 1.0,
+      "citation_gold_rate": 0.8,
+      "claim_support_rate": 0.8,
+      "mean_answer_chars": 94.1,
+      "total_seconds": 581.7,
+      "rows": [
+        {
+          "id": "e01",
+          "answer": "all-MiniLM-L6-v2 has 22 million parameters [1].",
+          "chars": 47,
+          "keyword_ok": true,
+          "cites": true,
+          "citation_points_to_gold": true,
+          "claim_support": 1.0,
+          "api_error": false
+        },
+        {
+          "id": "e02",
+          "answer": "bge-small-en-v1.5 reaches 62.2 on the MTEB retrieval average [1].",
+          "chars": 65,
+          "keyword_ok": true,
+          "cites": true,
+          "citation_points_to_gold": true,
+          "claim_support": 1.0,
+          "api_error": false
+        },
+        {
+          "id": "e03",
+          "answer": "The e5 family expects an asymmetric prefix and requires the literal query prefix 'query:' [1].",
+          "chars": 94,
+          "keyword_ok": true,
+          "cites": true,
+          "citation_points_to_gold": true,
+          "claim_support": 1.0,
+          "api_error": false
+        },
+        {
+          "id": "e04",
+          "answer": "The MiniLM weights need about 90 megabytes of weights [1].",
+          "chars": 58,
+          "keyword_ok": true,
+          "cites": true,
+          "citation_points_to_gold": true,
+          "claim_support": 1.0,
+          "api_error": false
+        },
+        {
+          "id": "e05",
+          "answer": "bge-base-en-v1.5 produces 768-dimensional vectors [2].",
+          "chars": 54,
+          "keyword_ok": true,
+          "cites": true,
+          "citation_points_to_gold": false,
+          "claim_support": 0.0,
+          "api_error": false
+        },
+        {
+          "id": "v01",
+          "answer": "The default number of HNSW neighbours per node in ChromaDB is 16 [1].",
+          "chars": 69,
+          "keyword_ok": true,
+          "cites": true,
+          "citation_points_to_gold": true,
+          "claim_support": 1.0,
+          "api_error": false
+        },
+        {
+          "id": "v02",
+          "answer": "pgvector keeps vectors next to relational data [3].",
+          "chars": 51,
+          "keyword_ok": true,
+          "cites": true,
+          "citation_points_to_gold": false,
+          "claim_support": 0.0,
+          "api_error": false
+        },
+        {
+          "id": "v03",
+          "answer": "A command-line script and a running app should avoid indexing at the same time because persistence is one file lock away from trouble: two writers on the same directory are not supported, so a command-line script and a running app should not index at the same time. [1]",
+          "chars": 269,
+          "keyword_ok": true,
+          "cites": true,
+          "citation_points_to_gold": true,
+          "claim_support": 1.0,
+          "api_error": false
+        },
+        {
+          "id": "v04",
+          "answer": "Cosine space requires normalized vectors [1].",
+          "chars": 45,
+          "keyword_ok": true,
+          "cites": true,
+          "citation_points_to_gold": true,
+          "claim_support": 1.0,
+          "api_error": false
+        },
+        {
+          "id": "c01",
+          "answer": "When there is no overlap, roughly 12 percent of answers in a paragraph-level evaluation sit across a cut and become unreachable. [1]",
+          "chars": 132,
+          "keyword_ok": true,
+          "cites": true,
+          "citation_points_to_gold": true,
+          "claim_support": 1.0,
+          "api_error": false
+        },
+        {
+          "id": "c02",
+          "answer": "This project uses 150 characters of overlap [1].",
+          "chars": 48,
+          "keyword_ok": true,
+          "cites": true,
+          "citation_points_to_gold": true,
+          "claim_support": 1.0,
+          "api_error": false
+        },
+        {
+          "id": "c03",
+          "answer": "A 40-character fragment carries almost no retrievable meaning. Merging tails shorter than 80 characters into the previous chunk removes most of the junk. [3]",
+          "chars": 157,
+          "keyword_ok": true,
+          "cites": true,
+          "citation_points_to_gold": false,
+          "claim_support": 0.0,
+          "api_error": false
+        },
+        {
+          "id": "c04",
+          "answer": "Table questions often retrieve the right page and lose the columns [2].",
+          "chars": 71,
+          "keyword_ok": true,
+          "cites": true,
+          "citation_points_to_gold": true,
+          "claim_support": 1.0,
+          "api_error": false
+        },
+        {
+          "id": "r01",
+          "answer": "A correct answer at position 3 scores 0.33 [2].",
+          "chars": 47,
+          "keyword_ok": true,
+          "cites": true,
+          "citation_points_to_gold": false,
+          "claim_support": 0.0,
+          "api_error": false
+        },
+        {
+          "id": "r02",
+          "answer": "Thirty to forty questions over a corpus of thirty chunks is enough to see a difference between configurations. [1]",
+          "chars": 114,
+          "keyword_ok": true,
+          "cites": true,
+          "citation_points_to_gold": true,
+          "claim_support": 1.0,
+          "api_error": false
+        },
+        {
+          "id": "r03",
+          "answer": "When the corpus holds only four chunks, hit@3 is 1.0 for almost any configuration [1].",
+          "chars": 86,
+          "keyword_ok": true,
+          "cites": true,
+          "citation_points_to_gold": true,
+          "claim_support": 1.0,
+          "api_error": false
+        },
+        {
+          "id": "r04",
+          "answer": "hit@k counts a question as solved if any gold item is in the top k. It is the most quoted and least informative metric, because it hides how far down the answer was. [1]",
+          "chars": 169,
+          "keyword_ok": true,
+          "cites": true,
+          "citation_points_to_gold": true,
+          "claim_support": 1.0,
+          "api_error": false
+        },
+        {
+          "id": "p01",
+          "answer": "A value of 0.2 keeps phrasing stable between runs; 0.7 belongs to creative writing, not to citations. [1]",
+          "chars": 105,
+          "keyword_ok": true,
+          "cites": true,
+          "citation_points_to_gold": true,
+          "claim_support": 1.0,
+          "api_error": false
+        },
+        {
+          "id": "p02",
+          "answer": "Four blocks of 800 characters come to roughly 3200 characters, around 700 tokens. [1]",
+          "chars": 85,
+          "keyword_ok": true,
+          "cites": true,
+          "citation_points_to_gold": true,
+          "claim_support": 1.0,
+          "api_error": false
+        },
+        {
+          "id": "p03",
+          "answer": "The effect that makes facts in the middle of a long prompt less accurate is Context dilution [1].",
+          "chars": 97,
+          "keyword_ok": true,
+          "cites": true,
+          "citation_points_to_gold": true,
+          "claim_support": 1.0,
+          "api_error": false
+        },
+        {
+          "id": "p04",
+          "answer": "Claim-by-claim verification can catch models sometimes citing block 2 while quoting block 1, which rate-based citation metrics cannot detect. [2]",
+          "chars": 145,
+          "keyword_ok": false,
+          "cites": true,
+          "citation_points_to_gold": false,
+          "claim_support": 0.0,
+          "api_error": false
+        },
+        {
+          "id": "d01",
+          "answer": "Text in a PDF is stored as character codes plus the font needed to draw them [1].",
+          "chars": 81,
+          "keyword_ok": true,
+          "cites": true,
+          "citation_points_to_gold": true,
+          "claim_support": 1.0,
+          "api_error": false
+        },
+        {
+          "id": "d02",
+          "answer": "A 480 by 240 JPEG is embedded as it is, with the DCTDecode filter. [1]",
+          "chars": 70,
+          "keyword_ok": true,
+          "cites": true,
+          "citation_points_to_gold": true,
+          "claim_support": 1.0,
+          "api_error": false
+        },
+        {
+          "id": "d03",
+          "answer": "The pixel size of the embedded JPEG image is 480 by 240 pixels [1].",
+          "chars": 67,
+          "keyword_ok": true,
+          "cites": true,
+          "citation_points_to_gold": true,
+          "claim_support": 1.0,
+          "api_error": false
+        },
+        {
+          "id": "d04",
+          "answer": "A link in a PDF is a clickable rectangle on the page with an action, sometimes a URI and sometimes a jump to another page. [1]",
+          "chars": 126,
+          "keyword_ok": false,
+          "cites": true,
+          "citation_points_to_gold": true,
+          "claim_support": 1.0,
+          "api_error": false
+        }
+      ]
+    },
+    {
+      "run": 3,
+      "n": 25,
+      "keyword_accuracy": 0.96,
+      "citation_rate": 1.0,
+      "citation_gold_rate": 0.8,
+      "claim_support_rate": 0.8,
+      "mean_answer_chars": 95,
+      "total_seconds": 586.9,
+      "rows": [
+        {
+          "id": "e01",
+          "answer": "all-MiniLM-L6-v2 has 22 million parameters [1].",
+          "chars": 47,
+          "keyword_ok": true,
+          "cites": true,
+          "citation_points_to_gold": true,
+          "claim_support": 1.0,
+          "api_error": false
+        },
+        {
+          "id": "e02",
+          "answer": "bge-small-en-v1.5 reaches 62.2 on the MTEB retrieval average [1].",
+          "chars": 65,
+          "keyword_ok": true,
+          "cites": true,
+          "citation_points_to_gold": true,
+          "claim_support": 1.0,
+          "api_error": false
+        },
+        {
+          "id": "e03",
+          "answer": "The e5 family expects an asymmetric prefix and requires the literal query prefix 'query:' [1].",
+          "chars": 94,
+          "keyword_ok": true,
+          "cites": true,
+          "citation_points_to_gold": true,
+          "claim_support": 1.0,
+          "api_error": false
+        },
+        {
+          "id": "e04",
+          "answer": "The MiniLM weights need about 90 megabytes of weights [1].",
+          "chars": 58,
+          "keyword_ok": true,
+          "cites": true,
+          "citation_points_to_gold": true,
+          "claim_support": 1.0,
+          "api_error": false
+        },
+        {
+          "id": "e05",
+          "answer": "bge-base-en-v1.5 produces 768-dimensional vectors [2].",
+          "chars": 54,
+          "keyword_ok": true,
+          "cites": true,
+          "citation_points_to_gold": false,
+          "claim_support": 0.0,
+          "api_error": false
+        },
+        {
+          "id": "v01",
+          "answer": "The default number of HNSW neighbours per node in ChromaDB is 16 [1].",
+          "chars": 69,
+          "keyword_ok": true,
+          "cites": true,
+          "citation_points_to_gold": true,
+          "claim_support": 1.0,
+          "api_error": false
+        },
+        {
+          "id": "v02",
+          "answer": "pgvector keeps vectors next to relational data [3].",
+          "chars": 51,
+          "keyword_ok": true,
+          "cites": true,
+          "citation_points_to_gold": false,
+          "claim_support": 0.0,
+          "api_error": false
+        },
+        {
+          "id": "v03",
+          "answer": "A command-line script and a running app should avoid indexing at the same time because persistence is one file lock away from trouble: two writers on the same directory are not supported, so a command-line script and a running app should not index at the same time. [1]",
+          "chars": 269,
+          "keyword_ok": true,
+          "cites": true,
+          "citation_points_to_gold": true,
+          "claim_support": 1.0,
+          "api_error": false
+        },
+        {
+          "id": "v04",
+          "answer": "Cosine space requires normalized vectors [1].",
+          "chars": 45,
+          "keyword_ok": true,
+          "cites": true,
+          "citation_points_to_gold": true,
+          "claim_support": 1.0,
+          "api_error": false
+        },
+        {
+          "id": "c01",
+          "answer": "When there is no overlap, roughly 12 percent of answers in a paragraph-level evaluation sit across a cut and become unreachable. [1]",
+          "chars": 132,
+          "keyword_ok": true,
+          "cites": true,
+          "citation_points_to_gold": true,
+          "claim_support": 1.0,
+          "api_error": false
+        },
+        {
+          "id": "c02",
+          "answer": "This project uses 150 characters of overlap [1].",
+          "chars": 48,
+          "keyword_ok": true,
+          "cites": true,
+          "citation_points_to_gold": true,
+          "claim_support": 1.0,
+          "api_error": false
+        },
+        {
+          "id": "c03",
+          "answer": "A 40-character fragment carries almost no retrievable meaning. Merging tails shorter than 80 characters into the previous chunk removes most of the junk. [3]",
+          "chars": 157,
+          "keyword_ok": true,
+          "cites": true,
+          "citation_points_to_gold": false,
+          "claim_support": 0.0,
+          "api_error": false
+        },
+        {
+          "id": "c04",
+          "answer": "Table questions often retrieve the right page but lose columns [2].",
+          "chars": 67,
+          "keyword_ok": true,
+          "cites": true,
+          "citation_points_to_gold": true,
+          "claim_support": 1.0,
+          "api_error": false
+        },
+        {
+          "id": "r01",
+          "answer": "A correct answer at position 3 scores 0.33 [2].",
+          "chars": 47,
+          "keyword_ok": true,
+          "cites": true,
+          "citation_points_to_gold": false,
+          "claim_support": 0.0,
+          "api_error": false
+        },
+        {
+          "id": "r02",
+          "answer": "Thirty to forty questions over a corpus of thirty chunks is enough to see a difference between configurations. [1]",
+          "chars": 114,
+          "keyword_ok": true,
+          "cites": true,
+          "citation_points_to_gold": true,
+          "claim_support": 1.0,
+          "api_error": false
+        },
+        {
+          "id": "r03",
+          "answer": "When the corpus holds only four chunks, hit@3 is 1.0 for almost any configuration [1].",
+          "chars": 86,
+          "keyword_ok": true,
+          "cites": true,
+          "citation_points_to_gold": true,
+          "claim_support": 1.0,
+          "api_error": false
+        },
+        {
+          "id": "r04",
+          "answer": "hit@k counts a question as solved if any gold item is in the top k. It is the most quoted and least informative metric, because it hides how far down the answer was. [1]",
+          "chars": 169,
+          "keyword_ok": true,
+          "cites": true,
+          "citation_points_to_gold": true,
+          "claim_support": 1.0,
+          "api_error": false
+        },
+        {
+          "id": "p01",
+          "answer": "A value of 0.2 keeps phrasing stable between runs; 0.7 belongs to creative writing, not to citations. [1]",
+          "chars": 105,
+          "keyword_ok": true,
+          "cites": true,
+          "citation_points_to_gold": true,
+          "claim_support": 1.0,
+          "api_error": false
+        },
+        {
+          "id": "p02",
+          "answer": "Four blocks of 800 characters come to roughly 3200 characters, around 700 tokens. [1]",
+          "chars": 85,
+          "keyword_ok": true,
+          "cites": true,
+          "citation_points_to_gold": true,
+          "claim_support": 1.0,
+          "api_error": false
+        },
+        {
+          "id": "p03",
+          "answer": "The effect that makes facts in the middle of a long prompt less accurate is Context dilution [1].",
+          "chars": 97,
+          "keyword_ok": true,
+          "cites": true,
+          "citation_points_to_gold": true,
+          "claim_support": 1.0,
+          "api_error": false
+        },
+        {
+          "id": "p04",
+          "answer": "Claim-by-claim verification can catch models sometimes citing block 2 while quoting block 1, which rate-based citation metrics cannot detect. [2]",
+          "chars": 145,
+          "keyword_ok": false,
+          "cites": true,
+          "citation_points_to_gold": false,
+          "claim_support": 0.0,
+          "api_error": false
+        },
+        {
+          "id": "d01",
+          "answer": "Text in a PDF is stored as character codes plus the font needed to draw them [1].",
+          "chars": 81,
+          "keyword_ok": true,
+          "cites": true,
+          "citation_points_to_gold": true,
+          "claim_support": 1.0,
+          "api_error": false
+        },
+        {
+          "id": "d02",
+          "answer": "A 480 by 240 JPEG is embedded as it is, with the DCTDecode filter. [1]",
+          "chars": 70,
+          "keyword_ok": true,
+          "cites": true,
+          "citation_points_to_gold": true,
+          "claim_support": 1.0,
+          "api_error": false
+        },
+        {
+          "id": "d03",
+          "answer": "The pixel size of the embedded JPEG image is 480 by 240 pixels [1].",
+          "chars": 67,
+          "keyword_ok": true,
+          "cites": true,
+          "citation_points_to_gold": true,
+          "claim_support": 1.0,
+          "api_error": false
+        },
+        {
+          "id": "d04",
+          "answer": "A link in a PDF is technically an annotation: a clickable rectangle on the page with an action, sometimes a URI and sometimes a jump to another page. [1]",
+          "chars": 153,
+          "keyword_ok": true,
+          "cites": true,
+          "citation_points_to_gold": true,
+          "claim_support": 1.0,
+          "api_error": false
+        }
+      ]
+    }
+  ],
+  "across_runs": {
+    "keyword_accuracy": {
+      "values": [
+        0.92,
+        0.92,
+        0.96
+      ],
+      "mean": 0.933,
+      "sd": 0.023,
+      "min": 0.92,
+      "max": 0.96
+    },
+    "citation_rate": {
+      "values": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "mean": 1.0,
+      "sd": 0.0,
+      "min": 1.0,
+      "max": 1.0
+    },
+    "citation_gold_rate": {
+      "values": [
+        0.8,
+        0.8,
+        0.8
+      ],
+      "mean": 0.8,
+      "sd": 0.0,
+      "min": 0.8,
+      "max": 0.8
+    },
+    "claim_support_rate": {
+      "values": [
+        0.8,
+        0.8,
+        0.8
+      ],
+      "mean": 0.8,
+      "sd": 0.0,
+      "min": 0.8,
+      "max": 0.8
+    },
+    "mean_answer_chars": {
+      "values": [
+        97.8,
+        94.1,
+        95
+      ],
+      "mean": 95.633,
+      "sd": 1.93,
+      "min": 94.1,
+      "max": 97.8
+    }
+  },
+  "pooled": {
+    "keyword_ok": {
+      "rate": 0.933,
+      "n": 75,
+      "wilson_95": [
+        0.853,
+        0.971
+      ]
+    },
+    "cites": {
+      "rate": 1.0,
+      "n": 75,
+      "wilson_95": [
+        0.951,
+        1.0
+      ]
+    },
+    "citation_points_to_gold": {
+      "rate": 0.8,
+      "n": 75,
+      "wilson_95": [
+        0.696,
+        0.875
+      ]
+    }
+  },
+  "flaky_questions": [
+    "d04"
+  ],
+  "retrieval_stable": true,
+  "retrieval_signature": {
+    "e01": [
+      [
+        "embedding-models.pdf",
+        1,
+        "Local Embedding Models: A Comparison\nThree small"
+      ],
+      [
+        "embedding-models.pdf",
+        2,
+        "Local Embedding Models: A Comparison - page 2\nTh"
+      ],
+      [
+        "prompt-design.pdf",
+        2,
+        "Prompt Design for Grounded Answering - page 2\nNu"
+      ],
+      [
+        "embedding-models.pdf",
+        3,
+        "Local Embedding Models: A Comparison - page 3\nAl"
+      ]
+    ],
+    "e02": [
+      [
+        "embedding-models.pdf",
+        2,
+        "Local Embedding Models: A Comparison - page 2\nTh"
+      ],
+      [
+        "embedding-models.pdf",
+        1,
+        "Local Embedding Models: A Comparison\nThree small"
+      ],
+      [
+        "retrieval-eval.pdf",
+        1,
+        "Evaluating Retrieval and Answers\nRetrieval quali"
+      ],
+      [
+        "pdf-internals.pdf",
+        2,
+        "How a PDF File Actually Stores Content - page 2\n"
+      ]
+    ],
+    "e03": [
+      [
+        "embedding-models.pdf",
+        3,
+        "Local Embedding Models: A Comparison - page 3\nAl"
+      ],
+      [
+        "vector-store-notes.pdf",
+        2,
+        "Vector Stores for a Single-Machine Pipeline - pa"
+      ],
+      [
+        "chunking-strategies.pdf",
+        1,
+        "Chunking Strategies for Retrieval\nThree families"
+      ],
+      [
+        "pdf-internals.pdf",
+        1,
+        "How a PDF File Actually Stores Content\nText in a"
+      ]
+    ],
+    "e04": [
+      [
+        "embedding-models.pdf",
+        2,
+        "Local Embedding Models: A Comparison - page 2\nTh"
+      ],
+      [
+        "embedding-models.pdf",
+        1,
+        "Local Embedding Models: A Comparison\nThree small"
+      ],
+      [
+        "prompt-design.pdf",
+        1,
+        "Prompt Design for Grounded Answering\nA grounded "
+      ],
+      [
+        "embedding-models.pdf",
+        3,
+        "Local Embedding Models: A Comparison - page 3\nAl"
+      ]
+    ],
+    "e05": [
+      [
+        "embedding-models.pdf",
+        1,
+        "Local Embedding Models: A Comparison\nThree small"
+      ],
+      [
+        "embedding-models.pdf",
+        2,
+        "Local Embedding Models: A Comparison - page 2\nTh"
+      ],
+      [
+        "prompt-design.pdf",
+        1,
+        "Prompt Design for Grounded Answering\nA grounded "
+      ],
+      [
+        "vector-store-notes.pdf",
+        3,
+        "Vector Stores for a Single-Machine Pipeline - pa"
+      ]
+    ],
+    "v01": [
+      [
+        "vector-store-notes.pdf",
+        2,
+        "Vector Stores for a Single-Machine Pipeline - pa"
+      ],
+      [
+        "prompt-design.pdf",
+        2,
+        "Prompt Design for Grounded Answering - page 2\nNu"
+      ],
+      [
+        "pdf-internals.pdf",
+        1,
+        "How a PDF File Actually Stores Content\nText in a"
+      ],
+      [
+        "vector-store-notes.pdf",
+        1,
+        "Vector Stores for a Single-Machine Pipeline\nThre"
+      ]
+    ],
+    "v02": [
+      [
+        "vector-store-notes.pdf",
+        1,
+        "Vector Stores for a Single-Machine Pipeline\nThre"
+      ],
+      [
+        "vector-store-notes.pdf",
+        2,
+        "Vector Stores for a Single-Machine Pipeline - pa"
+      ],
+      [
+        "vector-store-notes.pdf",
+        3,
+        "Vector Stores for a Single-Machine Pipeline - pa"
+      ],
+      [
+        "pdf-internals.pdf",
+        2,
+        "How a PDF File Actually Stores Content - page 2\n"
+      ]
+    ],
+    "v03": [
+      [
+        "vector-store-notes.pdf",
+        3,
+        "Vector Stores for a Single-Machine Pipeline - pa"
+      ],
+      [
+        "prompt-design.pdf",
+        1,
+        "Prompt Design for Grounded Answering\nA grounded "
+      ],
+      [
+        "embedding-models.pdf",
+        3,
+        "Local Embedding Models: A Comparison - page 3\nAl"
+      ],
+      [
+        "pdf-internals.pdf",
+        2,
+        "How a PDF File Actually Stores Content - page 2\n"
+      ]
+    ],
+    "v04": [
+      [
+        "vector-store-notes.pdf",
+        2,
+        "Vector Stores for a Single-Machine Pipeline - pa"
+      ],
+      [
+        "prompt-design.pdf",
+        1,
+        "Prompt Design for Grounded Answering\nA grounded "
+      ],
+      [
+        "vector-store-notes.pdf",
+        1,
+        "Vector Stores for a Single-Machine Pipeline\nThre"
+      ],
+      [
+        "pdf-internals.pdf",
+        1,
+        "How a PDF File Actually Stores Content\nText in a"
+      ]
+    ],
+    "c01": [
+      [
+        "chunking-strategies.pdf",
+        2,
+        "Chunking Strategies for Retrieval - page 2\nOverl"
+      ],
+      [
+        "chunking-strategies.pdf",
+        1,
+        "Chunking Strategies for Retrieval\nThree families"
+      ],
+      [
+        "prompt-design.pdf",
+        1,
+        "Prompt Design for Grounded Answering\nA grounded "
+      ],
+      [
+        "embedding-models.pdf",
+        2,
+        "Local Embedding Models: A Comparison - page 2\nTh"
+      ]
+    ],
+    "c02": [
+      [
+        "chunking-strategies.pdf",
+        2,
+        "Chunking Strategies for Retrieval - page 2\nOverl"
+      ],
+      [
+        "prompt-design.pdf",
+        2,
+        "Prompt Design for Grounded Answering - page 2\nNu"
+      ],
+      [
+        "chunking-strategies.pdf",
+        1,
+        "Chunking Strategies for Retrieval\nThree families"
+      ],
+      [
+        "embedding-models.pdf",
+        2,
+        "Local Embedding Models: A Comparison - page 2\nTh"
+      ]
+    ],
+    "c03": [
+      [
+        "chunking-strategies.pdf",
+        2,
+        "Chunking Strategies for Retrieval - page 2\nOverl"
+      ],
+      [
+        "chunking-strategies.pdf",
+        1,
+        "Chunking Strategies for Retrieval\nThree families"
+      ],
+      [
+        "embedding-models.pdf",
+        2,
+        "Local Embedding Models: A Comparison - page 2\nTh"
+      ],
+      [
+        "vector-store-notes.pdf",
+        3,
+        "Vector Stores for a Single-Machine Pipeline - pa"
+      ]
+    ],
+    "c04": [
+      [
+        "pdf-internals.pdf",
+        2,
+        "How a PDF File Actually Stores Content - page 2\n"
+      ],
+      [
+        "chunking-strategies.pdf",
+        3,
+        "Chunking Strategies for Retrieval - page 3\nPage-"
+      ],
+      [
+        "pdf-internals.pdf",
+        1,
+        "How a PDF File Actually Stores Content\nText in a"
+      ],
+      [
+        "pdf-internals.pdf",
+        3,
+        "How a PDF File Actually Stores Content - page 3\n"
+      ]
+    ],
+    "r01": [
+      [
+        "retrieval-eval.pdf",
+        1,
+        "Evaluating Retrieval and Answers\nRetrieval quali"
+      ],
+      [
+        "prompt-design.pdf",
+        1,
+        "Prompt Design for Grounded Answering\nA grounded "
+      ],
+      [
+        "embedding-models.pdf",
+        2,
+        "Local Embedding Models: A Comparison - page 2\nTh"
+      ],
+      [
+        "pdf-internals.pdf",
+        1,
+        "How a PDF File Actually Stores Content\nText in a"
+      ]
+    ],
+    "r02": [
+      [
+        "retrieval-eval.pdf",
+        2,
+        "Evaluating Retrieval and Answers - page 2\nGold l"
+      ],
+      [
+        "retrieval-eval.pdf",
+        3,
+        "Evaluating Retrieval and Answers - page 3\nSatura"
+      ],
+      [
+        "chunking-strategies.pdf",
+        2,
+        "Chunking Strategies for Retrieval - page 2\nOverl"
+      ],
+      [
+        "vector-store-notes.pdf",
+        1,
+        "Vector Stores for a Single-Machine Pipeline\nThre"
+      ]
+    ],
+    "r03": [
+      [
+        "retrieval-eval.pdf",
+        3,
+        "Evaluating Retrieval and Answers - page 3\nSatura"
+      ],
+      [
+        "retrieval-eval.pdf",
+        2,
+        "Evaluating Retrieval and Answers - page 2\nGold l"
+      ],
+      [
+        "chunking-strategies.pdf",
+        1,
+        "Chunking Strategies for Retrieval\nThree families"
+      ],
+      [
+        "retrieval-eval.pdf",
+        1,
+        "Evaluating Retrieval and Answers\nRetrieval quali"
+      ]
+    ],
+    "r04": [
+      [
+        "retrieval-eval.pdf",
+        1,
+        "Evaluating Retrieval and Answers\nRetrieval quali"
+      ],
+      [
+        "pdf-internals.pdf",
+        1,
+        "How a PDF File Actually Stores Content\nText in a"
+      ],
+      [
+        "embedding-models.pdf",
+        2,
+        "Local Embedding Models: A Comparison - page 2\nTh"
+      ],
+      [
+        "chunking-strategies.pdf",
+        1,
+        "Chunking Strategies for Retrieval\nThree families"
+      ]
+    ],
+    "p01": [
+      [
+        "prompt-design.pdf",
+        1,
+        "Prompt Design for Grounded Answering\nA grounded "
+      ],
+      [
+        "vector-store-notes.pdf",
+        2,
+        "Vector Stores for a Single-Machine Pipeline - pa"
+      ],
+      [
+        "pdf-internals.pdf",
+        1,
+        "How a PDF File Actually Stores Content\nText in a"
+      ],
+      [
+        "retrieval-eval.pdf",
+        1,
+        "Evaluating Retrieval and Answers\nRetrieval quali"
+      ]
+    ],
+    "p02": [
+      [
+        "prompt-design.pdf",
+        2,
+        "Prompt Design for Grounded Answering - page 2\nNu"
+      ],
+      [
+        "chunking-strategies.pdf",
+        2,
+        "Chunking Strategies for Retrieval - page 2\nOverl"
+      ],
+      [
+        "embedding-models.pdf",
+        2,
+        "Local Embedding Models: A Comparison - page 2\nTh"
+      ],
+      [
+        "pdf-internals.pdf",
+        1,
+        "How a PDF File Actually Stores Content\nText in a"
+      ]
+    ],
+    "p03": [
+      [
+        "prompt-design.pdf",
+        3,
+        "Prompt Design for Grounded Answering - page 3\nCo"
+      ],
+      [
+        "pdf-internals.pdf",
+        2,
+        "How a PDF File Actually Stores Content - page 2\n"
+      ],
+      [
+        "embedding-models.pdf",
+        2,
+        "Local Embedding Models: A Comparison - page 2\nTh"
+      ],
+      [
+        "prompt-design.pdf",
+        1,
+        "Prompt Design for Grounded Answering\nA grounded "
+      ]
+    ],
+    "p04": [
+      [
+        "prompt-design.pdf",
+        3,
+        "Prompt Design for Grounded Answering - page 3\nCo"
+      ],
+      [
+        "pdf-internals.pdf",
+        2,
+        "How a PDF File Actually Stores Content - page 2\n"
+      ],
+      [
+        "embedding-models.pdf",
+        2,
+        "Local Embedding Models: A Comparison - page 2\nTh"
+      ],
+      [
+        "retrieval-eval.pdf",
+        1,
+        "Evaluating Retrieval and Answers\nRetrieval quali"
+      ]
+    ],
+    "d01": [
+      [
+        "pdf-internals.pdf",
+        1,
+        "How a PDF File Actually Stores Content\nText in a"
+      ],
+      [
+        "pdf-internals.pdf",
+        3,
+        "How a PDF File Actually Stores Content - page 3\n"
+      ],
+      [
+        "pdf-internals.pdf",
+        2,
+        "How a PDF File Actually Stores Content - page 2\n"
+      ],
+      [
+        "vector-store-notes.pdf",
+        1,
+        "Vector Stores for a Single-Machine Pipeline\nThre"
+      ]
+    ],
+    "d02": [
+      [
+        "pdf-internals.pdf",
+        3,
+        "How a PDF File Actually Stores Content - page 3\n"
+      ],
+      [
+        "vector-store-notes.pdf",
+        3,
+        "Vector Stores for a Single-Machine Pipeline - pa"
+      ],
+      [
+        "embedding-models.pdf",
+        3,
+        "Local Embedding Models: A Comparison - page 3\nAl"
+      ],
+      [
+        "prompt-design.pdf",
+        1,
+        "Prompt Design for Grounded Answering\nA grounded "
+      ]
+    ],
+    "d03": [
+      [
+        "pdf-internals.pdf",
+        3,
+        "How a PDF File Actually Stores Content - page 3\n"
+      ],
+      [
+        "embedding-models.pdf",
+        2,
+        "Local Embedding Models: A Comparison - page 2\nTh"
+      ],
+      [
+        "prompt-design.pdf",
+        1,
+        "Prompt Design for Grounded Answering\nA grounded "
+      ],
+      [
+        "chunking-strategies.pdf",
+        1,
+        "Chunking Strategies for Retrieval\nThree families"
+      ]
+    ],
+    "d04": [
+      [
+        "pdf-internals.pdf",
+        3,
+        "How a PDF File Actually Stores Content - page 3\n"
+      ],
+      [
+        "pdf-internals.pdf",
+        1,
+        "How a PDF File Actually Stores Content\nText in a"
+      ],
+      [
+        "pdf-internals.pdf",
+        2,
+        "How a PDF File Actually Stores Content - page 2\n"
+      ],
+      [
+        "prompt-design.pdf",
+        1,
+        "Prompt Design for Grounded Answering\nA grounded "
+      ]
+    ]
+  },
+  "settings": {
+    "n_questions": 25,
+    "runs": 3,
+    "context_k": 4,
+    "retrieve_k": 16,
+    "mmr_lambda": 0.7,
+    "cross_encoder": true,
+    "rerank_model": "cross-encoder/ms-marco-MiniLM-L-6-v2",
+    "chunk_size": 800,
+    "chunk_overlap": 150,
+    "embedding_model": "all-MiniLM-L6-v2",
+    "llm_provider": "ollama",
+    "llm_model": "qwen2.5:3b",
+    "strip_boilerplate": true
+  },
+  "generated_at": "2026-11-24T11:08:05"
+}

@@ -1,0 +1,1391 @@
+{
+  "summary": {
+    "corpus": {
+      "documents": 6,
+      "pages_indexed": 230,
+      "pages_in_files": 1754,
+      "chunks": 1023,
+      "page_cap": 60
+    },
+    "settings": {
+      "chunk_size": 800,
+      "chunk_overlap": 150,
+      "min_chunk_chars": 80,
+      "embedding_model": "all-MiniLM-L6-v2",
+      "retrieve_k": 16,
+      "context_k": 4,
+      "mmr_lambda": 0.7,
+      "cross_encoder": true,
+      "rerank_model": "cross-encoder/ms-marco-MiniLM-L-6-v2",
+      "ocr_enabled": true,
+      "llm_provider": "ollama",
+      "llm_model": "qwen2.5:3b"
+    },
+    "n_questions": 19,
+    "n_in_scope": 18,
+    "hit_at_k": 0.889,
+    "hit_at_1": 0.722,
+    "mrr": 0.796,
+    "by_document": {
+      "attention": {
+        "n": 4,
+        "hit_at_k": 0.75,
+        "hit_at_1": 0.75,
+        "mrr": 0.75
+      },
+      "bert": {
+        "n": 3,
+        "hit_at_k": 0.667,
+        "hit_at_1": 0.333,
+        "mrr": 0.5
+      },
+      "bills-hr3684": {
+        "n": 3,
+        "hit_at_k": 1.0,
+        "hit_at_1": 1.0,
+        "mrr": 1.0
+      },
+      "gpo-911": {
+        "n": 3,
+        "hit_at_k": 1.0,
+        "hit_at_1": 1.0,
+        "mrr": 1.0
+      },
+      "nist-800-63b": {
+        "n": 3,
+        "hit_at_k": 1.0,
+        "hit_at_1": 1.0,
+        "mrr": 1.0
+      },
+      "rag": {
+        "n": 2,
+        "hit_at_k": 1.0,
+        "hit_at_1": 0.0,
+        "mrr": 0.417
+      }
+    },
+    "misses": [
+      {
+        "id": "a_r4",
+        "doc": "attention",
+        "gold_pages": [
+          1
+        ],
+        "retrieved": [
+          [
+            "gpo-911.pdf",
+            14
+          ],
+          [
+            "gpo-911.pdf",
+            14
+          ],
+          [
+            "bills-hr3684.pdf",
+            6
+          ],
+          [
+            "attention.pdf",
+            8
+          ]
+        ]
+      },
+      {
+        "id": "b_r1",
+        "doc": "bert",
+        "gold_pages": [
+          9
+        ],
+        "retrieved": [
+          [
+            "bert.pdf",
+            14
+          ],
+          [
+            "bert.pdf",
+            5
+          ],
+          [
+            "bert.pdf",
+            5
+          ],
+          [
+            "attention.pdf",
+            9
+          ]
+        ]
+      }
+    ],
+    "answer_keyword_accuracy": 0.722,
+    "citation_rate": 1.0,
+    "citation_gold_rate": 0.556,
+    "claim_support_rate": 0.941,
+    "answer_mean_chars": 117,
+    "refusal_ok": 1.0,
+    "api_errors": 0,
+    "documents": [
+      {
+        "document": "attention.pdf",
+        "pages_indexed": 15,
+        "pages_in_file": 15,
+        "chunks": 68,
+        "ocr_pages": 0,
+        "ingest_seconds": 73.4,
+        "mean_chars": 699,
+        "min_chars": 203,
+        "max_chars": 799,
+        "tiny": 0,
+        "boilerplate": {
+          "header": "Input-Input Layer5",
+          "pages_with_header": 2,
+          "page_share": 0.133,
+          "char_share": 0.0009
+        }
+      },
+      {
+        "document": "bert.pdf",
+        "pages_indexed": 16,
+        "pages_in_file": 16,
+        "chunks": 105,
+        "ocr_pages": 0,
+        "ingest_seconds": 18.3,
+        "mean_chars": 738,
+        "min_chars": 199,
+        "max_chars": 798,
+        "tiny": 0,
+        "boilerplate": {
+          "header": null,
+          "pages_with_header": 0,
+          "page_share": 0.0,
+          "char_share": 0.0
+        }
+      },
+      {
+        "document": "bills-hr3684.pdf",
+        "pages_indexed": 60,
+        "pages_in_file": 1039,
+        "chunks": 270,
+        "ocr_pages": 0,
+        "ingest_seconds": 47.6,
+        "mean_chars": 716,
+        "min_chars": 159,
+        "max_chars": 798,
+        "tiny": 0,
+        "boilerplate": {
+          "header": null,
+          "pages_with_header": 0,
+          "page_share": 0.0,
+          "char_share": 0.0
+        }
+      },
+      {
+        "document": "gpo-911.pdf",
+        "pages_indexed": 60,
+        "pages_in_file": 585,
+        "chunks": 216,
+        "ocr_pages": 0,
+        "ingest_seconds": 32.8,
+        "mean_chars": 712,
+        "min_chars": 28,
+        "max_chars": 798,
+        "tiny": 1,
+        "boilerplate": {
+          "header": null,
+          "pages_with_header": 0,
+          "page_share": 0.0,
+          "char_share": 0.0
+        }
+      },
+      {
+        "document": "nist-800-63b.pdf",
+        "pages_indexed": 60,
+        "pages_in_file": 80,
+        "chunks": 257,
+        "ocr_pages": 0,
+        "ingest_seconds": 27.1,
+        "mean_chars": 703,
+        "min_chars": 149,
+        "max_chars": 798,
+        "tiny": 0,
+        "boilerplate": {
+          "header": "NIST SP 800-63B  DIGITAL IDENTITY GUIDELINES:",
+          "pages_with_header": 56,
+          "page_share": 0.933,
+          "char_share": 0.0166
+        }
+      },
+      {
+        "document": "rag.pdf",
+        "pages_indexed": 19,
+        "pages_in_file": 19,
+        "chunks": 118,
+        "ocr_pages": 0,
+        "ingest_seconds": 11.8,
+        "mean_chars": 711,
+        "min_chars": 246,
+        "max_chars": 799,
+        "tiny": 0,
+        "boilerplate": {
+          "header": null,
+          "pages_with_header": 0,
+          "page_share": 0.0,
+          "char_share": 0.0
+        }
+      }
+    ],
+    "generated_at": "2026-11-24T10:07:01"
+  },
+  "rows": [
+    {
+      "id": "a_r1",
+      "doc": "attention",
+      "question": "How many identical layers does the Transformer encoder stack contain?",
+      "in_scope": true,
+      "gold_pages": [
+        3
+      ],
+      "retrieved": [
+        [
+          "attention.pdf",
+          3
+        ],
+        [
+          "attention.pdf",
+          8
+        ],
+        [
+          "attention.pdf",
+          5
+        ],
+        [
+          "attention.pdf",
+          3
+        ]
+      ],
+      "hit_rank": 1,
+      "hit_at_k": true,
+      "hit_at_1": true,
+      "reciprocal_rank": 1.0,
+      "answer": "The encoder is composed of a stack of N = 6 identical layers. [1]",
+      "answer_chars": 65,
+      "keyword_ok": true,
+      "refusal_ok": null,
+      "cites": true,
+      "cited_blocks": [
+        [
+          "attention.pdf",
+          3
+        ]
+      ],
+      "citation_points_to_gold": true,
+      "claim_support": 1.0,
+      "claims": [
+        {
+          "sentence": "The encoder is composed of a stack of N = 6 identical layers.",
+          "cited_blocks": [
+            1
+          ],
+          "best_block": 1,
+          "cited_overlap": 1.0,
+          "best_overlap": 1.0,
+          "cited_similarity": 0.557,
+          "best_similarity": 0.557,
+          "verdict": "supported"
+        }
+      ]
+    },
+    {
+      "id": "a_r2",
+      "doc": "attention",
+      "question": "What English-to-French BLEU score does the big Transformer reach on newstest2014?",
+      "in_scope": true,
+      "gold_pages": [
+        8
+      ],
+      "retrieved": [
+        [
+          "attention.pdf",
+          8
+        ],
+        [
+          "attention.pdf",
+          8
+        ],
+        [
+          "attention.pdf",
+          1
+        ],
+        [
+          "attention.pdf",
+          9
+        ]
+      ],
+      "hit_rank": 1,
+      "hit_at_k": true,
+      "hit_at_1": true,
+      "reciprocal_rank": 1.0,
+      "answer": "[3] The big transformer model achieves a BLEU score of 41.8 on the WMT 2014 English-to-French translation task. [3]",
+      "answer_chars": 115,
+      "keyword_ok": true,
+      "refusal_ok": null,
+      "cites": true,
+      "cited_blocks": [
+        [
+          "attention.pdf",
+          1
+        ],
+        [
+          "attention.pdf",
+          1
+        ]
+      ],
+      "citation_points_to_gold": false,
+      "claim_support": 1.0,
+      "claims": [
+        {
+          "sentence": "The big transformer model achieves a BLEU score of 41.8 on the WMT 2014 English-to-French translation task.",
+          "cited_blocks": [
+            3,
+            3
+          ],
+          "best_block": 2,
+          "cited_overlap": 0.818,
+          "best_overlap": 1.0,
+          "cited_similarity": 0.736,
+          "best_similarity": 0.835,
+          "verdict": "supported"
+        }
+      ]
+    },
+    {
+      "id": "a_r3",
+      "doc": "attention",
+      "question": "How many attention heads run in parallel, and how wide is each head?",
+      "in_scope": true,
+      "gold_pages": [
+        5
+      ],
+      "retrieved": [
+        [
+          "attention.pdf",
+          5
+        ],
+        [
+          "attention.pdf",
+          4
+        ],
+        [
+          "attention.pdf",
+          14
+        ],
+        [
+          "attention.pdf",
+          5
+        ]
+      ],
+      "hit_rank": 1,
+      "hit_at_k": true,
+      "hit_at_1": true,
+      "reciprocal_rank": 1.0,
+      "answer": "Eight attention heads run in parallel, and each head is 64 wide [1][3] [4].",
+      "answer_chars": 75,
+      "keyword_ok": true,
+      "refusal_ok": null,
+      "cites": true,
+      "cited_blocks": [
+        [
+          "attention.pdf",
+          5
+        ],
+        [
+          "attention.pdf",
+          14
+        ],
+        [
+          "attention.pdf",
+          5
+        ]
+      ],
+      "citation_points_to_gold": true,
+      "claim_support": 1.0,
+      "claims": [
+        {
+          "sentence": "Eight attention heads run in parallel, and each head is 64 wide  .",
+          "cited_blocks": [
+            1,
+            3,
+            4
+          ],
+          "best_block": 1,
+          "cited_overlap": 0.625,
+          "best_overlap": 0.625,
+          "cited_similarity": 0.569,
+          "best_similarity": 0.569,
+          "verdict": "supported"
+        }
+      ]
+    },
+    {
+      "id": "a_r4",
+      "doc": "attention",
+      "question": "Which university is Aidan Gomez affiliated with?",
+      "in_scope": true,
+      "gold_pages": [
+        1
+      ],
+      "retrieved": [
+        [
+          "gpo-911.pdf",
+          14
+        ],
+        [
+          "gpo-911.pdf",
+          14
+        ],
+        [
+          "bills-hr3684.pdf",
+          6
+        ],
+        [
+          "attention.pdf",
+          8
+        ]
+      ],
+      "hit_rank": null,
+      "hit_at_k": false,
+      "hit_at_1": false,
+      "reciprocal_rank": 0.0,
+      "answer": "I do not know based on the provided document. [1][2]",
+      "answer_chars": 52,
+      "keyword_ok": false,
+      "refusal_ok": null,
+      "cites": true,
+      "cited_blocks": [
+        [
+          "gpo-911.pdf",
+          14
+        ],
+        [
+          "gpo-911.pdf",
+          14
+        ]
+      ],
+      "citation_points_to_gold": false,
+      "claim_support": 1.0,
+      "claims": [
+        {
+          "sentence": "I do not know based on the provided document.",
+          "cited_blocks": [
+            1,
+            2
+          ],
+          "best_block": 3,
+          "cited_overlap": 0.0,
+          "best_overlap": 0.0,
+          "cited_similarity": 0.134,
+          "best_similarity": 0.183,
+          "verdict": "supported"
+        }
+      ]
+    },
+    {
+      "id": "b_r1",
+      "doc": "bert",
+      "question": "In section 5.3, what alternative to fine-tuning does the paper evaluate?",
+      "in_scope": true,
+      "gold_pages": [
+        9
+      ],
+      "retrieved": [
+        [
+          "bert.pdf",
+          14
+        ],
+        [
+          "bert.pdf",
+          5
+        ],
+        [
+          "bert.pdf",
+          5
+        ],
+        [
+          "attention.pdf",
+          9
+        ]
+      ],
+      "hit_rank": null,
+      "hit_at_k": false,
+      "hit_at_1": false,
+      "reciprocal_rank": 0.0,
+      "answer": "The paper in Section 5.3 does not evaluate an alternative to fine-tuning based on the provided context [1].",
+      "answer_chars": 107,
+      "keyword_ok": false,
+      "refusal_ok": null,
+      "cites": true,
+      "cited_blocks": [
+        [
+          "bert.pdf",
+          14
+        ]
+      ],
+      "citation_points_to_gold": false,
+      "claim_support": 1.0,
+      "claims": [
+        {
+          "sentence": "The paper in Section 5.3 does not evaluate an alternative to fine-tuning based on the provided context .",
+          "cited_blocks": [
+            1
+          ],
+          "best_block": 1,
+          "cited_overlap": 0.25,
+          "best_overlap": 0.25,
+          "cited_similarity": 0.338,
+          "best_similarity": 0.338,
+          "verdict": "supported"
+        }
+      ]
+    },
+    {
+      "id": "b_r2",
+      "doc": "bert",
+      "question": "Which appendix collects the additional ablation studies on training steps?",
+      "in_scope": true,
+      "gold_pages": [
+        16
+      ],
+      "retrieved": [
+        [
+          "bert.pdf",
+          12
+        ],
+        [
+          "bert.pdf",
+          16
+        ],
+        [
+          "rag.pdf",
+          7
+        ],
+        [
+          "bert.pdf",
+          14
+        ]
+      ],
+      "hit_rank": 2,
+      "hit_at_k": true,
+      "hit_at_1": false,
+      "reciprocal_rank": 0.5,
+      "answer": "The Appendix C collects the additional ablation studies on training steps. [1]",
+      "answer_chars": 78,
+      "keyword_ok": true,
+      "refusal_ok": null,
+      "cites": true,
+      "cited_blocks": [
+        [
+          "bert.pdf",
+          12
+        ]
+      ],
+      "citation_points_to_gold": false,
+      "claim_support": 1.0,
+      "claims": [
+        {
+          "sentence": "The Appendix C collects the additional ablation studies on training steps.",
+          "cited_blocks": [
+            1
+          ],
+          "best_block": 1,
+          "cited_overlap": 0.857,
+          "best_overlap": 0.857,
+          "cited_similarity": 0.361,
+          "best_similarity": 0.361,
+          "verdict": "supported"
+        }
+      ]
+    },
+    {
+      "id": "b_r3",
+      "doc": "bert",
+      "question": "Besides masked language modelling, which task is used to jointly pre-train text-pair representations?",
+      "in_scope": true,
+      "gold_pages": [
+        2
+      ],
+      "retrieved": [
+        [
+          "bert.pdf",
+          2
+        ],
+        [
+          "bert.pdf",
+          2
+        ],
+        [
+          "bert.pdf",
+          1
+        ],
+        [
+          "bert.pdf",
+          1
+        ]
+      ],
+      "hit_rank": 1,
+      "hit_at_k": true,
+      "hit_at_1": true,
+      "reciprocal_rank": 1.0,
+      "answer": "Besides masked language modelling, next sentence prediction is also used to jointly pre-train text-pair representations. [2]",
+      "answer_chars": 124,
+      "keyword_ok": true,
+      "refusal_ok": null,
+      "cites": true,
+      "cited_blocks": [
+        [
+          "bert.pdf",
+          2
+        ]
+      ],
+      "citation_points_to_gold": true,
+      "claim_support": 0.0,
+      "claims": [
+        {
+          "sentence": "Besides masked language modelling, next sentence prediction is also used to jointly pre-train text-pair representations.",
+          "cited_blocks": [
+            2
+          ],
+          "best_block": 1,
+          "cited_overlap": 0.308,
+          "best_overlap": 0.692,
+          "cited_similarity": 0.63,
+          "best_similarity": 0.765,
+          "verdict": "misattributed"
+        }
+      ]
+    },
+    {
+      "id": "r_r1",
+      "doc": "rag",
+      "question": "Which RAG variant marginalises over documents when decoding?",
+      "in_scope": true,
+      "gold_pages": [
+        4
+      ],
+      "retrieved": [
+        [
+          "rag.pdf",
+          3
+        ],
+        [
+          "rag.pdf",
+          3
+        ],
+        [
+          "rag.pdf",
+          4
+        ],
+        [
+          "rag.pdf",
+          3
+        ]
+      ],
+      "hit_rank": 3,
+      "hit_at_k": true,
+      "hit_at_1": false,
+      "reciprocal_rank": 0.3333333333333333,
+      "answer": "The RAG-Token model marginalizes over documents when decoding [2][4].",
+      "answer_chars": 69,
+      "keyword_ok": false,
+      "refusal_ok": null,
+      "cites": true,
+      "cited_blocks": [
+        [
+          "rag.pdf",
+          3
+        ],
+        [
+          "rag.pdf",
+          3
+        ]
+      ],
+      "citation_points_to_gold": false,
+      "claim_support": 1.0,
+      "claims": [
+        {
+          "sentence": "The RAG-Token model marginalizes over documents when decoding .",
+          "cited_blocks": [
+            2,
+            4
+          ],
+          "best_block": 1,
+          "cited_overlap": 0.714,
+          "best_overlap": 0.714,
+          "cited_similarity": 0.599,
+          "best_similarity": 0.681,
+          "verdict": "supported"
+        }
+      ]
+    },
+    {
+      "id": "r_r2",
+      "doc": "rag",
+      "question": "What Natural Questions score does RAG-Sequence reach in Table 1?",
+      "in_scope": true,
+      "gold_pages": [
+        6
+      ],
+      "retrieved": [
+        [
+          "rag.pdf",
+          19
+        ],
+        [
+          "rag.pdf",
+          6
+        ],
+        [
+          "rag.pdf",
+          19
+        ],
+        [
+          "rag.pdf",
+          8
+        ]
+      ],
+      "hit_rank": 2,
+      "hit_at_k": true,
+      "hit_at_1": false,
+      "reciprocal_rank": 0.5,
+      "answer": "RAG-Sequence reaches a score of 28.9 EM on Natural Questions [1].",
+      "answer_chars": 65,
+      "keyword_ok": false,
+      "refusal_ok": null,
+      "cites": true,
+      "cited_blocks": [
+        [
+          "rag.pdf",
+          19
+        ]
+      ],
+      "citation_points_to_gold": false,
+      "claim_support": 1.0,
+      "claims": [
+        {
+          "sentence": "RAG-Sequence reaches a score of 28.9 EM on Natural Questions .",
+          "cited_blocks": [
+            1
+          ],
+          "best_block": 3,
+          "cited_overlap": 0.8,
+          "best_overlap": 0.8,
+          "cited_similarity": 0.519,
+          "best_similarity": 0.523,
+          "verdict": "supported"
+        }
+      ]
+    },
+    {
+      "id": "n_r1",
+      "doc": "nist-800-63b",
+      "question": "What does NIST call the process of determining the validity of one or more authenticators?",
+      "in_scope": true,
+      "gold_pages": [
+        13
+      ],
+      "retrieved": [
+        [
+          "nist-800-63b.pdf",
+          13
+        ],
+        [
+          "nist-800-63b.pdf",
+          42
+        ],
+        [
+          "nist-800-63b.pdf",
+          5
+        ],
+        [
+          "nist-800-63b.pdf",
+          13
+        ]
+      ],
+      "hit_rank": 1,
+      "hit_at_k": true,
+      "hit_at_1": true,
+      "reciprocal_rank": 1.0,
+      "answer": "Digital authentication is the process of determining the validity of one or more authenticators used to claim a digital identity. [1]",
+      "answer_chars": 133,
+      "keyword_ok": true,
+      "refusal_ok": null,
+      "cites": true,
+      "cited_blocks": [
+        [
+          "nist-800-63b.pdf",
+          13
+        ]
+      ],
+      "citation_points_to_gold": true,
+      "claim_support": 1.0,
+      "claims": [
+        {
+          "sentence": "Digital authentication is the process of determining the validity of one or more authenticators used to claim a digital identity.",
+          "cited_blocks": [
+            1
+          ],
+          "best_block": 1,
+          "cited_overlap": 1.0,
+          "best_overlap": 1.0,
+          "cited_similarity": 0.818,
+          "best_similarity": 0.818,
+          "verdict": "supported"
+        }
+      ]
+    },
+    {
+      "id": "n_r2",
+      "doc": "nist-800-63b",
+      "question": "How is out-of-band verification over the public switched telephone network restricted?",
+      "in_scope": true,
+      "gold_pages": [
+        30
+      ],
+      "retrieved": [
+        [
+          "nist-800-63b.pdf",
+          30
+        ],
+        [
+          "nist-800-63b.pdf",
+          28
+        ],
+        [
+          "nist-800-63b.pdf",
+          29
+        ],
+        [
+          "nist-800-63b.pdf",
+          28
+        ]
+      ],
+      "hit_rank": 1,
+      "hit_at_k": true,
+      "hit_at_1": true,
+      "reciprocal_rank": 1.0,
+      "answer": "Use of the PSTN for out-of-band verification is RESTRICTED as described in this section and in Section 5.2.10. [1]",
+      "answer_chars": 114,
+      "keyword_ok": true,
+      "refusal_ok": null,
+      "cites": true,
+      "cited_blocks": [
+        [
+          "nist-800-63b.pdf",
+          30
+        ]
+      ],
+      "citation_points_to_gold": true,
+      "claim_support": 1.0,
+      "claims": [
+        {
+          "sentence": "Use of the PSTN for out-of-band verification is RESTRICTED as described in this section and in Section 5.2.10.",
+          "cited_blocks": [
+            1
+          ],
+          "best_block": 1,
+          "cited_overlap": 1.0,
+          "best_overlap": 1.0,
+          "cited_similarity": 0.675,
+          "best_similarity": 0.675,
+          "verdict": "supported"
+        }
+      ]
+    },
+    {
+      "id": "n_r3",
+      "doc": "nist-800-63b",
+      "question": "How does a claimant move a secret received on a mobile device into the authentication session?",
+      "in_scope": true,
+      "gold_pages": [
+        28
+      ],
+      "retrieved": [
+        [
+          "nist-800-63b.pdf",
+          28
+        ],
+        [
+          "nist-800-63b.pdf",
+          28
+        ],
+        [
+          "nist-800-63b.pdf",
+          28
+        ],
+        [
+          "nist-800-63b.pdf",
+          29
+        ]
+      ],
+      "hit_rank": 1,
+      "hit_at_k": true,
+      "hit_at_1": true,
+      "reciprocal_rank": 1.0,
+      "answer": "The claimant transfers a secret received by the out-of-band device via the secondary channel to the verifier using the primary channel. For example, the claimant may receive the secret on their mobile device and type it (typically a 6-digit code) into their authentication session. [1]",
+      "answer_chars": 285,
+      "keyword_ok": true,
+      "refusal_ok": null,
+      "cites": true,
+      "cited_blocks": [
+        [
+          "nist-800-63b.pdf",
+          28
+        ]
+      ],
+      "citation_points_to_gold": true,
+      "claim_support": 1.0,
+      "claims": [
+        {
+          "sentence": "The claimant transfers a secret received by the out-of-band device via the secondary channel to the verifier using the primary channel.",
+          "cited_blocks": [],
+          "best_block": null,
+          "cited_overlap": 0.0,
+          "best_overlap": 0.0,
+          "cited_similarity": 0.0,
+          "best_similarity": 0.0,
+          "verdict": "uncited"
+        },
+        {
+          "sentence": "For example, the claimant may receive the secret on their mobile device and type it (typically a 6-digit code) into their authentication session.",
+          "cited_blocks": [
+            1
+          ],
+          "best_block": 1,
+          "cited_overlap": 1.0,
+          "best_overlap": 1.0,
+          "cited_similarity": 0.723,
+          "best_similarity": 0.723,
+          "verdict": "supported"
+        }
+      ]
+    },
+    {
+      "id": "g_r1",
+      "doc": "gpo-911",
+      "question": "What did the aircraft five miles away from the shelter turn out to be?",
+      "in_scope": true,
+      "gold_pages": [
+        60
+      ],
+      "retrieved": [
+        [
+          "gpo-911.pdf",
+          60
+        ],
+        [
+          "gpo-911.pdf",
+          59
+        ],
+        [
+          "gpo-911.pdf",
+          36
+        ],
+        [
+          "gpo-911.pdf",
+          59
+        ]
+      ],
+      "hit_rank": 1,
+      "hit_at_k": true,
+      "hit_at_1": true,
+      "reciprocal_rank": 1.0,
+      "answer": "The aircraft five miles away from the shelter turned out to be a medevac helicopter [1].",
+      "answer_chars": 88,
+      "keyword_ok": true,
+      "refusal_ok": null,
+      "cites": true,
+      "cited_blocks": [
+        [
+          "gpo-911.pdf",
+          60
+        ]
+      ],
+      "citation_points_to_gold": true,
+      "claim_support": 1.0,
+      "claims": [
+        {
+          "sentence": "The aircraft five miles away from the shelter turned out to be a medevac helicopter .",
+          "cited_blocks": [
+            1
+          ],
+          "best_block": 1,
+          "cited_overlap": 0.667,
+          "best_overlap": 0.667,
+          "cited_similarity": 0.493,
+          "best_similarity": 0.493,
+          "verdict": "supported"
+        }
+      ]
+    },
+    {
+      "id": "g_r2",
+      "doc": "gpo-911",
+      "question": "What time was American Airlines Flight 11 scheduled to leave Boston?",
+      "in_scope": true,
+      "gold_pages": [
+        20
+      ],
+      "retrieved": [
+        [
+          "gpo-911.pdf",
+          20
+        ],
+        [
+          "gpo-911.pdf",
+          28
+        ],
+        [
+          "gpo-911.pdf",
+          22
+        ],
+        [
+          "gpo-911.pdf",
+          22
+        ]
+      ],
+      "hit_rank": 1,
+      "hit_at_k": true,
+      "hit_at_1": true,
+      "reciprocal_rank": 1.0,
+      "answer": "American Airlines Flight 11 provided nonstop service from Boston to Los Angeles. On September 11, Captain John Ogonowski and First Officer Thomas McGuinness piloted the Boeing 767.It carried its full capacity of nine flight attendants. Eighty-one passengers boarded the flight with them (including the five terrorists).22 The plane took off at 7:59. [3]",
+      "answer_chars": 353,
+      "keyword_ok": false,
+      "refusal_ok": null,
+      "cites": true,
+      "cited_blocks": [
+        [
+          "gpo-911.pdf",
+          22
+        ]
+      ],
+      "citation_points_to_gold": false,
+      "claim_support": 1.0,
+      "claims": [
+        {
+          "sentence": "American Airlines Flight 11 provided nonstop service from Boston to Los Angeles.",
+          "cited_blocks": [],
+          "best_block": null,
+          "cited_overlap": 0.0,
+          "best_overlap": 0.0,
+          "cited_similarity": 0.0,
+          "best_similarity": 0.0,
+          "verdict": "uncited"
+        },
+        {
+          "sentence": "On September 11, Captain John Ogonowski and First Officer Thomas McGuinness piloted the Boeing 767.It carried its full capacity of nine flight attendants.",
+          "cited_blocks": [],
+          "best_block": null,
+          "cited_overlap": 0.0,
+          "best_overlap": 0.0,
+          "cited_similarity": 0.0,
+          "best_similarity": 0.0,
+          "verdict": "uncited"
+        },
+        {
+          "sentence": "Eighty-one passengers boarded the flight with them (including the five terrorists).22 The plane took off at 7:59.",
+          "cited_blocks": [
+            3
+          ],
+          "best_block": 4,
+          "cited_overlap": 0.636,
+          "best_overlap": 0.909,
+          "cited_similarity": 0.654,
+          "best_similarity": 0.652,
+          "verdict": "supported"
+        }
+      ]
+    },
+    {
+      "id": "g_r3",
+      "doc": "gpo-911",
+      "question": "When did the Otis fighters establish a combat air patrol over New York?",
+      "in_scope": true,
+      "gold_pages": [
+        42
+      ],
+      "retrieved": [
+        [
+          "gpo-911.pdf",
+          42
+        ],
+        [
+          "gpo-911.pdf",
+          38
+        ],
+        [
+          "gpo-911.pdf",
+          42
+        ],
+        [
+          "gpo-911.pdf",
+          35
+        ]
+      ],
+      "hit_rank": 1,
+      "hit_at_k": true,
+      "hit_at_1": true,
+      "reciprocal_rank": 1.0,
+      "answer": "The Otis fighters established a combat air patrol (CAP) over the city at 9:25 [1].",
+      "answer_chars": 82,
+      "keyword_ok": true,
+      "refusal_ok": null,
+      "cites": true,
+      "cited_blocks": [
+        [
+          "gpo-911.pdf",
+          42
+        ]
+      ],
+      "citation_points_to_gold": true,
+      "claim_support": 1.0,
+      "claims": [
+        {
+          "sentence": "The Otis fighters established a combat air patrol (CAP) over the city at 9:25 .",
+          "cited_blocks": [
+            1
+          ],
+          "best_block": 1,
+          "cited_overlap": 1.0,
+          "best_overlap": 1.0,
+          "cited_similarity": 0.652,
+          "best_similarity": 0.652,
+          "verdict": "supported"
+        }
+      ]
+    },
+    {
+      "id": "h_r1",
+      "doc": "bills-hr3684",
+      "question": "Which road repairs are eligible when a road sits in a base floodplain?",
+      "in_scope": true,
+      "gold_pages": [
+        30
+      ],
+      "retrieved": [
+        [
+          "bills-hr3684.pdf",
+          30
+        ],
+        [
+          "bills-hr3684.pdf",
+          29
+        ],
+        [
+          "bills-hr3684.pdf",
+          30
+        ],
+        [
+          "bills-hr3684.pdf",
+          31
+        ]
+      ],
+      "hit_rank": 1,
+      "hit_at_k": true,
+      "hit_at_1": true,
+      "reciprocal_rank": 1.0,
+      "answer": "Road repairs that are eligible when a road sits in a base floodplain include relocating roadways to higher ground or away from slide-prone areas, stabilizing slide areas, and stabilizing slopes. [1]",
+      "answer_chars": 198,
+      "keyword_ok": true,
+      "refusal_ok": null,
+      "cites": true,
+      "cited_blocks": [
+        [
+          "bills-hr3684.pdf",
+          30
+        ]
+      ],
+      "citation_points_to_gold": true,
+      "claim_support": 1.0,
+      "claims": [
+        {
+          "sentence": "Road repairs that are eligible when a road sits in a base floodplain include relocating roadways to higher ground or away from slide-prone areas, stabilizing slide areas, and stabilizing slopes.",
+          "cited_blocks": [
+            1
+          ],
+          "best_block": 1,
+          "cited_overlap": 0.619,
+          "best_overlap": 0.619,
+          "cited_similarity": 0.636,
+          "best_similarity": 0.636,
+          "verdict": "supported"
+        }
+      ]
+    },
+    {
+      "id": "h_r2",
+      "doc": "bills-hr3684",
+      "question": "How much is allocated to the Federal lands transportation program for fiscal year 2022?",
+      "in_scope": true,
+      "gold_pages": [
+        16
+      ],
+      "retrieved": [
+        [
+          "bills-hr3684.pdf",
+          16
+        ],
+        [
+          "bills-hr3684.pdf",
+          15
+        ],
+        [
+          "bills-hr3684.pdf",
+          18
+        ],
+        [
+          "bills-hr3684.pdf",
+          17
+        ]
+      ],
+      "hit_rank": 1,
+      "hit_at_k": true,
+      "hit_at_1": true,
+      "reciprocal_rank": 1.0,
+      "answer": "For fiscal year 2022, $421,965,000 is allocated to the Federal lands transportation program [2].",
+      "answer_chars": 96,
+      "keyword_ok": true,
+      "refusal_ok": null,
+      "cites": true,
+      "cited_blocks": [
+        [
+          "bills-hr3684.pdf",
+          15
+        ]
+      ],
+      "citation_points_to_gold": false,
+      "claim_support": 1.0,
+      "claims": [
+        {
+          "sentence": "For fiscal year 2022, $421,965,000 is allocated to the Federal lands transportation program .",
+          "cited_blocks": [
+            2
+          ],
+          "best_block": 1,
+          "cited_overlap": 0.636,
+          "best_overlap": 0.909,
+          "cited_similarity": 0.741,
+          "best_similarity": 0.736,
+          "verdict": "supported"
+        }
+      ]
+    },
+    {
+      "id": "h_r3",
+      "doc": "bills-hr3684",
+      "question": "Within how many days must the Secretary tell applicants they were not selected for a grant?",
+      "in_scope": true,
+      "gold_pages": [
+        44
+      ],
+      "retrieved": [
+        [
+          "bills-hr3684.pdf",
+          44
+        ],
+        [
+          "bills-hr3684.pdf",
+          44
+        ],
+        [
+          "bills-hr3684.pdf",
+          43
+        ],
+        [
+          "bills-hr3684.pdf",
+          59
+        ]
+      ],
+      "hit_rank": 1,
+      "hit_at_k": true,
+      "hit_at_1": true,
+      "reciprocal_rank": 1.0,
+      "answer": "[1] 60 days [1]",
+      "answer_chars": 15,
+      "keyword_ok": true,
+      "refusal_ok": null,
+      "cites": true,
+      "cited_blocks": [
+        [
+          "bills-hr3684.pdf",
+          44
+        ],
+        [
+          "bills-hr3684.pdf",
+          44
+        ]
+      ],
+      "citation_points_to_gold": true,
+      "claim_support": null,
+      "claims": []
+    },
+    {
+      "id": "x_r1",
+      "doc": null,
+      "question": "What overnight lending rate does the Federal Reserve charge commercial banks?",
+      "in_scope": false,
+      "gold_pages": [],
+      "retrieved": [
+        [
+          "bills-hr3684.pdf",
+          16
+        ],
+        [
+          "bills-hr3684.pdf",
+          16
+        ],
+        [
+          "bills-hr3684.pdf",
+          15
+        ],
+        [
+          "bills-hr3684.pdf",
+          18
+        ]
+      ],
+      "hit_rank": null,
+      "hit_at_k": null,
+      "hit_at_1": null,
+      "reciprocal_rank": null,
+      "answer": "I do not know based on the document. [1][2]",
+      "answer_chars": 43,
+      "keyword_ok": null,
+      "refusal_ok": true,
+      "cites": true,
+      "cited_blocks": [
+        [
+          "bills-hr3684.pdf",
+          16
+        ],
+        [
+          "bills-hr3684.pdf",
+          16
+        ]
+      ],
+      "citation_points_to_gold": null,
+      "claim_support": 1.0,
+      "claims": [
+        {
+          "sentence": "I do not know based on the document.",
+          "cited_blocks": [
+            1,
+            2
+          ],
+          "best_block": 3,
+          "cited_overlap": 0.0,
+          "best_overlap": 0.0,
+          "cited_similarity": 0.228,
+          "best_similarity": 0.255,
+          "verdict": "supported"
+        }
+      ]
+    }
+  ]
+}

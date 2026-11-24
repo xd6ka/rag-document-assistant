@@ -1,0 +1,101 @@
+{
+  "k": 4,
+  "configs": {
+    "retrieve_k=8, CE on": {
+      "hit_at_k": 0.778,
+      "hit_at_1": 0.722,
+      "mrr": 0.741,
+      "misses": [
+        "a_r4",
+        "b_r1",
+        "b_r2",
+        "n_r1"
+      ]
+    },
+    "retrieve_k=16, CE on": {
+      "hit_at_k": 0.889,
+      "hit_at_1": 0.722,
+      "mrr": 0.796,
+      "misses": [
+        "a_r4",
+        "b_r1"
+      ]
+    },
+    "retrieve_k=32, CE on": {
+      "hit_at_k": 0.833,
+      "hit_at_1": 0.722,
+      "mrr": 0.769,
+      "misses": [
+        "a_r4",
+        "b_r1",
+        "r_r1"
+      ]
+    },
+    "retrieve_k=8, CE off": {
+      "hit_at_k": 0.722,
+      "hit_at_1": 0.556,
+      "mrr": 0.611,
+      "misses": [
+        "a_r4",
+        "b_r1",
+        "b_r2",
+        "r_r1",
+        "n_r1"
+      ]
+    },
+    "retrieve_k=32, CE off": {
+      "hit_at_k": 0.611,
+      "hit_at_1": 0.556,
+      "mrr": 0.583,
+      "misses": [
+        "a_r4",
+        "b_r1",
+        "b_r2",
+        "r_r1",
+        "n_r1",
+        "g_r1",
+        "g_r2"
+      ]
+    }
+  },
+  "stage1_recall": {
+    "cutoffs": {
+      "8": 0.833,
+      "16": 0.944,
+      "32": 0.944,
+      "64": 1.0
+    },
+    "ranks": {
+      "a_r1": 1,
+      "a_r2": 1,
+      "a_r3": 1,
+      "a_r4": 16,
+      "b_r1": 51,
+      "b_r2": 11,
+      "b_r3": 1,
+      "r_r1": 2,
+      "r_r2": 1,
+      "n_r1": 7,
+      "n_r2": 1,
+      "n_r3": 1,
+      "g_r1": 8,
+      "g_r2": 2,
+      "g_r3": 1,
+      "h_r1": 1,
+      "h_r2": 2,
+      "h_r3": 1
+    }
+  },
+  "corpus": {
+    "documents": 6,
+    "chunks": 1023,
+    "settings": {
+      "embedding_model": "all-MiniLM-L6-v2",
+      "rerank_model": "cross-encoder/ms-marco-MiniLM-L-6-v2",
+      "chunk_size": 800,
+      "chunk_overlap": 150,
+      "mmr_lambda": 0.7,
+      "page_cap": 60
+    }
+  }
+}

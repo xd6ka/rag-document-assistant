@@ -1,0 +1,55 @@
+{
+  "attention": {
+    "file": "attention.pdf",
+    "url": "https://arxiv.org/pdf/1706.03762v7",
+    "bytes": 2215244,
+    "sha256": "bdfaa68d8984f0dc02beaca527b76f207d99b666d31d1da728ee0728182df697",
+    "note": "single column, tables and footnotes, ~15 pages",
+    "cached": true
+  },
+  "rag": {
+    "file": "rag.pdf",
+    "url": "https://arxiv.org/pdf/2005.11401v4",
+    "bytes": 885323,
+    "sha256": "23e3249e9a1e75418d82efecab0ea8c4d033b89c93742f63208d47ce01f21233",
+    "note": "two column, dense related-work prose",
+    "cached": true
+  },
+  "bert": {
+    "file": "bert.pdf",
+    "url": "https://arxiv.org/pdf/1810.04805v2",
+    "bytes": 775166,
+    "sha256": "5692a5514787a8c6727b4ff3b726a3385798bc68e12138d1d4af83947e2acf6e",
+    "note": "two column, many tables and ablation sections",
+    "cached": true
+  },
+  "nist-800-63b": {
+    "file": "nist-800-63b.pdf",
+    "url": "https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-63b.pdf",
+    "bytes": 1480377,
+    "sha256": "ccfce7510a1267933f912d023306c6e7d485f21be63d271108b61aad6139127e",
+    "note": "formal standard: numbered clauses, running headers and footers",
+    "cached": true
+  },
+  "rfc6750": {
+    "url": "https://www.rfc-editor.org/rfc/rfc6750.pdf",
+    "note": "IETF memo: short pages, running header, unusual line wrapping",
+    "error": "HTTP Error 404: Not Found"
+  },
+  "gpo-911": {
+    "file": "gpo-911.pdf",
+    "url": "https://www.govinfo.gov/content/pkg/GPO-911REPORT/pdf/GPO-911REPORT.pdf",
+    "bytes": 2475163,
+    "sha256": "657d41475eb3a9a5e3e87a6c7c51ac1dfbe1af7566d1abff7bf7286e7e1c0e1b",
+    "note": "government commission report: 585 pages, photos with captions, footnotes",
+    "cached": false
+  },
+  "bills-hr3684": {
+    "file": "bills-hr3684.pdf",
+    "url": "https://www.govinfo.gov/content/pkg/BILLS-117hr3684enr/pdf/BILLS-117hr3684enr.pdf",
+    "bytes": 2416174,
+    "sha256": "60477c5964b398ec6b5569e245848650124682f75349d363eb96ff2fda8aa728",
+    "note": "legislative text: numbered sections, dense cross-references, no prose",
+    "cached": false
+  }
+}

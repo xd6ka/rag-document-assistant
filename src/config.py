@@ -122,7 +122,10 @@ CHUNK_OVERLAP = int(os.getenv("CHUNK_OVERLAP", "150"))
 MIN_CHUNK_CHARS = int(os.getenv("MIN_CHUNK_CHARS", "80"))
 
 # --- retrieval --------------------------------------------------------------
-RETRIEVE_K = int(os.getenv("RETRIEVE_K", "8"))   # candidates pulled from the vector index
+RETRIEVE_K = int(os.getenv("RETRIEVE_K", "16"))   # candidates pulled from the vector index
+# 16, not 8: on real PDFs the gold page sat outside the top 8 candidates for 22 %
+# of questions (eval/reports/real_depth.json), and the reranker cannot recover a
+# chunk it never sees. On the synthetic corpus 8 and 16 score identically.
 CONTEXT_K = int(os.getenv("CONTEXT_K", "4"))     # chunks actually sent to the LLM
 MMR_LAMBDA = float(os.getenv("MMR_LAMBDA", "0.7"))  # 1.0 = pure relevance, 0.0 = pure diversity
 
@@ -141,3 +144,9 @@ OCR_ENABLED = os.getenv("OCR_ENABLED", "1").lower() in {"1", "true", "yes", "on"
 OCR_DPI = int(os.getenv("OCR_DPI", "300"))
 OCR_TRIGGER_CHARS = int(os.getenv("OCR_TRIGGER_CHARS", "60"))  # below this, try OCR
 OCR_MIN_CONFIDENCE = float(os.getenv("OCR_MIN_CONFIDENCE", "0.5"))
+
+# --- boilerplate ------------------------------------------------------------
+# Running headers and footers repeat on most pages of a real document; they are
+# stripped before chunking so every chunk does not start with the same sentence.
+STRIP_BOILERPLATE = os.getenv("STRIP_BOILERPLATE", "1").lower() in {"1", "true", "yes", "on"}
+BOILERPLATE_PAGE_SHARE = float(os.getenv("BOILERPLATE_PAGE_SHARE", "0.4"))

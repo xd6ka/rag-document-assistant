@@ -17,6 +17,7 @@ from pypdf import PdfReader
 
 from . import config
 from .chunking import chunk_pages
+from .clean import strip_repeated_lines
 from .embeddings import embed_texts
 from .store import DocumentStore
 
@@ -73,6 +74,13 @@ def extract_pages_with_ocr(reader: PdfReader, pdf_bytes: bytes) -> tuple[list[st
     return pages, used
 
 
+def strip_boilerplate(pages: list[str]) -> tuple[list[str], dict]:
+    """Remove running headers/footers before chunking (config switchable)."""
+    if not config.STRIP_BOILERPLATE:
+        return pages, {"patterns": 0, "lines_removed": 0, "chars_removed": 0}
+    return strip_repeated_lines(pages, min_page_share=config.BOILERPLATE_PAGE_SHARE)
+
+
 def ingest_pdf(
     source_name: str,
     pdf_file: Any,
@@ -87,6 +95,7 @@ def ingest_pdf(
     raw = _pdf_bytes(pdf_file)
     reader = PdfReader(BytesIO(raw))
     pages, ocr_pages = extract_pages_with_ocr(reader, raw)
+    pages, boilerplate = strip_boilerplate(pages)
     chunks = chunk_pages(pages, config.CHUNK_SIZE, config.CHUNK_OVERLAP)
 
     if not chunks:
@@ -96,6 +105,7 @@ def ingest_pdf(
             "chunks": 0,
             "skipped": True,
             "ocr_pages": ocr_pages,
+            "boilerplate": boilerplate,
             "scanned": bool(pages) and ocr_pages == 0,
         }
 
@@ -112,6 +122,7 @@ def ingest_pdf(
         "chunks": written,
         "skipped": False,
         "ocr_pages": ocr_pages,
+        "boilerplate": boilerplate,
         # A document with pages but no chunks and no OCR text is almost certainly a
         # scan whose engine is missing; the UI can say so instead of showing "0 chunks".
         "scanned": bool(pages) and ocr_pages == 0 and not any(page.strip() for page in pages),
