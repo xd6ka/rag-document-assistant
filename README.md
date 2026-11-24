@@ -3,7 +3,7 @@
 ![Python](https://img.shields.io/badge/Python-3.11%2B-3776AB?logo=python&logoColor=white)
 ![Streamlit](https://img.shields.io/badge/UI-Streamlit-FF4B4B?logo=streamlit&logoColor=white)
 ![ChromaDB](https://img.shields.io/badge/Vector%20store-ChromaDB-1F2937)
-![LLM](https://img.shields.io/badge/LLM-Qwen%20(DashScope)-6B46C1)
+![LLM](https://img.shields.io/badge/LLM-local%20Ollama%20%7C%20any%20OpenAI--compatible-6B46C1)
 ![Tests](https://img.shields.io/badge/tests-78%20passed-brightgreen)
 ![License](https://img.shields.io/badge/License-MIT-green)
 
