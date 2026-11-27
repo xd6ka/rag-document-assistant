@@ -1,5 +1,7 @@
 # RAG Document Assistant
 
+[![tests](https://github.com/xd6ka/rag-document-assistant/actions/workflows/tests.yml/badge.svg)](https://github.com/xd6ka/rag-document-assistant/actions/workflows/tests.yml)
+
 ![Python](https://img.shields.io/badge/Python-3.11%2B-3776AB?logo=python&logoColor=white)
 ![Streamlit](https://img.shields.io/badge/UI-Streamlit-FF4B4B?logo=streamlit&logoColor=white)
 ![ChromaDB](https://img.shields.io/badge/Vector%20store-ChromaDB-1F2937)
