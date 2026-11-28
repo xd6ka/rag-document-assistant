@@ -128,6 +128,13 @@ RETRIEVE_K = int(os.getenv("RETRIEVE_K", "16"))   # candidates pulled from the v
 # chunk it never sees. On the synthetic corpus 8 and 16 score identically.
 CONTEXT_K = int(os.getenv("CONTEXT_K", "4"))     # chunks actually sent to the LLM
 MMR_LAMBDA = float(os.getenv("MMR_LAMBDA", "0.7"))  # 1.0 = pure relevance, 0.0 = pure diversity
+# Chunks fetched from each document before the candidates are merged (0 = off).
+# A global top-k is answered by the document the question resembles most, so a
+# question whose evidence sits in two documents gets a prompt made of one: measured
+# on eight arXiv papers, four of four context blocks came from a single PDF and the
+# second paper was never retrieved, at k=4 and at k=8. A quota spends the same
+# candidate budget with coverage guaranteed; it costs one index query per document.
+SOURCE_QUOTA = int(os.getenv("SOURCE_QUOTA", "0"))
 
 # --- reranking --------------------------------------------------------------
 # Cross-encoder over the candidate set: joint (query, passage) scoring, one forward

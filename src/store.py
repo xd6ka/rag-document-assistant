@@ -37,6 +37,7 @@ class DocumentStore:
     def __init__(self, path: Optional[Path | str] = None, collection_name: Optional[str] = None):
         self._client = chromadb.PersistentClient(path=str(path or config.CHROMA_PATH))
         self._name = collection_name or config.COLLECTION
+        self._sources_cache: Optional[list[str]] = None
 
     # -- collection ----------------------------------------------------------
     @property
@@ -67,6 +68,7 @@ class DocumentStore:
             embeddings=[list(e) for e in embeddings],
             metadatas=metadatas,
         )
+        self._sources_cache = None
         return len(ids)
 
     def delete_document(self, source: str) -> int:
@@ -75,10 +77,12 @@ class DocumentStore:
         deleted = len(existing.get("ids") or [])
         if deleted:
             self.collection.delete(where={"source": source})
+        self._sources_cache = None
         return deleted
 
     def clear(self) -> None:
         self._client.delete_collection(self._name)
+        self._sources_cache = None
 
     # -- reads --------------------------------------------------------------
     def documents(self) -> dict[str, dict[str, int]]:
@@ -105,6 +109,49 @@ class DocumentStore:
             return []
 
         where = {"source": {"$in": list(sources)}} if sources else None
+        return self._query(embedding, k, where)
+
+    def sources(self) -> list[str]:
+        """Every document in the collection, in a stable order.
+
+        Cached per store instance because a quota query needs it once per question,
+        and a full metadata scan on 1 000 chunks per question is pure overhead.
+        """
+        if self._sources_cache is None:
+            self._sources_cache = sorted(self.documents())
+        return self._sources_cache
+
+    def query_per_source(
+        self,
+        embedding: Sequence[float],
+        per_source: int,
+        sources: Optional[Sequence[str]] = None,
+    ) -> list[RetrievedChunk]:
+        """``per_source`` best chunks from *each* document, merged into one pool.
+
+        A global top-k query is answered by whichever document the question happens
+        to resemble most, which is exactly the failure a two-document question hits:
+        with eight papers in one collection, four candidates in a row came from one
+        PDF and the second paper never appeared. Asking each document separately for
+        its best few is the same budget spent with coverage guaranteed.
+        """
+        total = self.count()
+        if total == 0:
+            return []
+
+        pool: list[RetrievedChunk] = []
+        for source in (sources or self.sources()):
+            pool.extend(self._query(embedding, per_source, {"source": source}))
+        pool.sort(key=lambda chunk: chunk.score, reverse=True)
+        return pool
+
+    def _query(
+        self,
+        embedding: Sequence[float],
+        k: int,
+        where: Optional[dict] = None,
+    ) -> list[RetrievedChunk]:
+        total = self.count()
         result = self.collection.query(
             query_embeddings=[list(embedding)],
             n_results=max(1, min(k, total)),

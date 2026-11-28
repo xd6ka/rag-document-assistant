@@ -77,20 +77,28 @@ class Retriever:
         cross_encoder: Optional[bool] = None,
         embed_model: Optional[str] = None,
         rerank_model: Optional[str] = None,
+        source_quota: Optional[int] = None,
     ) -> list[RetrievedChunk]:
         """``rerank`` toggles MMR; ``cross_encoder`` toggles stage 2 (None = config).
 
         ``embed_model`` / ``rerank_model`` override the configured checkpoints; the
         embedding one must match the model the store was indexed with, so an
         ablation that swaps embedders has to rebuild the collection too.
+
+        ``source_quota`` fetches the best few chunks of *each* document instead of the
+        global top-k (None = ``config.SOURCE_QUOTA``, 0 = off). The candidate budget
+        is unchanged: with 8 documents and a quota of 3, that is 24 candidates, just
+        spread over every paper rather than over whichever one the question resembles.
         """
         use_cross_encoder = config.RERANK_ENABLED if cross_encoder is None else cross_encoder
-        candidates = self.store.query(
-            embed_query(question, model_name=embed_model),
-            retrieve_k or config.RETRIEVE_K,
-            sources=sources,
-        )
-        self.last_stages = {"cross_encoder": use_cross_encoder, "mmr": rerank}
+        quota = config.SOURCE_QUOTA if source_quota is None else source_quota
+        embedding = embed_query(question, model_name=embed_model)
+        if quota > 0 and hasattr(self.store, "query_per_source"):
+            candidates = self.store.query_per_source(embedding, quota, sources=sources)
+        else:
+            candidates = self.store.query(embedding, retrieve_k or config.RETRIEVE_K, sources=sources)
+        self.last_stages = {"cross_encoder": use_cross_encoder, "mmr": rerank,
+                            "source_quota": quota}
 
         if use_cross_encoder:
             candidates = rerank_candidates(question, candidates, model_name=rerank_model)

@@ -39,7 +39,7 @@ def test_cross_encoder_off_is_recorded_and_skips_rerank(monkeypatch):
     monkeypatch.setattr(retrieval, "rerank_candidates", explode)
     retriever = Retriever(FakeStore(make_chunks()))
     out = retriever.retrieve("q", k=2, cross_encoder=False)
-    assert retriever.last_stages == {"cross_encoder": False, "mmr": True}
+    assert retriever.last_stages == {"cross_encoder": False, "mmr": True, "source_quota": 0}
     assert len(out) == 2
 
 
@@ -56,7 +56,7 @@ def test_cross_encoder_on_is_recorded(monkeypatch):
     monkeypatch.setattr(retrieval, "rerank_candidates", fake_rerank)
     retriever = Retriever(FakeStore(make_chunks()))
     out = retriever.retrieve("q", k=2, cross_encoder=True, rerank=False)
-    assert retriever.last_stages == {"cross_encoder": True, "mmr": False}
+    assert retriever.last_stages == {"cross_encoder": True, "mmr": False, "source_quota": 0}
     assert out[0].rerank_score is not None
 
 

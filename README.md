@@ -6,7 +6,7 @@
 ![Streamlit](https://img.shields.io/badge/UI-Streamlit-FF4B4B?logo=streamlit&logoColor=white)
 ![ChromaDB](https://img.shields.io/badge/Vector%20store-ChromaDB-1F2937)
 ![LLM](https://img.shields.io/badge/LLM-local%20Ollama%20%7C%20any%20OpenAI--compatible-6B46C1)
-![Tests](https://img.shields.io/badge/tests-78%20passed-brightgreen)
+![Tests](https://img.shields.io/badge/tests-83%20passed-brightgreen)
 ![License](https://img.shields.io/badge/License-MIT-green)
 
 A local-first Retrieval-Augmented Generation assistant for PDF documents: upload PDFs, ask questions in plain language, and get answers grounded in the documents' own text — with the page each answer came from.
@@ -24,7 +24,7 @@ Chunking and embeddings run **entirely on the local machine** (`all-MiniLM-L6-v2
 - **Page-level citations** — every answer links to `source · page N · similarity`, with the retrieved excerpts in a collapsible panel.
 - **Overlapping chunking** (800 chars / 150 overlap) cut on word boundaries, never across pages, after **stripping running headers and footers** (lines repeating on more than 40 % of a document's pages, page numbers normalised) — on a NIST standard the header repeats on 56 of 60 pages.
 - **Two-stage reranking** — a cross-encoder (`ms-marco-MiniLM-L-6-v2`) re-reads each query–passage pair, then MMR picks for relevance *and* diversity. Both stages toggle independently in the UI; the candidate pool is 16 by default because stage-1 recall on the ten-document corpus is 0.828 at 8, 0.862 at 16, and going deeper to 32 lowers hit@k instead of raising it.
-- **Multi-document workspace** — per-document chunk/page counts, per-document delete, document-scoped filtering (measured: scoping to the right PDF recovers two gold pages the unscoped pool never returns, hit@k 0.862 → **0.931**), one-click reset.
+- **Multi-document workspace** — per-document chunk/page counts, per-document delete, document-scoped filtering (measured: scoping to the right PDF recovers two gold pages the unscoped pool never returns, hit@k 0.862 → **0.931**), one-click reset. A `SOURCE_QUOTA` knob asks each document for its best few chunks instead of one global top-k, so a question about two papers gets both; measured on the sibling gate's two-fact questions it delivers the *paper* and not the *fact* (1/3 → 1/3), which is why it is off by default and documented as a coverage knob.
 - **Persistent vector store** — ChromaDB on disk; the index survives restarts.
 - **Grounded prompt** — the model is instructed to answer only from context and to refuse otherwise.
 - **Streaming answers** — tokens appear as the model writes them, and the line under each answer reports `first token X s · complete in Y s` instead of leaving a 25-second empty box.
@@ -32,7 +32,7 @@ Chunking and embeddings run **entirely on the local machine** (`all-MiniLM-L6-v2
 - **Measured, not guessed** — a 6-document synthetic corpus, 29 labelled questions, a 9-configuration retrieval ablation, a gold-label validator that fails the run when a rubric drifts, a **claim-level citation check** in which every cited sentence is compared with the block it names, a **5-configuration cross-lingual run** that asks the same facts in Russian and Chinese, an OCR run against a fully rasterised corpus, and a **second corpus of ten real PDFs** (2 155 pages, arXiv papers, a patent, a central-bank annual report, an IPCC chapter, a NIST standard, a government report, a bill) that shows what the synthetic fixtures could not.
 - **Numbers with an interval, not a single reading** — `eval/run_variance.py` repeats the answer step three times on frozen retrieval and reports the spread plus pooled 95 % Wilson intervals.
 - **A sentence-level entailment check, off by default** — each cited block is split into sentences (plus two-sentence windows, so pronouns keep their antecedent) and scored against the claim by a local NLI model; it reproduced the 25-claim manual audit exactly on the synthetic corpus and flags 6 of 29 real-corpus claims for human review. `ENTAIL_ENABLED=0`, because three of those six flags turn out to be paraphrase on real prose.
-- **78 unit tests** — chunker behaviour, provider resolution, refusal detection (active and passive forms), ranking order, citation mapping, claim parsing, stage switches, per-model caching, the OCR fallback's trigger and failure path, token-stream order, boilerplate stripping, entailment sentence splitting and windows, prompt trimming and the `Sources:` layout, eval labels.
+- **83 unit tests** — chunker behaviour, provider resolution, refusal detection (active and passive forms), ranking order, citation mapping, claim parsing, stage switches, per-model caching, the OCR fallback's trigger and failure path, token-stream order, boilerplate stripping, entailment sentence splitting and windows, prompt trimming and the `Sources:` layout, eval labels.
 
 ## Architecture
 
@@ -314,6 +314,43 @@ Three readings:
 2. **It recovers `a_r4` and `b_r2`, and still leaves `b_r1` and `d_r1`.** `a_r4` (an affiliation printed on page 1) and `b_r2` (an appendix pointer) were losing to other documents' blocks; scoping removes those. `b_r1` ("section 5.3") still misses inside `bert` alone, so its problem is the question's form, not the corpus size. `d_r1` is the surprise: it asks for the *title* of the paper and misses even with only `dropout-2012` in the pool — the cross-encoder prefers pages that discuss dropout over the title page that merely names the paper. A filter cannot fix a question about the document itself.
 3. **It is also cheaper: 0.69 s per question against 1.01.** Both the vector scan and the cross-encoder work on a smaller pool, so a user who knows which document to ask about gets a better answer, faster.
 
+### A quota per document — coverage of documents is not coverage of facts
+
+`SOURCE_QUOTA` (off by default, `0`) fetches the best *n* chunks of **each** document
+(`DocumentStore.query_per_source`) instead of one global top-k. It exists because of a
+measured failure in the sibling gate repo: with eight arXiv papers in one collection, a
+question whose evidence sits in two of them got four context blocks from one PDF at `k=4`
+and seven of eight at `k=8` — a global top-k is answered by whichever document resembles the
+question most, and MMR can only diversify what it was given.
+
+| per-document quota | blocks in the prompt, RAG-vs-DPR question |
+|---|---|
+| 0 (global top-k) | `rag p2`, `rag p7`, `rag p8`, `rag p5` |
+| 3 | `rag p7`, `rag p8`, `dpr p12`, `crag p7` |
+
+The second paper arrives. The number does not: the page holding it (`dpr p5`, *"59.1% for
+top-20 accuracy on Natural Questions"*) is 11th inside its own document by embedding
+similarity, so a quota of 3 never offers it, and a quota of 24 (192 candidates, ~15 s of
+cross-encoder per question) puts it in the pool only to lose to chunks that resemble the
+two-part question more. Measured end to end on the gate's three two-fact questions, the
+quota moved accuracy **1/3 → 1/3** and wall clock **156 s → 261 s**: more papers in the
+prompt is more prefill, and the answers changed from *"89.7%"* to *"76.1%"* and from
+*"more than 0.2"* to *"by 4.1 points"* without becoming grounded.
+
+The useful part is the diagnosis, not the knob. Where the evidence pages sit, and what a
+clause-level query does to them (gate run `reports/real_multihop_quota3.json` and the probe
+table in its README):
+
+| number | page | dense rank in its document | rank under its own clause |
+|---|---|---|---|
+| `59.1%` | DPR p5 | 11 | 5 |
+| `20-point` | Lost-in-the-Middle p16 | 23 | **3** |
+| `4.3%` | RAG p2 | 7 | 1 |
+
+So the quota is documented as a coverage knob, kept off by default, and the next change
+belongs to query decomposition: one query carrying two intents loses the second one in both
+stages, and splitting it moves the missing page to rank 3.
+
 ### Variance — how much do the numbers move between identical runs?
 
 Every answer-level number above was measured once. `python eval/run_variance.py --runs 3` repeats the answer step three times on the same 25 synthetic questions with retrieval **frozen** (the same four blocks for every run), so any spread is the sampler, not the index. The table below is the shipped default — cross-encoder plus the 400-character budget — and `eval/reports/variance.json`; the budget-free archive is `variance_budget0.json`.
@@ -481,7 +518,7 @@ python query.py --k 6 --source real.pdf
 
 ```powershell
 pip install -r requirements-dev.txt
-pytest -q                        # 53 tests
+pytest -q                        # 83 tests
 python eval/build_corpus.py      # regenerate the corpus PDFs
 python eval/run_ablation.py      # config comparison, no API cost
 ```
