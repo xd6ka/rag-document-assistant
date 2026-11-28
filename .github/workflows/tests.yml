@@ -21,4 +21,7 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt pytest
       - name: Run
-        run: pytest -q
+        # `python -m pytest`, not the console script: the first Linux run failed
+        # on "No module named 'src'" because only the -m form puts the working
+        # directory on sys.path. pytest.ini says the same thing; both are here.
+        run: python -m pytest -q
